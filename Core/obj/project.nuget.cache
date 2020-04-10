@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "ZJ9TbUhIIN+LAsYov7KMgyhJWHv+mIyte9izTogOY8EWAILLmk/FgqNUkGg+U83pk8JA8o6yO4KCZaDQJ6UBXw==",
+  "success": true,
+  "projectFilePath": "C:\\project\\KenshiModOrderTool\\Core\\Core.csproj",
+  "expectedPackageFiles": [
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512",
+    "C:\\Users\\Batata-pc\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

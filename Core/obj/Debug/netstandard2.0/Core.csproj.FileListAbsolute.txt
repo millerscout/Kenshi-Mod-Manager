@@ -1,0 +1,10 @@
+C:\project\KenshiModOrderTool\Core\bin\Debug\netstandard2.0\config.json
+C:\project\KenshiModOrderTool\Core\bin\Debug\netstandard2.0\Core.deps.json
+C:\project\KenshiModOrderTool\Core\bin\Debug\netstandard2.0\Core.dll
+C:\project\KenshiModOrderTool\Core\obj\Debug\netstandard2.0\Core.csprojAssemblyReference.cache
+C:\project\KenshiModOrderTool\Core\obj\Debug\netstandard2.0\Core.AssemblyInfoInputs.cache
+C:\project\KenshiModOrderTool\Core\obj\Debug\netstandard2.0\Core.AssemblyInfo.cs
+C:\project\KenshiModOrderTool\Core\bin\Debug\netstandard2.0\Core.pdb
+C:\project\KenshiModOrderTool\Core\obj\Debug\netstandard2.0\Core.csproj.CoreCompileInputs.cache
+C:\project\KenshiModOrderTool\Core\obj\Debug\netstandard2.0\Core.dll
+C:\project\KenshiModOrderTool\Core\obj\Debug\netstandard2.0\Core.pdb
