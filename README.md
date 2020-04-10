@@ -15,6 +15,8 @@ Load Order based on this [Post](https://steamcommunity.com/sharedfiles/filedetai
     - Import nexus list to categorize mods as well.
     - Automatically order mod list
     
+# Known Bugs
+     - none so far...
 # Licence
 
 Few free to modify this project, don't forget to credit me :)
