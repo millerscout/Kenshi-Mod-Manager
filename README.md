@@ -18,6 +18,8 @@ Load Order based on this [Post](https://steamcommunity.com/sharedfiles/filedetai
 Few free to modify this project, don't forget to credit me :)
 
 # Donation
-<a href ="https://www.buymeacoffee.com/gR79MHU">
-    <img src="https://github.com/millerscout/Kenshi-Mod-Manager/raw/master/Donation.png" alt="Buy me a coffee" style="max-width:100%;">
-</a>
+<center>
+     <a href ="https://www.buymeacoffee.com/gR79MHU">
+         <img src="https://github.com/millerscout/Kenshi-Mod-Manager/raw/master/Donation.png" alt="Buy me a coffee" style="max-width:100%;">
+     </a>
+</center>
