@@ -8,7 +8,7 @@ Load Order based on this [Post](https://steamcommunity.com/sharedfiles/filedetai
      - shortcut to go to Mod's Page 
      - Show Categories (Steam)
  
-#Planned Features
+# Planned Features
 
     - Check Conflicts
     - Import nexus list to categorize mods as well.
