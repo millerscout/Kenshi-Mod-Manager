@@ -5,8 +5,37 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KenshiModTool"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="867" Width="988">
     <Grid>
+        <ListBox  x:Name="listBox" 
+            Padding="2"
+            SelectionMode="Extended" Margin="10,18,10,196">
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Visit mod page" CommandParameter="{Binding}"  Click="CheckModPage_Click"></MenuItem>
+                </ContextMenu>
+            </ListBox.ContextMenu>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0,2" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50"  />
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="300" />
+                            <ColumnDefinition Width="400" />
+                        </Grid.ColumnDefinitions>
+                        <RibbonCheckBox Grid.Column="1" IsChecked="{Binding Active}" Checked="UpdateCheckBox" Unchecked="UpdateCheckBox"></RibbonCheckBox>
+                        <RibbonTextBox Grid.Column="0" Text="{Binding Order}"  KeyDown="RibbonTextBox_KeyDown"></RibbonTextBox>
+                        <TextBlock Grid.Column="2" Text="{Binding DisplayName}"></TextBlock>
+                        <TextBlock Grid.Column="3" Text="{Binding DisplayCategories}"></TextBlock>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
 
+        </ListBox>
+        <Button x:Name="BtnSaveModList" Content="Save mod order" HorizontalAlignment="Left" Margin="14,707,0,0" VerticalAlignment="Top" Width="113" Click="SaveModList_Click"/>
+        <Button x:Name="BtnGameFolder" Content="Open Game Folder" HorizontalAlignment="Left" Margin="14,732,0,0" VerticalAlignment="Top" Width="113" Click="BtnGameFolder_Click"/>
+        <Button x:Name="GameModFolder" Content="Open Game Mod Folder" HorizontalAlignment="Left" Margin="132,732,0,0" VerticalAlignment="Top" Click="GameModFolder_Click"/>
+        <Button x:Name="BtnSteamFolder" Content="Open Steam Mod Folder" HorizontalAlignment="Left" Margin="269,732,0,0" VerticalAlignment="Top" Click="BtnSteamFolder_Click"/>
     </Grid>
 </Window>
