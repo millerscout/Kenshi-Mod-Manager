@@ -1,7 +1,7 @@
 # Kenshi Mod Manager by MillerScout
 
 
-Load Order based on this (Post)[https://steamcommunity.com/sharedfiles/filedetails/?id=1850250979].
+Load Order based on this [Post](https://steamcommunity.com/sharedfiles/filedetails/?id=1850250979) .
 
 # Features
      - Faster way to organize mods.
