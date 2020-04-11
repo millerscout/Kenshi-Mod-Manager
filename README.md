@@ -5,15 +5,20 @@ Load Order based on this [Post](https://steamcommunity.com/sharedfiles/filedetai
 
 # Features
 
-     - Faster way to organize mods.
-     - shortcut to go to Mod's Page 
+     - Faster way to organize mods. 
+     - shortcut to go to Mod's Page either (nexus/steam workshop)
      - Show Categories (Steam)
+     - Toggle Active (Context Menu)
+     - Active Mod (Context Menu)
+     - Deactive Mod (Context Menu)
+     - save profile mods (current Active and mod order)
+     - load profile.
  
 # Planned Features
 
     - Check Conflicts
-    - Import nexus list to categorize mods as well.
-    - Automatically order mod list
+    - better way to check mod page on nexus, as wellcategorize mods.
+    - Improve via contribuition mod order.
     
 # Known Bugs
      - none so far...
