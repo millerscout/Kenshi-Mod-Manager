@@ -2,6 +2,7 @@
 using Core.Models;
 using GuidelineCore;
 using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -37,6 +38,29 @@ namespace KenshiModTool
 
 
             LoadService.Setup();
+
+            if (string.IsNullOrEmpty(LoadService.config.GamePath))
+            {
+
+                var dialog = new CommonOpenFileDialog();
+                dialog.IsFolderPicker = true;
+                dialog.Title = Directory.Exists("C:\\prograSm files (x86)\\steam\\steamapps\\common\\Kenshi") ? "Is this Kenshi Folder?" : "What is the game folder?";
+                dialog.InitialDirectory = "C:\\program files (x86)\\steam\\steamapps\\common\\Kenshi";
+                CommonFileDialogResult result = dialog.ShowDialog();
+
+                LoadService.config.GamePath = dialog.FileName;
+            }
+
+            if (string.IsNullOrEmpty(LoadService.config.SteamModsPath))
+            {
+                var dialog = new CommonOpenFileDialog();
+                dialog.IsFolderPicker = true;
+                dialog.Title = Directory.Exists("C:\\ProgramS Files (x86)\\Steam\\steamapps\\workshop\\content\\233860") ? "Is this Kenshi Mod Folder (STEAM) P.s. 233860 is the id from kenshi ?" : "You need to select Kenshi Steam Folder, it's your steam folder + \"Steam\\steamapps\\workshop\\content\\233860";
+                dialog.InitialDirectory = "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\233860";
+                CommonFileDialogResult result = dialog.ShowDialog();
+
+                LoadService.config.SteamModsPath = dialog.FileName;
+            }
 
 
 
@@ -263,10 +287,12 @@ namespace KenshiModTool
             foreach (var item in ItemsList)
                 item.Color = "";
 
+            currentIndexSearch = 0;
             if (string.IsNullOrEmpty(txtSearch.Text))
             {
                 lblSearchInfo.Content = "";
                 SearchList = new Mod[0];
+
             }
             else
             {
@@ -274,7 +300,7 @@ namespace KenshiModTool
                 var mod = ItemsList.FirstOrDefault(c => c.Name.Contains(txtSearch.Text));
 
 
-                SearchList = ItemsList.Where(c => c.Name.ToLower().Contains(txtSearch.Text.ToLower())).OrderBy(m => m.Order).ToArray();
+                SearchList = ItemsList.Where(c => c.Name.ToLower().Contains(txtSearch.Text.ToLower()) || c.Id == txtSearch.Text).OrderBy(m => m.Order).ToArray();
 
                 if (SearchList.Length == 0)
                 {

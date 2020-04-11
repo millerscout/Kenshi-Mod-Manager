@@ -14,12 +14,24 @@ namespace Core
         public static KenshiToolConfig config { get; set; }
         public static void Setup()
         {
-
             if (File.Exists("config.json"))
             {
                 config = JsonConvert.DeserializeObject<KenshiToolConfig>(File.ReadAllText("config.json"));
             }
+            else{
+                config = new KenshiToolConfig
+                {
+                    GamePath = "",
+                    SteamModsPath = "",
+                    SteamPageUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=",
+                    NexusPageUrl = "https://www.nexusmods.com/kenshi/search/?gsearch="
+                };
+            }
+            
 
+        }
+        public static void SaveConfig(KenshiToolConfig config) {
+            File.WriteAllText("config.json", JsonConvert.SerializeObject(config));
         }
 
         public static IEnumerable<Mod> GetListOfMods()
@@ -30,9 +42,10 @@ namespace Core
 
             list.AddRange(LoadSteamMods(currentMods));
             list.AddRange(LoadFolderMods(currentMods));
-
-            var all = currentMods.Where(c => !list.Any(e => Path.GetFileName(e.Name) == c));
-            list.AddRange(all.Select(n => new Mod { Source = SourceEnum.Other, Name = n, Active = true }));
+            
+            //get removed mods.
+            //var all = currentMods.Where(c => !list.Any(e => Path.GetFileName(e.Name) == c));
+            //list.AddRange(all.Select(n => new Mod { Source = SourceEnum.Other, Name = n, Active = true }));
             return list;
         }
 
