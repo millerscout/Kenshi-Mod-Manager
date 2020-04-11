@@ -1,4 +1,5 @@
 ﻿using Core.Models;
+using Newtonsoft.Json.Bson;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +10,7 @@ namespace GuidelineCore
 {
     public static class RuleService
     {
-
+        private static List<Rules> ruleList = new List<Rules>();
         public static List<Rules> GetRules()
         {
             var rules = new List<Rules> {
@@ -54,11 +55,7 @@ namespace GuidelineCore
                         "Skeleton SL-M.mod",
                         "Skeleton ILA-M MKI.mod",
                         "NoArmorPenalty.mod",
-                        "GenMod_LessGreen.mod",
-                        "GenMod_LessBlue.mod",
-                        "GenMod_Modul_03.mod",
-                        "GenMod_Modul_02.mod",
-                        "GenMod_MoreAlphas.mod",
+                        "MW_Fu2 Hairstyles.mod",
                         "CCO.mod",
                         "CCO_RACES.mod",
                         "CCO_PACK_01.mod",
@@ -75,7 +72,7 @@ namespace GuidelineCore
                         "Hive Prosthetics.mod",
                         "Grievewraiths.mod",
                         "Iron Skimmer.mod",
-                        "GenMod_Cr_add01.mod",
+
                         "Foulhounds.mod",
                         "Mist Ghouls.mod",
                         "ScarierSpiders.mod",
@@ -128,7 +125,7 @@ namespace GuidelineCore
                         "SquareTopper.mod",
                         "Mediocre Black Armor.mod",
                         "Better Crop Fences.mod",
-                        "Better Crop Fences GenMod Patch.mod",
+
                         "Wooden Dexterity Training Dummy.mod",
                         "Sparring - Melee Defense Training.mod",
                         "Remove Training Bar.mod",
@@ -138,26 +135,17 @@ namespace GuidelineCore
                         "repeatable techs.mod",
                         "Security Plus.mod",
                         "WorkBench variation Patch01.mod",
-                        "Imprisonment Plus.mod",
                         "moreBluePrints.mod",
                         "Prisoner_Food.mod",
-                        "GenMod DR_DLC1.mod",
-                        "LonghouseAdjustment.mod",
+
                         "Quiver.mod",
                         "BoltsMoreCharges.mod",
                         "NewRecruits.mod",
                         "More Bountys.mod",
                         "Recruitable Bounties.mod",
                         "Clown.mod",
-                        "ShriekingBandit_Expansion_NCE.mod",
-                        "Hiver_Expansion_NCE.mod",
-                        "Cannibal_Expansion_NCE.mod",
-                        "NCE for Mediocre Black Armor.mod",
-                        "NCE Patch Pack 2.mod",
-                        "AnimationOverhaul.mod",
                         "Idle Stands.mod",
                         "Idle Stands Patch.mod",
-                        "More Combat Animation.mod",
                         "Move Mod.mod",
                         "ShekSub.mod",
                         "VOICEROID Hairstyles.mod",
@@ -173,12 +161,7 @@ namespace GuidelineCore
                         "UC Heightened.mod",
                         "Shek Kingdom Expansion.mod",
                         "Hive_South_stats.mod",
-                        "CCO_PRAET.mod",
-                        "yundao_hair_conversion.mod",
-                        "aniceoaktrees_hairstyles.mod",
-                        "MW_Fu2 Hairstyles - JRPG Patch.mod",
-                        "FacesAdd04.mod",
-                        "HIVE_TO_DEADHIVE.mod",
+
 
                     }
                 },
@@ -190,8 +173,6 @@ namespace GuidelineCore
                         "SC Competition Start.mod",
                         "CCO_STARTS_01.mod",
                         "CCO_STARTS_02.mod",
-                        "GenMod_More_starts.mod",
-                        "GenMod_CCO_Hive_Starts.mod",
                         "The Chosen One.mod",
                         "Lazarus.mod",
                         "New Recruits.mod",
@@ -206,15 +187,23 @@ namespace GuidelineCore
                         "Wildlife_Diversity.mod",
                         "Wildlife_Tame.mod",
                         "End Exotic Pet Neglect.mod",
-                        "GenMod_unlocker_01.mod",
-                        "GenMod_Modul_01.mod",
-                        "GenMod_unlocker_02.mod",
                     }
                 },
                 new Rules{
                     Order = 4,
                     Name = "FactionEdits, simple additions",
                     Mod = new List<string>(){
+                        "Islanders Race.mod",
+                        "Unique Phoenix Armor.mod",
+                        "The Dust King.mod",
+                        "Black Dragon Ninjas.mod",
+                        "Community Part Map.mod",
+                        "thigh_high.mod",
+                        "highheels.mod",
+                        "Mercenary Full Plate.mod",
+                        "Diffuser Helm.mod",
+                        "back_scorpion_gears.mod",
+                        "2PN8HiveSoldiers.mod",
                         "Regenerates in Towns.mod",
                         "More Bountys.mod",
                         "Tech Hunters Relations.mod",
@@ -229,7 +218,7 @@ namespace GuidelineCore
                         "CCO_UNLOCK.mod",
                         "Escort Mission.mod",
                         "NPC Town Guard Mission.mod",
-                        "GenMod_easy_01.mod",
+
                     }
 
                 },
@@ -253,10 +242,9 @@ namespace GuidelineCore
                         "Interactive World.mod",
                         "training_swords_gariba.mod",
                         "Advanced Training.mod",
-                        "GenMod_Paper.mod",
+
                         "cubic cubes.mod",
-                        "small_is_small.mod",
-                        "GenMod_PER_01.mod",
+                        "small_is_small.mod"
                     }
                 },
                   new Rules{
@@ -309,6 +297,22 @@ namespace GuidelineCore
                     Order = 8,
                     Name = "Patches",
                     Mod = new List<string>(){
+                        "GenMod_Cr_add01.mod",
+                        "GenMod DR_DLC1.mod",
+                        "GenMod_More_starts.mod",
+                        "GenMod_CCO_Hive_Starts.mod",
+                        "GenMod_unlocker_01.mod",
+                        "GenMod_Modul_01.mod",
+                        "GenMod_unlocker_02.mod",
+                        "GenMod_easy_01.mod",
+                        "GenMod_Paper.mod",
+                        "GenMod_PER_01.mod",
+                        "Better Crop Fences GenMod Patch.mod",
+                        "GenMod_LessGreen.mod",
+                        "GenMod_LessBlue.mod",
+                        "GenMod_Modul_03.mod",
+                        "GenMod_Modul_02.mod",
+                        "GenMod_MoreAlphas.mod",
                         "GenMod_HiveEX_comp.mod",
                         "CCO_COMP_MCA.mod",
                         "CCO_AOC_COMP_MOD.mod",
@@ -317,7 +321,6 @@ namespace GuidelineCore
                         "DrugsExpandedPatch.mod",
                         "CCO_AOC_COMP_MOD.mod",
                         "CCO_COMP_MCA.mod",
-                        "GenMod_CCO_all_anim_comp.mod",
                         "Forgotten Buildings + Work Bench Variations Compatibility.mod",
                         "BCF-DrugsExpandedPatch-Compat.mod",
                         "GenMod_HiveEX_comp.mod",
@@ -355,7 +358,21 @@ namespace GuidelineCore
                         "Shek_KE_Anim_fix.mod",
                         "GenMod_Parchment.mod",
                         "Plant Trees.mod",
-                        "Hive_Queen_No_Robo.mod"
+                        "Hive_Queen_No_Robo.mod",
+                        "CCO_PRAET.mod",
+                        "yundao_hair_conversion.mod",
+                        "aniceoaktrees_hairstyles.mod",
+                        "MW_Fu2 Hairstyles - JRPG Patch.mod",
+                        "FacesAdd04.mod",
+                        "HIVE_TO_DEADHIVE.mod",
+                        "Imprisonment Plus.mod",
+                        "LonghouseAdjustment.mod",
+                        "ShriekingBandit_Expansion_NCE.mod",
+                        "Hiver_Expansion_NCE.mod",
+                        "Cannibal_Expansion_NCE.mod",
+                        "NCE for Mediocre Black Armor.mod",
+                        "NCE Patch Pack 2.mod",
+                        "GenMod_CCO_all_anim_comp.mod",
                     }
                 },
                 new Rules{
@@ -371,6 +388,9 @@ namespace GuidelineCore
                         "Trade Prices.mod",
                         "Your sold items will disappear.mod",
                         "shoppingecon.mod",
+                        "shoppingecon.mod",
+                        "NPC enjoys more shopping.mod",
+                        "shopkeeper.mod",
 
                     }
                 },
@@ -435,9 +455,7 @@ namespace GuidelineCore
                         "Pocket Change 2.0.mod",
                         "Toon's NPC mod.mod",
                         "Outpostlife.mod",
-                        "NPC enjoys more shopping.mod",
-                        "shoppingecon.mod",
-                        "shopkeeper.mod",
+                        "BuildingEditsThatIDontWantToInclude.mod",
                         "1Slaves Changes Mind.mod",
                         "Longer Mercenary Contracts.mod",
                         "Mercenary Reworked.mod",
@@ -454,7 +472,6 @@ namespace GuidelineCore
                         "FactionArmorColorSettings.mod",
                         "Darker Nights ++.mod",
                         "BCW no blue.mod",
-                        "BuildingEditsThatIDontWantToInclude.mod",
                         "Minor Mesh Fixes.mod",
                         "Minor Mesh Fixes - Alt.mod",
                         "Bigger Backpacks.mod",
@@ -481,18 +498,27 @@ namespace GuidelineCore
             return rules;
         }
 
-        public static IEnumerable<Mod> OrderMods(List<Rules> rules, IEnumerable<Mod> mods)
+        public static IEnumerable<Mod> OrderMods(IEnumerable<Mod> mods)
         {
 
-            foreach (var item in mods)
-            {
-                foreach (var rule in rules)
-                {
-                    if (rule.Mod.Contains(Path.GetFileName(item.Name)))
-                    {
-                        item.OrderedAutomatically = true;
 
-                        rule.ModsOrdered.Add(item);
+            if (ruleList.Count == 0)
+                ruleList = GetRules();
+
+            foreach (var rule in ruleList)
+            {
+                foreach (var orderedMod in rule.Mod)
+                {
+                    var mod = mods.FirstOrDefault(c => Path.GetFileName(c.Name).Contains(orderedMod));
+                    if (mod == null) continue;
+                    if (Path.GetFileName(mod.Name).Contains(orderedMod))
+                    {
+                        mod.OrderedAutomatically = true;
+
+                        removeModFromOtherList(mod, rule.Order);
+
+                        if (!rule.ModsOrdered.Any(q => q.UniqueIdentifier == mod.UniqueIdentifier))
+                            rule.ModsOrdered.Add(mod);
                         continue;
                     }
                 }
@@ -501,7 +527,7 @@ namespace GuidelineCore
 
             foreach (var item in mods.Where(c => !c.OrderedAutomatically))
             {
-                rules.FirstOrDefault(c => c.Order == 10).ModsOrdered.Add(item);
+                ruleList.FirstOrDefault(c => c.Order == 10).ModsOrdered.Add(item);
                 Console.WriteLine(Path.GetFileName(item.Name));
             }
 
@@ -509,12 +535,13 @@ namespace GuidelineCore
 
 
 
-            foreach (var rule in rules)
+            foreach (var rule in ruleList)
             {
                 var index = rule.InitialRange;
 
                 foreach (var mod in rule.ModsOrdered)
                 {
+
                     mod.Order = index;
                     index++;
                 }
@@ -528,7 +555,17 @@ namespace GuidelineCore
                 i++;
             }
 
+            foreach (var rule in ruleList)
+            {
+                rule.ModsOrdered.Clear();
+            }
             return ordered.OrderBy(o => ordered);
+
+            void removeModFromOtherList(Mod mod, int order)
+            {
+                foreach (var rule in ruleList.Where(c => c.Order < order))
+                    rule.ModsOrdered.Remove(mod);
+            }
         }
     }
 }

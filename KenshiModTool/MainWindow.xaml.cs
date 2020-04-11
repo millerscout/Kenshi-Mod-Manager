@@ -163,15 +163,16 @@ namespace KenshiModTool
         }
         private void btnOrder_Click(object sender, RoutedEventArgs e)
         {
-            var mods = RuleService.OrderMods(RuleService.GetRules(), ItemsList);
 
+            var list = new List<Mod>();
+            list.AddRange(ItemsList.Select(c => c));
 
-            ItemsList.Clear();
+            var mods = RuleService.OrderMods(list);
 
-            foreach (var mod in mods)
-            {
+            ItemsList = new ObservableCollection<Mod>();
+
+            foreach (var mod in mods.OrderBy(m => m.Order))
                 ItemsList.Add(mod);
-            }
 
             listBox.ItemsSource = ItemsList;
         }

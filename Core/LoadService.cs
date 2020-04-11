@@ -58,7 +58,8 @@ namespace Core
                 Func<string, bool> predicate = f => f == Path.GetFileName(mod.Name);
                 mod.Active = currentMods.Any(predicate);
                 mod.Order = currentMods.IndexOf(Path.GetFileName(mod.Name));
-                listInfo.Add(mod);
+                if (!listInfo.Any(m => m.DisplayName == mod.DisplayName))
+                    listInfo.Add(mod);
 
             }
             return listInfo;

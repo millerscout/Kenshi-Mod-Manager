@@ -24,7 +24,7 @@ namespace TestProject
 
             var rules = RuleService.GetRules();
 
-            var orderedList = RuleService.OrderMods(rules, mods);
+            var orderedList = RuleService.OrderMods(mods);
 
         }
 
