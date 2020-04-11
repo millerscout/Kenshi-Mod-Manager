@@ -13,6 +13,7 @@ Load Order based on this [Post](https://steamcommunity.com/sharedfiles/filedetai
      - Deactive Mod (Context Menu)
      - save profile mods (current Active and mod order)
      - load profile.
+     - Search through mods.
  
 # Planned Features
 
