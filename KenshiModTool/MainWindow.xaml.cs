@@ -1,5 +1,7 @@
 ﻿using Core;
 using Core.Models;
+using GuidelineCore;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -94,7 +96,6 @@ namespace KenshiModTool
 
         private void CheckModPage_Click(object sender, RoutedEventArgs e)
         {
-
             foreach (var mod in listBox.SelectedItems)
             {
 
@@ -108,13 +109,12 @@ namespace KenshiModTool
                     Process.Start(psi);
                 }
             }
-
         }
 
         private void SaveModList_Click(object sender, RoutedEventArgs e)
         {
-            File.Copy(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg"), System.IO.Path.Combine(LoadService.config.GamePath, "data", "mods.cfg.backup"));
-            
+            File.Copy(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg"), System.IO.Path.Combine(LoadService.config.GamePath, "data", "mods.cfg.backup"), true);
+
             File.WriteAllLines(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg"), ItemsList.Where(m => m.Active).OrderBy(q => q.Order).Select(m => Path.GetFileName(m.Name)));
         }
 
@@ -160,6 +160,94 @@ namespace KenshiModTool
                 SetNewOrder(mod, 0);
             }
 
+        }
+        private void btnOrder_Click(object sender, RoutedEventArgs e)
+        {
+            var mods = RuleService.OrderMods(RuleService.GetRules(), ItemsList);
+
+
+            ItemsList.Clear();
+
+            foreach (var mod in mods)
+            {
+                ItemsList.Add(mod);
+            }
+
+            listBox.ItemsSource = ItemsList;
+        }
+
+        private void saveModProfile_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog()
+            {
+                FileName = "mod profile.cfg",
+            };
+            saveFileDialog.Filter = "Config file (*.cfg)|*.cfg";
+
+            if (saveFileDialog.ShowDialog() == true)
+                File.WriteAllText(saveFileDialog.FileName, string.Join(Environment.NewLine, ItemsList.Where(m => m.Active).OrderBy(q => q.Order).Select(m => Path.GetFileName(m.Name))));
+        }
+
+        private void btnLoadProfile_Click(object sender, RoutedEventArgs e)
+        {
+
+
+
+            OpenFileDialog fileDialog = new OpenFileDialog()
+            {
+                FileName = "mod profile.cfg",
+            };
+            fileDialog.Filter = "Config file (*.cfg)|*.cfg";
+
+            string[] mods = new string[0];
+            if (fileDialog.ShowDialog() == true)
+                mods = File.ReadAllLines(fileDialog.FileName);
+
+            foreach (var mod in ItemsList)
+            {
+                mod.Order = -1;
+                mod.Active = false;
+            }
+
+            for (int i = 0; i < mods.Length; i++)
+            {
+                var profileMod = mods[i];
+                var mod = ItemsList.FirstOrDefault(c => Path.GetFileName(c.Name) == profileMod);
+                mod.Active = true;
+                mod.Order = i;
+
+
+            }
+
+            listBox.ItemsSource = ItemsList.OrderBy(m => m.Order);
+
+        }
+
+        private void ToggleActive(object sender, RoutedEventArgs e)
+        {
+            foreach (Mod mod in listBox.SelectedItems)
+            {
+                mod.Active = !mod.Active;
+                SetNewOrder(mod, mod.Active ? 0 : -1);
+            }
+        }
+
+        private void DeactiveMods(object sender, RoutedEventArgs e)
+        {
+            foreach (Mod mod in listBox.SelectedItems)
+            {
+                mod.Active = false;
+                SetNewOrder(mod, -1);
+            }
+        }
+
+        private void ActiveMods(object sender, RoutedEventArgs e)
+        {
+            foreach (Mod mod in listBox.SelectedItems)
+            {
+                mod.Active = true;
+                SetNewOrder(mod, 0);
+            }
         }
     }
 }
