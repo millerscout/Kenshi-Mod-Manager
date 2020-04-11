@@ -446,7 +446,6 @@ namespace GuidelineCore
                         "JoshLmoa's_DarkVanillaUI.mod",
                         "Transparent UI.mod",
                         "Font Redux.mod",
-                        "Reactive World.mod",
                         "Take Over the World.mod",
                         "Ruin Restoration.mod",
                         "FallenGraceTownRemoval.mod",

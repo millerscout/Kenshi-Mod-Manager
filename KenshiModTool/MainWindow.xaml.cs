@@ -28,6 +28,8 @@ namespace KenshiModTool
     public partial class MainWindow : Window
     {
         public ObservableCollection<Mod> ItemsList = new ObservableCollection<Mod>();
+        public Mod[] SearchList { get; set; } = new Mod[0];
+        public int currentIndexSearch { get; set; } = 0;
         public MainWindow()
         {
 
@@ -175,6 +177,8 @@ namespace KenshiModTool
                 ItemsList.Add(mod);
 
             listBox.ItemsSource = ItemsList;
+
+
         }
 
         private void saveModProfile_Click(object sender, RoutedEventArgs e)
@@ -248,6 +252,71 @@ namespace KenshiModTool
             {
                 mod.Active = true;
                 SetNewOrder(mod, 0);
+            }
+        }
+
+        private void textBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+
+
+            foreach (var item in ItemsList)
+                item.Color = "";
+
+            if (string.IsNullOrEmpty(txtSearch.Text))
+            {
+                lblSearchInfo.Content = "";
+                SearchList = new Mod[0];
+            }
+            else
+            {
+
+                var mod = ItemsList.FirstOrDefault(c => c.Name.Contains(txtSearch.Text));
+
+
+                SearchList = ItemsList.Where(c => c.Name.ToLower().Contains(txtSearch.Text.ToLower())).OrderBy(m => m.Order).ToArray();
+
+                if (SearchList.Length == 0)
+                {
+                    lblSearchInfo.Content = "Couldn't find any mod with the name.";
+                }
+                else
+                {
+                    lblSearchInfo.Content = $"Found:  {currentIndexSearch + 1}/{SearchList.Length}.";
+                }
+
+
+                foreach (var item in SearchList)
+                {
+                    item.Color = "Red";
+                }
+            }
+            listBox.ItemsSource = ItemsList.OrderBy(c => c.Order);
+
+            if (SearchList.Length > 0)
+                listBox.ScrollIntoView(SearchList[currentIndexSearch]);
+
+
+        }
+
+        private void txtSearch_KeyDown(object sender, KeyEventArgs e)
+        {
+
+            if (e.Key == Key.Return)
+            {
+                if (string.IsNullOrEmpty(txtSearch.Text)) return;
+                if (SearchList.Length > 0)
+                {
+                    if (currentIndexSearch == SearchList.Length - 1)
+                        currentIndexSearch = 0;
+                    else
+                        currentIndexSearch++;
+
+                    lblSearchInfo.Content = $"Found:  {currentIndexSearch + 1}/{SearchList.Length}.";
+
+                    listBox.ScrollIntoView(SearchList[currentIndexSearch]);
+
+                }
             }
         }
     }

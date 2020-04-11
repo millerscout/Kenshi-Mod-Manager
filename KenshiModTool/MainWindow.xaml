@@ -9,7 +9,7 @@
     <Grid>
         <ListBox  x:Name="listBox" 
             Padding="2"
-            SelectionMode="Extended" Margin="10,18,10,196">
+            SelectionMode="Extended" Margin="10,51,10,196">
             <ListBox.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Visit mod page" CommandParameter="{Binding}"  Click="CheckModPage_Click"></MenuItem>
@@ -29,13 +29,14 @@
                         </Grid.ColumnDefinitions>
                         <RibbonCheckBox Grid.Column="1" IsChecked="{Binding Active}" Checked="UpdateCheckBox" Unchecked="UpdateCheckBox"></RibbonCheckBox>
                         <RibbonTextBox Grid.Column="0" Text="{Binding Order}"  KeyDown="RibbonTextBox_KeyDown"></RibbonTextBox>
-                        <TextBlock Grid.Column="2" Text="{Binding DisplayName}"></TextBlock>
+                        <TextBlock Grid.Column="2" Text="{Binding DisplayName}" Background="{Binding Color}"></TextBlock>
                         <TextBlock Grid.Column="3" Text="{Binding DisplayCategories}"></TextBlock>
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
 
         </ListBox>
+
         <Button x:Name="BtnSaveModList" Content="Save mod order" HorizontalAlignment="Left" Margin="14,707,0,0" VerticalAlignment="Top" Width="113" Click="SaveModList_Click"/>
         <Button x:Name="BtnGameFolder" Content="Open Game Folder" HorizontalAlignment="Left" Margin="14,732,0,0" VerticalAlignment="Top" Width="113" Click="BtnGameFolder_Click"/>
         <Button x:Name="GameModFolder" Content="Open Game Mod Folder" HorizontalAlignment="Left" Margin="132,732,0,0" VerticalAlignment="Top" Click="GameModFolder_Click"/>
@@ -43,5 +44,8 @@
         <Button x:Name="btnOrder" Content="Order Mods (Beta!)" HorizontalAlignment="Left" Margin="132,707,0,0" VerticalAlignment="Top" Width="132" Click="btnOrder_Click"/>
         <Button x:Name="saveModProfile" Content="Save mod profile" HorizontalAlignment="Left" Margin="509,732,0,0" VerticalAlignment="Top" Width="114" Click="saveModProfile_Click"/>
         <Button x:Name="btnLoadProfile" Content="load mod Profile" HorizontalAlignment="Left" Margin="628,732,0,0" VerticalAlignment="Top" Width="114" Click="btnLoadProfile_Click"/>
+        <TextBox x:Name="txtSearch" HorizontalAlignment="Left" Margin="10,26,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="480" Height="20" TextChanged="textBox_TextChanged" UndoLimit="20" KeyDown="txtSearch_KeyDown"/>
+        <Label x:Name="lblFind" Content="Find On List" HorizontalAlignment="Left" Margin="14,0,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="lblSearchInfo" Content="Label" HorizontalAlignment="Left" Margin="115,0,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>

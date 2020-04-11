@@ -16,6 +16,7 @@ namespace Core.Models
         public string Name { get; set; }
         public bool Active { get; set; }
         public bool OrderedAutomatically { get; set; }
+        public string Color { get; set; }
         public string Url
         {
             get
