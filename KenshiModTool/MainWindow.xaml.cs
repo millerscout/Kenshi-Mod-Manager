@@ -319,5 +319,24 @@ namespace KenshiModTool
                 }
             }
         }
+        private void btnLaunchGameClick(object sender, RoutedEventArgs e)
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = "steam://rungameid/233860",
+                UseShellExecute = true
+            };
+            Process.Start(psi);
+
+        }
+
+        private void btnReloadMods_Click(object sender, RoutedEventArgs e)
+        {
+            ItemsList.Clear();
+
+            foreach (var mod in LoadService.GetListOfMods())
+                ItemsList.Add(mod);
+            listBox.ItemsSource = ItemsList.OrderBy(q => q.Order);
+        }
     }
 }

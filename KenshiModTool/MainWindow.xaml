@@ -47,5 +47,7 @@
         <TextBox x:Name="txtSearch" HorizontalAlignment="Left" Margin="10,26,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="480" Height="20" TextChanged="textBox_TextChanged" UndoLimit="20" KeyDown="txtSearch_KeyDown"/>
         <Label x:Name="lblFind" Content="Find On List" HorizontalAlignment="Left" Margin="14,0,0,0" VerticalAlignment="Top"/>
         <Label x:Name="lblSearchInfo" Content="Label" HorizontalAlignment="Left" Margin="115,0,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="BtnLaunchGame" Content="Launch Game (SteamOnly)" HorizontalAlignment="Left" Margin="509,757,0,0" VerticalAlignment="Top" Click="btnLaunchGameClick"/>
+        <Button x:Name="btnReloadMods" Content="Refresh List" HorizontalAlignment="Left" Margin="581,26,0,0" VerticalAlignment="Top" Click="btnReloadMods_Click"/>
     </Grid>
 </Window>
