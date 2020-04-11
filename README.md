@@ -2,6 +2,8 @@
 
 
 Load Order based on this [Post](https://steamcommunity.com/sharedfiles/filedetails/?id=1850250979) .
+# Requisite:
+[3.1 NetCore](https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-aspnetcore-3.1.3-windows-x64-installer) or [latest](https://dotnet.microsoft.com/download/dotnet-core/current)
 
 # Features
 
@@ -13,7 +15,7 @@ Load Order based on this [Post](https://steamcommunity.com/sharedfiles/filedetai
      - Deactive Mod (Context Menu)
      - save profile mods (current Active and mod order)
      - load profile.
-     - Search through mods.
+     - Search through mods using Name or SubscriptionId(steam).
  
 # Planned Features
 
