@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\GuidelineCore\GuidelineCore.csproj" />
   </ItemGroup>
 
 </Project>

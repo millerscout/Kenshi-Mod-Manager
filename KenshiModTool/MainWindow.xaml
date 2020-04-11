@@ -13,6 +13,9 @@
             <ListBox.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Visit mod page" CommandParameter="{Binding}"  Click="CheckModPage_Click"></MenuItem>
+                    <MenuItem Header="Active Selected Mods" CommandParameter="{Binding}"  Click="ActiveMods"></MenuItem>
+                    <MenuItem Header="Deactive Selected Mods" CommandParameter="{Binding}"  Click="DeactiveMods"></MenuItem>
+                    <MenuItem Header="Toggle Active Selected Mods" CommandParameter="{Binding}"  Click="ToggleActive"></MenuItem>
                 </ContextMenu>
             </ListBox.ContextMenu>
             <ListBox.ItemTemplate>
@@ -37,5 +40,8 @@
         <Button x:Name="BtnGameFolder" Content="Open Game Folder" HorizontalAlignment="Left" Margin="14,732,0,0" VerticalAlignment="Top" Width="113" Click="BtnGameFolder_Click"/>
         <Button x:Name="GameModFolder" Content="Open Game Mod Folder" HorizontalAlignment="Left" Margin="132,732,0,0" VerticalAlignment="Top" Click="GameModFolder_Click"/>
         <Button x:Name="BtnSteamFolder" Content="Open Steam Mod Folder" HorizontalAlignment="Left" Margin="269,732,0,0" VerticalAlignment="Top" Click="BtnSteamFolder_Click"/>
+        <Button x:Name="btnOrder" Content="Order Mods (Beta!)" HorizontalAlignment="Left" Margin="132,707,0,0" VerticalAlignment="Top" Width="132" Click="btnOrder_Click"/>
+        <Button x:Name="saveModProfile" Content="Save mod profile" HorizontalAlignment="Left" Margin="509,732,0,0" VerticalAlignment="Top" Width="114" Click="saveModProfile_Click"/>
+        <Button x:Name="btnLoadProfile" Content="load mod Profile" HorizontalAlignment="Left" Margin="628,732,0,0" VerticalAlignment="Top" Width="114" Click="btnLoadProfile_Click"/>
     </Grid>
 </Window>
