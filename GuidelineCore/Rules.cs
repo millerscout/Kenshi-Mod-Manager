@@ -1,5 +1,4 @@
 ﻿using Core.Models;
-using System;
 using System.Collections.Generic;
 
 namespace GuidelineCore
@@ -11,7 +10,6 @@ namespace GuidelineCore
         public string Name { get; set; }
         public List<string> Mod { get; set; }
         public List<Mod> ModsOrdered { get; set; } = new List<Mod>();
-
 
         public int InitialRange
         {

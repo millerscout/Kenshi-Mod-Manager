@@ -1,20 +1,18 @@
 ﻿using Core.Models;
-using Newtonsoft.Json.Bson;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace GuidelineCore
 {
     public static class RuleService
     {
         private static List<Rules> ruleList = new List<Rules>();
+
         public static List<Rules> GetRules()
         {
             var rules = new List<Rules> {
-
                 new Rules{
                     Order = 0,
                     Name = "Ui, Graphics, Performance,BaseFixes",
@@ -161,8 +159,6 @@ namespace GuidelineCore
                         "UC Heightened.mod",
                         "Shek Kingdom Expansion.mod",
                         "Hive_South_stats.mod",
-
-
                     }
                 },
                 new Rules{
@@ -218,9 +214,7 @@ namespace GuidelineCore
                         "CCO_UNLOCK.mod",
                         "Escort Mission.mod",
                         "NPC Town Guard Mission.mod",
-
                     }
-
                 },
                 new Rules{
                     Order = 5,
@@ -269,7 +263,6 @@ namespace GuidelineCore
                         "Fox's Weapons Mod Set.mod",
                         "Expanded Craftable Weapons.mod",
                         "Jewy's Limbs Overhaul.mod"
-
                     }
                 },new Rules{
                     Order = 7,
@@ -391,7 +384,6 @@ namespace GuidelineCore
                         "shoppingecon.mod",
                         "NPC enjoys more shopping.mod",
                         "shopkeeper.mod",
-
                     }
                 },
                 new Rules{
@@ -499,8 +491,6 @@ namespace GuidelineCore
 
         public static IEnumerable<Mod> OrderMods(IEnumerable<Mod> mods)
         {
-
-
             if (ruleList.Count == 0)
                 ruleList = GetRules();
 
@@ -508,9 +498,9 @@ namespace GuidelineCore
             {
                 foreach (var orderedMod in rule.Mod)
                 {
-                    var mod = mods.FirstOrDefault(c => Path.GetFileName(c.Name).Contains(orderedMod));
+                    var mod = mods.FirstOrDefault(c => Path.GetFileName(c.FilePath).Contains(orderedMod));
                     if (mod == null) continue;
-                    if (Path.GetFileName(mod.Name).Contains(orderedMod))
+                    if (Path.GetFileName(mod.FilePath).Contains(orderedMod))
                     {
                         mod.OrderedAutomatically = true;
 
@@ -521,18 +511,15 @@ namespace GuidelineCore
                         continue;
                     }
                 }
-
             }
 
             foreach (var item in mods.Where(c => !c.OrderedAutomatically))
             {
                 ruleList.FirstOrDefault(c => c.Order == 10).ModsOrdered.Add(item);
-                Console.WriteLine(Path.GetFileName(item.Name));
+                Console.WriteLine(Path.GetFileName(item.FilePath));
             }
 
             var ordered = new List<Mod>();
-
-
 
             foreach (var rule in ruleList)
             {
@@ -540,7 +527,6 @@ namespace GuidelineCore
 
                 foreach (var mod in rule.ModsOrdered)
                 {
-
                     mod.Order = index;
                     index++;
                 }

@@ -7,12 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="icon.ico" />
+    <None Remove="icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
     <ProjectReference Include="..\GuidelineCore\GuidelineCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="icon.png" />
   </ItemGroup>
 
 </Project>

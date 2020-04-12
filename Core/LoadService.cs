@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml.Linq;
 
 namespace Core
@@ -12,13 +11,15 @@ namespace Core
     public static class LoadService
     {
         public static KenshiToolConfig config { get; set; }
+
         public static void Setup()
         {
             if (File.Exists("config.json"))
             {
                 config = JsonConvert.DeserializeObject<KenshiToolConfig>(File.ReadAllText("config.json"));
             }
-            else{
+            else
+            {
                 config = new KenshiToolConfig
                 {
                     GamePath = "",
@@ -27,10 +28,10 @@ namespace Core
                     NexusPageUrl = "https://www.nexusmods.com/kenshi/search/?gsearch="
                 };
             }
-            
-
         }
-        public static void SaveConfig(KenshiToolConfig config) {
+
+        public static void SaveConfig(KenshiToolConfig config)
+        {
             File.WriteAllText("config.json", JsonConvert.SerializeObject(config));
         }
 
@@ -42,7 +43,7 @@ namespace Core
 
             list.AddRange(LoadSteamMods(currentMods));
             list.AddRange(LoadFolderMods(currentMods));
-            
+
             //get removed mods.
             //var all = currentMods.Where(c => !list.Any(e => Path.GetFileName(e.Name) == c));
             //list.AddRange(all.Select(n => new Mod { Source = SourceEnum.Other, Name = n, Active = true }));
@@ -58,22 +59,24 @@ namespace Core
 
                 var mod = new Mod
                 {
-                    Name = Directory.GetFiles(item, "*.mod").FirstOrDefault()
+                    FilePath = Directory.GetFiles(item, "*.mod").FirstOrDefault()
                 };
-#if DEBUG
-                Console.WriteLine(Path.GetDirectoryName(mod.Name));
-                Console.WriteLine(Path.Combine(Path.GetFullPath(mod.Name), Path.GetFileNameWithoutExtension(mod.Name)));
-                Console.WriteLine((Path.Combine(item, $"{Path.GetFileNameWithoutExtension(mod.Name)}")));
-#endif
 
-                ReadAndSetInfo(Path.Combine(item, $"_{Path.GetFileNameWithoutExtension(mod.Name)}.info"), mod);
+                ReadAndSetInfo(Path.Combine(item, $"_{Path.GetFileNameWithoutExtension(mod.FilePath)}.info"), mod);
 
-                Func<string, bool> predicate = f => f == Path.GetFileName(mod.Name);
+                Func<string, bool> predicate = f => f == Path.GetFileName(mod.FilePath);
                 mod.Active = currentMods.Any(predicate);
-                mod.Order = currentMods.IndexOf(Path.GetFileName(mod.Name));
+
+                Metadata metadata = ModMetadataReader.LoadMetadata(mod.FilePath);
+                mod.Order = currentMods.IndexOf(Path.GetFileName(mod.FilePath));
+                mod.Dependencies = metadata.Dependencies;
+                mod.Description = metadata.Description;
+                mod.References = metadata.Referenced;
+                mod.Version = metadata.Version.ToString();
+                mod.Author = metadata.Author;
+
                 if (!listInfo.Any(m => m.DisplayName == mod.DisplayName))
                     listInfo.Add(mod);
-
             }
             return listInfo;
         }
@@ -87,21 +90,21 @@ namespace Core
 
                 var mod = new Mod
                 {
-                    Name = Directory.GetFiles(item, "*.mod").FirstOrDefault()
+                    FilePath = Directory.GetFiles(item, "*.mod").FirstOrDefault()
                 };
-#if DEBUG
-                Console.WriteLine(Path.GetDirectoryName(mod.Name));
-                Console.WriteLine(Path.Combine(Path.GetFullPath(mod.Name), Path.GetFileNameWithoutExtension(mod.Name)));
-                Console.WriteLine((Path.Combine(item, $"{Path.GetFileNameWithoutExtension(mod.Name)}")));
-#endif
 
-                ReadAndSetInfo(Path.Combine(item, $"_{Path.GetFileNameWithoutExtension(mod.Name)}.info"), mod);
+                ReadAndSetInfo(Path.Combine(item, $"_{Path.GetFileNameWithoutExtension(mod.FilePath)}.info"), mod);
 
-                Func<string, bool> predicate = f => f == Path.GetFileName(mod.Name);
+                Func<string, bool> predicate = f => f == Path.GetFileName(mod.FilePath);
                 mod.Active = currentMods.Any(predicate);
-                mod.Order = currentMods.IndexOf(Path.GetFileName(mod.Name));
+                Metadata metadata = ModMetadataReader.LoadMetadata(mod.FilePath);
+                mod.Order = currentMods.IndexOf(Path.GetFileName(mod.FilePath));
+                mod.Dependencies = metadata.Dependencies;
+                mod.Description = metadata.Description;
+                mod.References = metadata.Referenced;
+                mod.Version = metadata.Version.ToString();
+                mod.Author = metadata.Author;
                 listInfo.Add(mod);
-
             }
             return listInfo;
         }
@@ -123,7 +126,6 @@ namespace Core
                                Children = modData.Descendants("tags")
                            };
 
-
                 mod.Categories = tags.SelectMany(t => t.Children.Descendants("string")).Select(q => q.Value);
                 mod.Id = xdoc.Descendants("id").FirstOrDefault().Value;
                 mod.Source = SourceEnum.Steam;
@@ -132,8 +134,6 @@ namespace Core
             {
                 mod.Source = SourceEnum.GameFolder;
             }
-
-
         }
     }
 }

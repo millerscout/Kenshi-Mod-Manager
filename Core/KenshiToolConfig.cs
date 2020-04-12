@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Core
+﻿namespace Core
 {
     public class KenshiToolConfig
     {
@@ -8,7 +6,5 @@ namespace Core
         public string SteamModsPath { get; set; }
         public string SteamPageUrl { get; set; }
         public string NexusPageUrl { get; set; }
-
-
     }
 }
