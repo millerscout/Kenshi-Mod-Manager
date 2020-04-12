@@ -5,6 +5,10 @@ Load Order based on this [Post](https://steamcommunity.com/sharedfiles/filedetai
 # Requisite:
 [3.1 NetCore](https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-aspnetcore-3.1.3-windows-x64-installer) or [latest](https://dotnet.microsoft.com/download/dotnet-core/current)
 
+<p align="center">
+       <img src="../assets/Releases/v1.6/print.png?raw=true">
+</p>
+
 # Features
 
      - Faster way to organize mods. 
@@ -16,6 +20,7 @@ Load Order based on this [Post](https://steamcommunity.com/sharedfiles/filedetai
      - save profile mods (current Active and mod order)
      - load profile.
      - Search through mods using Name or SubscriptionId(steam).
+     - Basic dependency detection (dependency order is not checked yet).
  
 # Planned Features
 
@@ -31,8 +36,8 @@ Few free to modify this project, don't forget to credit me :)
 
 # Donation
 
-<center>
-     <a href ="https://www.buymeacoffee.com/gR79MHU">
+<p align="center">
+        <a href ="https://www.buymeacoffee.com/gR79MHU">
          <img src="https://github.com/millerscout/Kenshi-Mod-Manager/raw/master/Donation.png" alt="Buy me a coffee" style="max-width:100%;">
      </a>
-</center>
+</p>
