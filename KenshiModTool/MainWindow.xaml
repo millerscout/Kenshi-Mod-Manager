@@ -5,49 +5,107 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KenshiModTool"
         mc:Ignorable="d"
-        Title="MainWindow" Height="867" Width="988">
-    <Grid>
-        <ListBox  x:Name="listBox" 
-            Padding="2"
-            SelectionMode="Extended" Margin="10,51,10,196">
+        Title="Kenshi Mod Manager by millerscout" Height="800" Width="600"
+        MinHeight="800" MinWidth="600"
+        WindowStartupLocation="CenterScreen" Icon="/icon.png">
+    <Grid x:Name="MainGrid" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="Auto" Margin="5,0,5,5" ShowGridLines="True">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25" />
+            <RowDefinition Height="35" />
+            <RowDefinition Height="3*" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="35" />
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" x:Name="lblFind" Content="Find On List" />
+        <Label Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" x:Name="lblSearchInfo" Content="Found ( **** / ****)" HorizontalAlignment="Right" />
+        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" x:Name="txtSearch" TextWrapping="Wrap" TextChanged="TextBox_TextChanged" UndoLimit="20" KeyDown="TxtSearch_KeyDown" Margin="0,5,5,5" />
+        <Button Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" x:Name="btnReloadMods" Content="Refresh List" Click="BtnRefreshMods_Click" Margin="0,5,0,5" />
+
+        <ListBox  x:Name="ListBox"
+                  Grid.Row="2"
+                  Grid.Column="0"
+                  Grid.ColumnSpan="4"
+                  VerticalAlignment="Stretch"
+                  HorizontalAlignment="Stretch"
+                  SelectionMode="Extended"
+                  BorderThickness="1" Margin="0,5,0,5" SelectionChanged="ListBox_SelectionChanged"
+                  HorizontalContentAlignment="Stretch">
             <ListBox.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Visit mod page" CommandParameter="{Binding}"  Click="CheckModPage_Click"></MenuItem>
-                    <MenuItem Header="Active Selected Mods" CommandParameter="{Binding}"  Click="ActiveMods"></MenuItem>
-                    <MenuItem Header="Deactive Selected Mods" CommandParameter="{Binding}"  Click="DeactiveMods"></MenuItem>
-                    <MenuItem Header="Toggle Active Selected Mods" CommandParameter="{Binding}"  Click="ToggleActive"></MenuItem>
+                    <MenuItem Header="Visit mod page" CommandParameter="{Binding}"  Click="CheckModPage_Click" />
+                    <MenuItem Header="Active Selected Mods" CommandParameter="{Binding}"  Click="ActiveMods" />
+                    <MenuItem Header="Deactive Selected Mods" CommandParameter="{Binding}"  Click="DeactiveMods" />
+                    <MenuItem Header="Toggle Active Selected Mods" CommandParameter="{Binding}"  Click="ToggleActive" />
                 </ContextMenu>
             </ListBox.ContextMenu>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid Margin="0,2" >
+                    <Grid Background="{Binding Color}" Width="Auto" HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="50"  />
-                            <ColumnDefinition Width="150" />
-                            <ColumnDefinition Width="300" />
-                            <ColumnDefinition Width="400" />
+                            <ColumnDefinition Width="50" />
+                            <ColumnDefinition Width="25" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <RibbonCheckBox Grid.Column="1" IsChecked="{Binding Active}" Checked="UpdateCheckBox" Unchecked="UpdateCheckBox"></RibbonCheckBox>
-                        <RibbonTextBox Grid.Column="0" Text="{Binding Order}"  KeyDown="RibbonTextBox_KeyDown"></RibbonTextBox>
-                        <TextBlock Grid.Column="2" Text="{Binding DisplayName}" Background="{Binding Color}"></TextBlock>
-                        <TextBlock Grid.Column="3" Text="{Binding DisplayCategories}"></TextBlock>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding Order}"  KeyDown="RibbonTextBox_KeyDown" MaxLength="5"  Margin="5,5,5,5" Width="40" />
+                        <CheckBox Grid.Row="0" Grid.Column="1"  IsChecked="{Binding Active}" Checked="UpdateCheckBox" Unchecked="UpdateCheckBox" Margin="5,5,5,0" />
+                        <TextBlock Grid.Row="0" Grid.Column="2"   Text="{Binding DisplayName}"  Margin="5,5,5,0" Width="auto" />
+                        <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding DisplayCategories}" Margin="5,5,5,0" Width="auto" />
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
-
         </ListBox>
+        <Grid Grid.Row="3" Grid.ColumnSpan="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Margin="0,0,5,5" Grid.Column="0"  x:Name="BtnGameFolder"  Content="Open Game Folder" Click="BtnGameFolder_Click" />
+            <Button Margin="0,0,5,5" Grid.Column="1"  x:Name="GameModFolder"  Content="Open Game Mod Folder" Click="GameModFolder_Click" />
+            <Button Margin="0,0,5,5" Grid.Column="2"  x:Name="BtnSteamFolder" Content="Open Steam Mod Folder" Click="BtnSteamFolder_Click" />
+            <Button Margin="0,0,0,5" Grid.Column="4"  x:Name="btnOrder"       Content="Order Mods (Beta!)" Click="BtnOrder_Click" />
+        </Grid>
 
-        <Button x:Name="BtnSaveModList" Content="Save mod order" HorizontalAlignment="Left" Margin="14,707,0,0" VerticalAlignment="Top" Width="113" Click="SaveModList_Click"/>
-        <Button x:Name="BtnGameFolder" Content="Open Game Folder" HorizontalAlignment="Left" Margin="14,732,0,0" VerticalAlignment="Top" Width="113" Click="BtnGameFolder_Click"/>
-        <Button x:Name="GameModFolder" Content="Open Game Mod Folder" HorizontalAlignment="Left" Margin="132,732,0,0" VerticalAlignment="Top" Click="GameModFolder_Click"/>
-        <Button x:Name="BtnSteamFolder" Content="Open Steam Mod Folder" HorizontalAlignment="Left" Margin="269,732,0,0" VerticalAlignment="Top" Click="BtnSteamFolder_Click"/>
-        <Button x:Name="btnOrder" Content="Order Mods (Beta!)" HorizontalAlignment="Left" Margin="132,707,0,0" VerticalAlignment="Top" Width="132" Click="btnOrder_Click"/>
-        <Button x:Name="saveModProfile" Content="Save mod profile" HorizontalAlignment="Left" Margin="509,732,0,0" VerticalAlignment="Top" Width="114" Click="saveModProfile_Click"/>
-        <Button x:Name="btnLoadProfile" Content="load mod Profile" HorizontalAlignment="Left" Margin="628,732,0,0" VerticalAlignment="Top" Width="114" Click="btnLoadProfile_Click"/>
-        <TextBox x:Name="txtSearch" HorizontalAlignment="Left" Margin="10,26,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="480" Height="20" TextChanged="textBox_TextChanged" UndoLimit="20" KeyDown="txtSearch_KeyDown"/>
-        <Label x:Name="lblFind" Content="Find On List" HorizontalAlignment="Left" Margin="14,0,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="lblSearchInfo" Content="Label" HorizontalAlignment="Left" Margin="115,0,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="BtnLaunchGame" Content="Launch Game (SteamOnly)" HorizontalAlignment="Left" Margin="509,757,0,0" VerticalAlignment="Top" Click="btnLaunchGameClick"/>
-        <Button x:Name="btnReloadMods" Content="Refresh List" HorizontalAlignment="Left" Margin="581,26,0,0" VerticalAlignment="Top" Click="btnReloadMods_Click"/>
+        <ScrollViewer Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4">
+            <RichTextBox IsDocumentEnabled="True" x:Name="RtbDetail" IsReadOnly="True"  AcceptsReturn="True" AcceptsTab="True">
+                <RichTextBox.Resources>
+                    <Style TargetType="{x:Type Paragraph}">
+                        <Setter Property="Margin" Value="0" />
+                    </Style>
+                </RichTextBox.Resources>
+                <FlowDocument>
+                    <Paragraph>
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nulla elit, ultrices at nulla sed, bibendum facilisis odio. Integer et velit et enim finibus efficitur. Nullam fermentum ornare elementum. Vivamus non ipsum libero. Nunc ultrices hendrerit ipsum, et molestie nisi bibendum eu. Nam aliquet vel lorem ac venenatis. Nullam sed nunc porta, mollis nulla in, sollicitudin ligula.
+                    </Paragraph>
+                    <Paragraph Foreground="Blue">
+                        <Bold>Aenean non mauris placerat, dignissim nisi dictum, semper lorem. Vestibulum venenatis ullamcorper mattis. Donec pretium imperdiet porttitor. Suspendisse eu ex at orci iaculis luctus. Cras pellentesque lacus ac ipsum ultricies consequat. Vestibulum et iaculis tellus. Phasellus elit massa, feugiat at placerat vitae, placerat nec justo. Phasellus eu augue varius, porta purus ac, venenatis leo. Proin turpis nisl, pellentesque eget fringilla quis, aliquam ultrices nisi. Praesent eros lectus, interdum ut interdum ac, gravida vel libero. Donec magna elit, ullamcorper eu purus vel, commodo suscipit dui. Sed sed eleifend enim. Vestibulum feugiat dignissim ante, vel venenatis turpis. Etiam mauris mauris, dignissim ut eleifend vitae, bibendum id mauris. Suspendisse at orci gravida nunc suscipit rutrum vel eget lorem.&#x0a;
+Phasellus quis dignissim ipsum. Nulla interdum lobortis posuere. Duis consequat neque nec magna dictum, vitae consectetur magna blandit. Nunc euismod molestie tellus, quis interdum dolor lobortis et. Nullam interdum sed quam vitae fermentum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Duis in odio justo. Sed in nisl consequat, viverra metus sed, tincidunt libero.&#x0a;</Bold>
+                    </Paragraph>
+                </FlowDocument>
+            </RichTextBox>
+        </ScrollViewer>
+
+        <Grid Grid.Row="5" Grid.ColumnSpan="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Margin="0,5,5,5" Grid.Column="0"  x:Name="BtnSaveModList" Content="Save mod order" Click="SaveModList_Click" />
+            <Button Margin="0,5,5,5" Grid.Column="1"  x:Name="saveModProfile" Content="Save mod profile" Click="SaveModProfile_Click" />
+            <Button Margin="0,5,5,5" Grid.Column="2"  x:Name="btnLoadProfile" Content="Load mod Profile" Click="BtnLoadProfile_Click" />
+            <Button Margin="0,5,0,5" Grid.Column="4"  x:Name="BtnLaunchGame"  Content="Launch Game (SteamOnly)" Click="BtnLaunchGameClick" />
+        </Grid>
     </Grid>
 </Window>

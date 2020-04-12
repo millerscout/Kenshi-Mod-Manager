@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Core.Models
 {
@@ -11,12 +10,16 @@ namespace Core.Models
         public Guid UniqueIdentifier = Guid.NewGuid();
         public SourceEnum Source { get; set; }
         public string Id { get; set; }
+        public string Description { get; set; }
+        public string Author { get; set; }
+        public string Version { get; set; }
         public int Order { get; set; }
         public IEnumerable<string> Categories { get; set; }
-        public string Name { get; set; }
+        public string FilePath { get; set; }
         public bool Active { get; set; }
         public bool OrderedAutomatically { get; set; }
         public string Color { get; set; }
+
         public string Url
         {
             get
@@ -28,13 +31,23 @@ namespace Core.Models
                 else return LoadService.config.NexusPageUrl + DisplayName;
             }
         }
+
         public string DisplayName
         {
             get
             {
-                return Path.GetFileNameWithoutExtension(Name);
+                return Path.GetFileNameWithoutExtension(FilePath);
             }
         }
+
+        public string FileName
+        {
+            get
+            {
+                return Path.GetFileName(FilePath);
+            }
+        }
+
         public string DisplayCategories
         {
             get
@@ -45,5 +58,11 @@ namespace Core.Models
             }
         }
 
+        public List<string> Dependencies { get; set; }
+
+        /// <summary>
+        /// don`t know what is this used for... but seems something important while ordering.
+        /// </summary>
+        public List<string> References { get; set; }
     }
 }
