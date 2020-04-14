@@ -24,9 +24,11 @@ Load Order based on this [Post](https://steamcommunity.com/sharedfiles/filedetai
  
 # Planned Features
 
-    - Check Conflicts
-    - better way to check mod page on nexus, as wellcategorize mods.
+    - Check Conflicts between mods.
+    - List deep changes from mods and list them for modders
+    - better way to check mod page on nexus, as well categorize mods.
     - Improve via contribuition mod order.
+    - a way to patch mod conflicts.
     
 # Known Bugs
      - none so far...
