@@ -189,7 +189,7 @@ namespace KenshiModTool
         {
             if (e.Key == Key.Return)
             {
-                RibbonTextBox lbi = (sender as RibbonTextBox);
+                TextBox lbi = (sender as TextBox);
                 if (int.TryParse(lbi.Text, out var value))
                 {
                     var mod = ((Mod)lbi.DataContext);
