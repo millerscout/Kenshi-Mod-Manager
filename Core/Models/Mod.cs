@@ -19,6 +19,9 @@ namespace Core.Models
         public bool Active { get; set; }
         public bool OrderedAutomatically { get; set; }
         public string Color { get; set; }
+        public List<string> Conflicts { get; set; } = new List<string>();
+
+
 
         public string Url
         {
@@ -64,5 +67,20 @@ namespace Core.Models
         /// don`t know what is this used for... but seems something important while ordering.
         /// </summary>
         public List<string> References { get; set; }
+    }
+    public class Conflict
+    {
+        public string ItemChangeName { get; set; }
+
+        public List<ConflictItem> Items { get; set; }
+
+    }
+    public class ConflictItem
+    {
+        public string Mod { get; set; }
+        public object ItemValue { get; set; }
+        public bool Priority { get; set; }
+        public string State { get; set; }
+        public int Order { get; set; }
     }
 }

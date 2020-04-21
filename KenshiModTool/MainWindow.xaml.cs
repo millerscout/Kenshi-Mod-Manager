@@ -9,6 +9,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
@@ -24,8 +26,12 @@ namespace KenshiModTool
     public partial class MainWindow : Window
     {
         public ObservableCollection<Mod> ModList = new ObservableCollection<Mod>();
+        private List<GameChanges> Changes;
+
         public Mod[] SearchList { get; set; } = new Mod[0];
         public int currentIndexSearch { get; set; } = 0;
+        Dictionary<string, Conflict> Conflicts = new Dictionary<string, Conflict>();
+        public bool ShowConflicts { get; set; } = false;
 
         public MainWindow()
         {
@@ -146,12 +152,19 @@ namespace KenshiModTool
                     .Dependencies
                     .Concat(mod.References)
                     .Where(c => !Constants.SkippableMods.Contains(c.ToLower()));
+
                 if (dependencies.Count() > 0)
                 {
-                    if (!ModList.Where(m => m.Active).Any(c => dependencies.Any(r => r.ToLower().Contains(c.FileName.ToLower()))))
-                    {
-                        mod.Color = ModColors.RequisiteNotFoundColor;
-                    }
+                    if (mod.Active)
+                        if (ModList.Where(m => !m.Active).Any(c => dependencies.Any(r => r.Contains(c.FileName, StringComparison.CurrentCultureIgnoreCase))))
+                        {
+                            mod.Color = ModColors.RequisiteNotFoundColor;
+                        }
+                }
+
+                if (mod.Conflicts.Count > 0)
+                {
+                    mod.Color = ModColors.HasConflictsColor;
                 }
             }
 
@@ -161,7 +174,7 @@ namespace KenshiModTool
                 ListBox.ScrollIntoView(SearchList[currentIndexSearch]);
         }
 
-        public void SetNewOrder(Mod current, int New)
+        public void SetNewOrder(Mod current, int New, bool ignoreUpdateList = false)
         {
             Dictionary<Guid, Tuple<int, bool>> order = new Dictionary<Guid, Tuple<int, bool>> {
                 {current.UniqueIdentifier, new Tuple<int, bool>(New,true)}
@@ -181,7 +194,8 @@ namespace KenshiModTool
                 ModList.FirstOrDefault(m => m.UniqueIdentifier == item.Key).Order = item.Value.Item1;
             }
 
-            UpdateListBox();
+            if (!ignoreUpdateList)
+                UpdateListBox();
         }
 
         private void RibbonTextBox_KeyDown(object sender, KeyEventArgs e)
@@ -211,6 +225,8 @@ namespace KenshiModTool
             {
                 SetNewOrder(mod, 0);
             }
+
+            UpdateListBox();
         }
 
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -228,6 +244,22 @@ namespace KenshiModTool
                 if (mod.References != null && mod.References.Count > 0)
                     Write("References:", string.Join(", ", mod.References));
 
+                if (mod.Conflicts.Count > 0)
+                {
+                    Write("******************   Ordered By Priority   **********************************", "");
+                    Write("Conflicts:", "");
+                    Write("*****************   Save mod order and click check conflicts again   ********", "");
+                    foreach (var key in mod.Conflicts)
+                    {
+                        Write($"{Conflicts[key].ItemChangeName}:", "");
+                        foreach (var item in Conflicts[key].Items)
+                        {
+                            var priority = item.Priority ? " <<<< This Value will be used" : "";
+                            Write($"{item.State} - Value: {item.ItemValue} - Mod: {item.Mod}", $"{priority}");
+                        }
+                    }
+                    Write("*****************************************************************************", "");
+                }
                 Write("Author:", mod.Author);
                 Write("Version:", mod.Version);
                 WriteUrl("FilePath:", mod.FilePath, true);
@@ -428,8 +460,9 @@ namespace KenshiModTool
             foreach (Mod mod in ListBox.SelectedItems)
             {
                 mod.Active = true;
-                SetNewOrder(mod, 0);
+                SetNewOrder(mod, 0, true);
             }
+            UpdateListBox();
         }
 
         #endregion Context Menu actions
@@ -447,5 +480,98 @@ namespace KenshiModTool
         }
 
         #endregion Details controls
+
+        private void BtnTest_Click(object sender, RoutedEventArgs e)
+        {
+
+            Process compiler = new Process();
+            compiler.StartInfo.FileName = LoadService.config.ConflictAnalyzerPath;
+            compiler.StartInfo.Arguments = "modChanges.json";
+            compiler.StartInfo.UseShellExecute = true;
+            compiler.StartInfo.RedirectStandardOutput = false;
+            compiler.Start();
+
+            compiler.WaitForExit();
+        }
+
+        private void ShowConflicts_check(object sender, RoutedEventArgs e)
+        {
+            if (ShowConflicts)
+            {
+                ShowConflicts = false;
+            }
+
+            var content = File.ReadAllText("modChanges.json");
+
+            if (content.Length > 0)
+                Changes = Newtonsoft.Json.JsonConvert.DeserializeObject<List<GameChanges>>(content);
+
+
+            foreach (var change in Changes.GroupBy(c => c.Name))
+            {
+                var onlyOneChange = change.Where(c => c.Items.Count() == 1).ToList();
+                foreach (var item in onlyOneChange)
+                {
+                    Changes.Remove(item);
+                }
+            }
+            foreach (var mod in ModList)
+                mod.Conflicts.Clear();
+
+            var sync = new object();
+            Parallel.ForEach(Changes, (ChangeTypes) =>
+            {
+                Parallel.ForEach(ChangeTypes.Items.GroupBy(c => c.Name), (item) =>
+                {
+                    var mods = item.SelectMany(c => c.Changes.Select(c => c.Item2)).Distinct();
+                    var changes = item.SelectMany(c => c.Changes);
+                    var hashName = $"{item.Key}{mods.Count()}".GetHash();
+
+                    if (mods.Count() > 1)
+                    {
+                        foreach (var modname in mods)
+                        {
+                            lock (sync)
+                            {
+
+                                var mod = ModList.FirstOrDefault(q => q.FileName == modname);
+
+                                var conflict = mod.Conflicts.FirstOrDefault(c => c == hashName);
+                                if (conflict == null)
+                                    mod.Conflicts.Add(hashName);
+                            }
+                        }
+                    }
+
+                    if (!Conflicts.ContainsKey(hashName))
+                    {
+                        Conflicts.Add(hashName, new Conflict
+                        {
+                            ItemChangeName = item.Key,
+                            Items = new List<ConflictItem>()
+                        });
+
+
+                        Parallel.For(0, changes.Count(), (i) =>
+                        {
+                            var innerChange = changes.ElementAt(i);
+                            Conflicts[hashName].Items.Add(new ConflictItem
+                            {
+                                State = innerChange.Item1,
+                                Mod = innerChange.Item2,
+                                ItemValue = innerChange.Item3,
+                                Order = i,
+                                Priority = i == changes.Count() - 1
+                            });
+                        });
+                        Task.Yield();
+
+                    }
+                });
+            });
+
+
+            UpdateListBox();
+        }
     }
 }

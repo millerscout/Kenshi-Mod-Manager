@@ -7,6 +7,7 @@ namespace Core.Models
     public class GameChanges
     {
         public string TypeOfChange { get; set; }
+        public string Name { get; set; }
         public List<ItemGameChanges> Items { get; set; }
     }
     public class ItemGameChanges
