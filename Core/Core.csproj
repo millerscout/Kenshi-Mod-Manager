@@ -2,6 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyVersion>1.0.3.0</AssemblyVersion>
+    <Version>1.0.3</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Kenshi.ModTool.Core</PackageId>
+    <Company>Kenshi.ModTool.Core</Company>
+    <Product>Kenshi.ModTool.Core</Product>
+    <Description>A Helper for many tools that i'm working on.</Description>
+    <Authors>millerscout</Authors>
+    <NeutralLanguage>English</NeutralLanguage>
+    <PackageTags>ModTool, Gaming, Kenshi</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,6 +1,5 @@
 ﻿using Core;
 using Core.Models;
-using GuidelineCore;
 using KenshiModTool.Model;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;

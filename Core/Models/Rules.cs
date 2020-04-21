@@ -1,7 +1,7 @@
 ﻿using Core.Models;
 using System.Collections.Generic;
 
-namespace GuidelineCore
+namespace Core.Models
 {
     public class Rules
     {
