@@ -26,7 +26,7 @@ namespace KenshiModTool
     public partial class MainWindow : Window
     {
         public ObservableCollection<Mod> ModList = new ObservableCollection<Mod>();
-        private List<GameChanges> Changes;
+        private Dictionary<string, Dictionary<string, Dictionary<string, List<GameChanges>>>> Changes;
 
         public Mod[] SearchList { get; set; } = new Mod[0];
         public int currentIndexSearch { get; set; } = 0;
@@ -248,15 +248,17 @@ namespace KenshiModTool
                 {
                     Write("******************   Ordered By Priority   **********************************", "");
                     Write("Conflicts:", "");
-                    Write("*****************   Save mod order and click check conflicts again   ********", "");
+                    Write("*****************   Save mod order and click check conflicts again   *******", "");
                     foreach (var key in mod.Conflicts)
                     {
+                        Write("---------------------------------------------------------------------", "");
                         Write($"{Conflicts[key].ItemChangeName}:", "");
-                        foreach (var item in Conflicts[key].Items)
-                        {
-                            var priority = item.Priority ? " <<<< This Value will be used" : "";
-                            Write($"{item.State} - Value: {item.ItemValue} - Mod: {item.Mod}", $"{priority}");
-                        }
+                        Write($"{Conflicts[key].Name}:", "");
+                        Write("---------------------------------------------------------------------", "");
+                        Write($"{Conflicts[key].Property}:", "");
+
+                        WriteConflicts(Conflicts[key].Items);
+
                     }
                     Write("*****************************************************************************", "");
                 }
@@ -270,6 +272,21 @@ namespace KenshiModTool
 
                 RtbDetail.Document = document;
 
+                void WriteConflicts(IEnumerable<ConflictItem> list)
+                {
+
+                    var order = list.OrderBy(c => c.Order).ToList();
+                    foreach (var item in order)
+                    {
+                        var isRemoved = item.State == "REMOVED";
+                        var isOwned = item.State == "OWNED";
+                        var priority = item.Priority && !isRemoved && !isOwned ? " <<<< This Value will be used" : "";
+                        var value = isRemoved ? "" : $"- Value: {item.ItemValue}";
+                        paragraph.Inlines.Add($"{item.State} {value} - Mod: {item.Mod} {priority} {Environment.NewLine}");
+                    }
+                    document.Blocks.Add(paragraph);
+
+                }
                 void Write(string title, string Value)
                 {
                     Value = Value ?? "";
@@ -504,71 +521,77 @@ namespace KenshiModTool
             var content = File.ReadAllText("modChanges.json");
 
             if (content.Length > 0)
-                Changes = Newtonsoft.Json.JsonConvert.DeserializeObject<List<GameChanges>>(content);
+                Changes = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, Dictionary<string, List<GameChanges>>>>>(content);
 
 
-            foreach (var change in Changes.GroupBy(c => c.Name))
-            {
-                var onlyOneChange = change.Where(c => c.Items.Count() == 1).ToList();
-                foreach (var item in onlyOneChange)
-                {
-                    Changes.Remove(item);
-                }
-            }
+            //foreach (var change in Changes.GroupBy(c => c.Name))
+            //{
+            //    var onlyOneChange = change.Where(c => c.Items.Count() == 1).ToList();
+            //    foreach (var item in onlyOneChange)
+            //    {
+            //        //Changes.Remove(item);
+            //    }
+            //}
             foreach (var mod in ModList)
                 mod.Conflicts.Clear();
 
             var sync = new object();
-            Parallel.ForEach(Changes, (ChangeTypes) =>
+            foreach (var changeTypeKey in Changes.Keys)
             {
-                Parallel.ForEach(ChangeTypes.Items.GroupBy(c => c.Name), (item) =>
+                foreach (var nameKeys in Changes[changeTypeKey].Keys)
                 {
-                    var mods = item.SelectMany(c => c.Changes.Select(c => c.Item2)).Distinct();
-                    var changes = item.SelectMany(c => c.Changes);
-                    var hashName = $"{item.Key}{mods.Count()}".GetHash();
-
-                    if (mods.Count() > 1)
+                    foreach (var propertyKey in Changes[changeTypeKey][nameKeys].Keys)
                     {
-                        foreach (var modname in mods)
+
+                        var changes = Changes[changeTypeKey][nameKeys][propertyKey];
+                        var mods = changes.Select(c => c.ModName).Distinct();
+
+                        var hashName = $"{changeTypeKey}{nameKeys}{propertyKey}{mods.Count()}".GetHash();
+
+                        if (mods.Count() > 1 || true)
                         {
-                            lock (sync)
+                            foreach (var modname in mods)
                             {
+                                lock (sync)
+                                {
 
-                                var mod = ModList.FirstOrDefault(q => q.FileName == modname);
+                                    var mod = ModList.FirstOrDefault(q => q.FileName == modname);
 
-                                var conflict = mod.Conflicts.FirstOrDefault(c => c == hashName);
-                                if (conflict == null)
-                                    mod.Conflicts.Add(hashName);
+                                    var conflict = mod.Conflicts.FirstOrDefault(c => c == hashName);
+                                    if (conflict == null)
+                                        mod.Conflicts.Add(hashName);
+                                }
                             }
                         }
-                    }
 
-                    if (!Conflicts.ContainsKey(hashName))
-                    {
-                        Conflicts.Add(hashName, new Conflict
+                        if (!Conflicts.ContainsKey(hashName))
                         {
-                            ItemChangeName = item.Key,
-                            Items = new List<ConflictItem>()
-                        });
-
-
-                        Parallel.For(0, changes.Count(), (i) =>
-                        {
-                            var innerChange = changes.ElementAt(i);
-                            Conflicts[hashName].Items.Add(new ConflictItem
+                            Conflicts.Add(hashName, new Conflict
                             {
-                                State = innerChange.Item1,
-                                Mod = innerChange.Item2,
-                                ItemValue = innerChange.Item3,
-                                Order = i,
-                                Priority = i == changes.Count() - 1
+                                ItemChangeName = $"{changeTypeKey} - {nameKeys}",
+                                Name = nameKeys,
+                                Property = propertyKey,
+                                Items = new List<ConflictItem>()
                             });
-                        });
-                        Task.Yield();
 
+
+                            Parallel.For(0, changes.Count(), (i) =>
+                            {
+                                var innerChange = changes.ElementAt(i);
+                                Conflicts[hashName].Items.Add(new ConflictItem
+                                {
+                                    State = innerChange.State,
+                                    Mod = innerChange.ModName,
+                                    ItemValue = innerChange.Value,
+                                    Order = i,
+                                    Priority = i == changes.Count() - 1
+                                });
+                            });
+
+                        }
                     }
-                });
-            });
+                };
+            };
 
 
             UpdateListBox();

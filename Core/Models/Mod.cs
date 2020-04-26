@@ -73,7 +73,8 @@ namespace Core.Models
         public string ItemChangeName { get; set; }
 
         public List<ConflictItem> Items { get; set; }
-
+        public string Name { get; set; }
+        public string Property { get; set; }
     }
     public class ConflictItem
     {
