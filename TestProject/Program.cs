@@ -1,5 +1,5 @@
 ﻿using Core;
-using GuidelineCore;
+using Core.Models;
 
 namespace TestProject
 {

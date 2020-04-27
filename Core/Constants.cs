@@ -7,5 +7,7 @@ namespace Core
         public static List<string> SkippableMods = new List<string>{
                 "gamedata.base", "rebirth.mod", "newwworld.mod","dialogue.mod"
             };
+        public const string modChangesFileName = "modChanges.json";
+        public const string DetailChangesFileName = "detailChanges.json";
     }
 }

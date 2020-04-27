@@ -2,6 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyVersion>1.0.6.0</AssemblyVersion>
+    <Version>1.0.6</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Kenshi.ModTool.Core</PackageId>
+    <Company>Kenshi.ModTool.Core</Company>
+    <Product>Kenshi.ModTool.Core</Product>
+    <Description>A Helper for many tools that i'm working on.
+
+check it on: https://github.com/millerscout/Kenshi-Mod-Manager</Description>
+    <Authors>millerscout</Authors>
+    <NeutralLanguage>English</NeutralLanguage>
+    <PackageTags>ModTool, Gaming, Kenshi</PackageTags>
+    <RepositoryUrl>https://github.com/millerscout/Kenshi-Mod-Manager</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

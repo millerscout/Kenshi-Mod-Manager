@@ -1,15 +1,18 @@
 ﻿using Core;
 using Core.Models;
-using GuidelineCore;
 using KenshiModTool.Model;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
@@ -27,6 +30,9 @@ namespace KenshiModTool
         public ObservableCollection<Mod> ModList = new ObservableCollection<Mod>();
         public Mod[] SearchList { get; set; } = new Mod[0];
         public int currentIndexSearch { get; set; } = 0;
+        public ConcurrentDictionary<string, ModListChanges> ConflictIndex = new ConcurrentDictionary<string, ModListChanges>();
+        public ConcurrentDictionary<string, DetailChanges> DetailIndex = new ConcurrentDictionary<string, DetailChanges>();
+        public bool ShowConflicts { get; set; } = false;
 
         public MainWindow()
         {
@@ -147,12 +153,19 @@ namespace KenshiModTool
                     .Dependencies
                     .Concat(mod.References)
                     .Where(c => !Constants.SkippableMods.Contains(c.ToLower()));
+
                 if (dependencies.Count() > 0)
                 {
-                    if (!ModList.Where(m => m.Active).Any(c => dependencies.Any(r => r.ToLower().Contains(c.FileName.ToLower()))))
-                    {
-                        mod.Color = ModColors.RequisiteNotFoundColor;
-                    }
+                    if (mod.Active)
+                        if (ModList.Where(m => !m.Active).Any(c => dependencies.Any(r => r.Contains(c.FileName, StringComparison.CurrentCultureIgnoreCase))))
+                        {
+                            mod.Color = ModColors.RequisiteNotFoundColor;
+                        }
+                }
+
+                if (mod.Conflicts.Count > 0)
+                {
+                    mod.Color = ModColors.HasConflictsColor;
                 }
             }
 
@@ -162,7 +175,7 @@ namespace KenshiModTool
                 ListBox.ScrollIntoView(SearchList[currentIndexSearch]);
         }
 
-        public void SetNewOrder(Mod current, int New)
+        public void SetNewOrder(Mod current, int New, bool ignoreUpdateList = false)
         {
             Dictionary<Guid, Tuple<int, bool>> order = new Dictionary<Guid, Tuple<int, bool>> {
                 {current.UniqueIdentifier, new Tuple<int, bool>(New,true)}
@@ -182,7 +195,8 @@ namespace KenshiModTool
                 ModList.FirstOrDefault(m => m.UniqueIdentifier == item.Key).Order = item.Value.Item1;
             }
 
-            UpdateListBox();
+            if (!ignoreUpdateList)
+                UpdateListBox();
         }
 
         private void RibbonTextBox_KeyDown(object sender, KeyEventArgs e)
@@ -212,6 +226,8 @@ namespace KenshiModTool
             {
                 SetNewOrder(mod, 0);
             }
+
+            UpdateListBox();
         }
 
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -229,6 +245,33 @@ namespace KenshiModTool
                 if (mod.References != null && mod.References.Count > 0)
                     Write("References:", string.Join(", ", mod.References));
 
+                if (mod.Conflicts.Count > 0)
+                {
+                    Write("******************   Ordered By Priority   **********************************", "");
+                    Write("Conflicts:", "");
+                    Write("*****************   Save mod order and click check conflicts again   *******", "");
+
+
+                    foreach (var key in mod.Conflicts)
+                    {
+                        paragraph.Inlines.Add($"{DetailIndex[key].Type}:{Environment.NewLine}");
+                        paragraph.Inlines.Add($"{DetailIndex[key].Name}:{Environment.NewLine}");
+                        paragraph.Inlines.Add($"{DetailIndex[key].PropertyKey}:{Environment.NewLine}");
+
+                        for (int i = 0; i < ConflictIndex[key].ChangeList.Count; i++)
+                        {
+                            var item = ConflictIndex[key].ChangeList.ElementAt(i);
+
+                            var isRemoved = item.State == "REMOVED";
+                            var isOwned = item.State == "OWNED";
+                            var priority = i == ConflictIndex[key].ChangeList.Count - 1 && !isRemoved ? " <<<< This Value will be used" : "";
+                            var value = isRemoved ? "" : $"- Value: {item.Value}";
+                            paragraph.Inlines.Add($"{item.State} {value} - Mod: {item.ModName} {priority} {Environment.NewLine}");
+
+                        }
+                    }
+                    Write("*****************************************************************************", "");
+                }
                 Write("Author:", mod.Author);
                 Write("Version:", mod.Version);
                 WriteUrl("FilePath:", mod.FilePath, true);
@@ -244,7 +287,6 @@ namespace KenshiModTool
                     Value = Value ?? "";
                     paragraph.Inlines.Add(new Bold(new Run(title)));
                     paragraph.Inlines.Add($" {Value}{Environment.NewLine}");
-                    document.Blocks.Add(paragraph);
                 }
 
                 void WriteUrl(string title, string Value, bool local = false)
@@ -256,13 +298,16 @@ namespace KenshiModTool
                     textLink.RequestNavigate += TextLink_RequestNavigate;
                     paragraph.Inlines.Add(textLink);
 
-                    document.Blocks.Add(paragraph);
                 }
+
+                document.Blocks.Add(paragraph);
+
             }
             else
             {
                 RtbDetail.Document.Blocks.Clear();
             }
+
         }
 
         #endregion List Manipulation
@@ -357,8 +402,11 @@ namespace KenshiModTool
             {
                 var profileMod = mods[i];
                 var mod = ModList.FirstOrDefault(c => c.FileName == profileMod);
-                mod.Active = true;
-                mod.Order = i;
+                if (mod != null)
+                {
+                    mod.Active = true;
+                    mod.Order = i;
+                }
             }
 
             UpdateListBox();
@@ -429,8 +477,9 @@ namespace KenshiModTool
             foreach (Mod mod in ListBox.SelectedItems)
             {
                 mod.Active = true;
-                SetNewOrder(mod, 0);
+                SetNewOrder(mod, 0, true);
             }
+            UpdateListBox();
         }
 
         #endregion Context Menu actions
@@ -448,5 +497,74 @@ namespace KenshiModTool
         }
 
         #endregion Details controls
+
+        private void BtnTest_Click(object sender, RoutedEventArgs e)
+        {
+
+            Process compiler = new Process();
+            compiler.StartInfo.FileName = LoadService.config.ConflictAnalyzerPath;
+            compiler.StartInfo.Arguments = $"{Constants.modChangesFileName} {Constants.DetailChangesFileName}";
+            compiler.StartInfo.UseShellExecute = true;
+            compiler.StartInfo.RedirectStandardOutput = false;
+            compiler.Start();
+
+            compiler.WaitForExit();
+        }
+
+        private void ShowConflicts_check(object sender, RoutedEventArgs e)
+        {
+            chk_showConflicts.IsChecked = false;
+
+            var alreadyLoaded = ConflictIndex.Count > 0 && DetailIndex.Count > 0;
+            var list = new Task[] {
+            Task.Run(() =>
+            {
+                if (!alreadyLoaded)
+                {
+                    var content = File.ReadAllText(Constants.modChangesFileName);
+
+                    if (content.Length > 0)
+                        ConflictIndex = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, ModListChanges>>(content);
+
+
+                }
+            }),
+
+            Task.Run(() =>
+            {
+                if (!alreadyLoaded)
+                {
+                    var content = File.ReadAllText(Constants.DetailChangesFileName);
+
+                    if (content.Length > 0)
+                        DetailIndex = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, DetailChanges>>(content);
+                }
+            })};
+
+            Task.WaitAll(list);
+
+
+            if (!alreadyLoaded)
+            {
+                Parallel.ForEach(ConflictIndex.Keys, (key) =>
+                {
+
+
+                    if (ConflictIndex[key].Mod.Count == 1) return;
+                    foreach (var modName in ConflictIndex[key].Mod)
+                    {
+
+                        var mod = ModList.FirstOrDefault(c => c.FileName == modName);
+                        if (!mod.Conflicts.Any(q => q == key))
+                        {
+                            mod.Conflicts.Push(key);
+                        }
+                    }
+                });
+
+            }
+
+            UpdateListBox();
+        }
     }
 }
