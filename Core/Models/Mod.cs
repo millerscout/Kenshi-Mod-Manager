@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace Core.Models
         public bool Active { get; set; }
         public bool OrderedAutomatically { get; set; }
         public string Color { get; set; }
-        public List<string> Conflicts { get; set; } = new List<string>();
+        public ConcurrentStack<string> Conflicts { get; set; } = new ConcurrentStack<string>();
 
 
 

@@ -17,12 +17,5 @@ namespace Core
             }
         }
 
-        public static string GetHash(this string text)
-        {
-            using (SHA256 SHA256 = SHA256Managed.Create())
-            {
-                return Convert.ToBase64String(SHA256.ComputeHash(Encoding.UTF8.GetBytes(text)));
-            }
-        }
     }
 }

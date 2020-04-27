@@ -5,7 +5,7 @@ using System.Text;
 namespace Core.Models
 {
 
-    public class GameChanges
+    public class GameChange
     {
         public string State { get; set; }
         public string ModName { get; set; }

@@ -4,11 +4,13 @@ using KenshiModTool.Model;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -26,11 +28,10 @@ namespace KenshiModTool
     public partial class MainWindow : Window
     {
         public ObservableCollection<Mod> ModList = new ObservableCollection<Mod>();
-        private Dictionary<string, Dictionary<string, Dictionary<string, List<GameChanges>>>> Changes;
-
         public Mod[] SearchList { get; set; } = new Mod[0];
         public int currentIndexSearch { get; set; } = 0;
-        Dictionary<string, Conflict> Conflicts = new Dictionary<string, Conflict>();
+        public ConcurrentDictionary<string, ModListChanges> ConflictIndex = new ConcurrentDictionary<string, ModListChanges>();
+        public ConcurrentDictionary<string, DetailChanges> DetailIndex = new ConcurrentDictionary<string, DetailChanges>();
         public bool ShowConflicts { get; set; } = false;
 
         public MainWindow()
@@ -249,16 +250,25 @@ namespace KenshiModTool
                     Write("******************   Ordered By Priority   **********************************", "");
                     Write("Conflicts:", "");
                     Write("*****************   Save mod order and click check conflicts again   *******", "");
+
+
                     foreach (var key in mod.Conflicts)
                     {
-                        Write("---------------------------------------------------------------------", "");
-                        Write($"{Conflicts[key].ItemChangeName}:", "");
-                        Write($"{Conflicts[key].Name}:", "");
-                        Write("---------------------------------------------------------------------", "");
-                        Write($"{Conflicts[key].Property}:", "");
+                        paragraph.Inlines.Add($"{DetailIndex[key].Type}:{Environment.NewLine}");
+                        paragraph.Inlines.Add($"{DetailIndex[key].Name}:{Environment.NewLine}");
+                        paragraph.Inlines.Add($"{DetailIndex[key].PropertyKey}:{Environment.NewLine}");
 
-                        WriteConflicts(Conflicts[key].Items);
+                        for (int i = 0; i < ConflictIndex[key].ChangeList.Count; i++)
+                        {
+                            var item = ConflictIndex[key].ChangeList.ElementAt(i);
 
+                            var isRemoved = item.State == "REMOVED";
+                            var isOwned = item.State == "OWNED";
+                            var priority = i == ConflictIndex[key].ChangeList.Count - 1 && !isRemoved ? " <<<< This Value will be used" : "";
+                            var value = isRemoved ? "" : $"- Value: {item.Value}";
+                            paragraph.Inlines.Add($"{item.State} {value} - Mod: {item.ModName} {priority} {Environment.NewLine}");
+
+                        }
                     }
                     Write("*****************************************************************************", "");
                 }
@@ -272,27 +282,11 @@ namespace KenshiModTool
 
                 RtbDetail.Document = document;
 
-                void WriteConflicts(IEnumerable<ConflictItem> list)
-                {
-
-                    var order = list.OrderBy(c => c.Order).ToList();
-                    foreach (var item in order)
-                    {
-                        var isRemoved = item.State == "REMOVED";
-                        var isOwned = item.State == "OWNED";
-                        var priority = item.Priority && !isRemoved && !isOwned ? " <<<< This Value will be used" : "";
-                        var value = isRemoved ? "" : $"- Value: {item.ItemValue}";
-                        paragraph.Inlines.Add($"{item.State} {value} - Mod: {item.Mod} {priority} {Environment.NewLine}");
-                    }
-                    document.Blocks.Add(paragraph);
-
-                }
                 void Write(string title, string Value)
                 {
                     Value = Value ?? "";
                     paragraph.Inlines.Add(new Bold(new Run(title)));
                     paragraph.Inlines.Add($" {Value}{Environment.NewLine}");
-                    document.Blocks.Add(paragraph);
                 }
 
                 void WriteUrl(string title, string Value, bool local = false)
@@ -304,13 +298,16 @@ namespace KenshiModTool
                     textLink.RequestNavigate += TextLink_RequestNavigate;
                     paragraph.Inlines.Add(textLink);
 
-                    document.Blocks.Add(paragraph);
                 }
+
+                document.Blocks.Add(paragraph);
+
             }
             else
             {
                 RtbDetail.Document.Blocks.Clear();
             }
+
         }
 
         #endregion List Manipulation
@@ -405,8 +402,11 @@ namespace KenshiModTool
             {
                 var profileMod = mods[i];
                 var mod = ModList.FirstOrDefault(c => c.FileName == profileMod);
-                mod.Active = true;
-                mod.Order = i;
+                if (mod != null)
+                {
+                    mod.Active = true;
+                    mod.Order = i;
+                }
             }
 
             UpdateListBox();
@@ -503,7 +503,7 @@ namespace KenshiModTool
 
             Process compiler = new Process();
             compiler.StartInfo.FileName = LoadService.config.ConflictAnalyzerPath;
-            compiler.StartInfo.Arguments = "modChanges.json";
+            compiler.StartInfo.Arguments = $"{Constants.modChangesFileName} {Constants.DetailChangesFileName}";
             compiler.StartInfo.UseShellExecute = true;
             compiler.StartInfo.RedirectStandardOutput = false;
             compiler.Start();
@@ -513,86 +513,56 @@ namespace KenshiModTool
 
         private void ShowConflicts_check(object sender, RoutedEventArgs e)
         {
-            if (ShowConflicts)
+            chk_showConflicts.IsChecked = false;
+
+            var alreadyLoaded = ConflictIndex.Count > 0 && DetailIndex.Count > 0;
+            var list = new Task[] {
+            Task.Run(() =>
             {
-                ShowConflicts = false;
-            }
-
-            var content = File.ReadAllText("modChanges.json");
-
-            if (content.Length > 0)
-                Changes = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, Dictionary<string, List<GameChanges>>>>>(content);
-
-
-            //foreach (var change in Changes.GroupBy(c => c.Name))
-            //{
-            //    var onlyOneChange = change.Where(c => c.Items.Count() == 1).ToList();
-            //    foreach (var item in onlyOneChange)
-            //    {
-            //        //Changes.Remove(item);
-            //    }
-            //}
-            foreach (var mod in ModList)
-                mod.Conflicts.Clear();
-
-            var sync = new object();
-            foreach (var changeTypeKey in Changes.Keys)
-            {
-                foreach (var nameKeys in Changes[changeTypeKey].Keys)
+                if (!alreadyLoaded)
                 {
-                    foreach (var propertyKey in Changes[changeTypeKey][nameKeys].Keys)
+                    var content = File.ReadAllText(Constants.modChangesFileName);
+
+                    if (content.Length > 0)
+                        ConflictIndex = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, ModListChanges>>(content);
+
+
+                }
+            }),
+
+            Task.Run(() =>
+            {
+                if (!alreadyLoaded)
+                {
+                    var content = File.ReadAllText(Constants.DetailChangesFileName);
+
+                    if (content.Length > 0)
+                        DetailIndex = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, DetailChanges>>(content);
+                }
+            })};
+
+            Task.WaitAll(list);
+
+
+            if (!alreadyLoaded)
+            {
+                Parallel.ForEach(ConflictIndex.Keys, (key) =>
+                {
+
+
+                    if (ConflictIndex[key].Mod.Count == 1) return;
+                    foreach (var modName in ConflictIndex[key].Mod)
                     {
 
-                        var changes = Changes[changeTypeKey][nameKeys][propertyKey];
-                        var mods = changes.Select(c => c.ModName).Distinct();
-
-                        var hashName = $"{changeTypeKey}{nameKeys}{propertyKey}{mods.Count()}".GetHash();
-
-                        if (mods.Count() > 1 || true)
+                        var mod = ModList.FirstOrDefault(c => c.FileName == modName);
+                        if (!mod.Conflicts.Any(q => q == key))
                         {
-                            foreach (var modname in mods)
-                            {
-                                lock (sync)
-                                {
-
-                                    var mod = ModList.FirstOrDefault(q => q.FileName == modname);
-
-                                    var conflict = mod.Conflicts.FirstOrDefault(c => c == hashName);
-                                    if (conflict == null)
-                                        mod.Conflicts.Add(hashName);
-                                }
-                            }
-                        }
-
-                        if (!Conflicts.ContainsKey(hashName))
-                        {
-                            Conflicts.Add(hashName, new Conflict
-                            {
-                                ItemChangeName = $"{changeTypeKey} - {nameKeys}",
-                                Name = nameKeys,
-                                Property = propertyKey,
-                                Items = new List<ConflictItem>()
-                            });
-
-
-                            Parallel.For(0, changes.Count(), (i) =>
-                            {
-                                var innerChange = changes.ElementAt(i);
-                                Conflicts[hashName].Items.Add(new ConflictItem
-                                {
-                                    State = innerChange.State,
-                                    Mod = innerChange.ModName,
-                                    ItemValue = innerChange.Value,
-                                    Order = i,
-                                    Priority = i == changes.Count() - 1
-                                });
-                            });
-
+                            mod.Conflicts.Push(key);
                         }
                     }
-                };
-            };
+                });
 
+            }
 
             UpdateListBox();
         }
