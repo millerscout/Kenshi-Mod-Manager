@@ -28,9 +28,10 @@ namespace Core
                     NexusPageUrl = "https://www.nexusmods.com/kenshi/search/?gsearch="
                 };
             }
+
         }
 
-        public static void SaveConfig(KenshiToolConfig config)
+        public static void SaveConfig()
         {
             File.WriteAllText("config.json", JsonConvert.SerializeObject(config));
         }
@@ -55,7 +56,7 @@ namespace Core
             var listInfo = new List<Mod>();
             foreach (var item in Directory.GetDirectories(Path.Combine(LoadService.config.GamePath, "Mods")))
             {
-                Console.WriteLine(item);
+                Console.WriteLine(item + "Found");
 
                 var mod = new Mod
                 {
@@ -84,9 +85,12 @@ namespace Core
         private static IEnumerable<Mod> LoadSteamMods(List<string> currentMods)
         {
             var listInfo = new List<Mod>();
+
+            if (LoadService.config.SteamModsPath == "NONE") return new List<Mod>();
+
             foreach (var item in Directory.GetDirectories(LoadService.config.SteamModsPath))
             {
-                Console.WriteLine(item);
+                Console.WriteLine(item + "Found");
 
                 var mod = new Mod
                 {

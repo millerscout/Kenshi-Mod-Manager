@@ -109,7 +109,7 @@ Phasellus quis dignissim ipsum. Nulla interdum lobortis posuere. Duis consequat 
             <Button Margin="0,5,5,5" Grid.Column="0"  x:Name="BtnSaveModList" Content="Save mod order" Click="SaveModList_Click" />
             <Button Margin="0,5,5,5" Grid.Column="1"  x:Name="saveModProfile" Content="Save mod profile" Click="SaveModProfile_Click" />
             <Button Margin="0,5,5,5" Grid.Column="2"  x:Name="btnLoadProfile" Content="Load mod Profile" Click="BtnLoadProfile_Click" />
-            <Button Margin="0,5,0,5" Grid.Column="4"  x:Name="BtnLaunchGame"  Content="Launch Game (SteamOnly)" Click="BtnLaunchGameClick" />
+            <Button Margin="0,5,0,5" Grid.Column="4"  x:Name="BtnLaunchGame"  Content="Launch Game" Click="BtnLaunchGameClick" />
         </Grid>
     </Grid>
 </Window>

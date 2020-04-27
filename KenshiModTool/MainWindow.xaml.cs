@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -46,6 +47,7 @@ namespace KenshiModTool
 
             AskGamePathIfRequired();
             AskSteamPathIfRequired();
+            LoadService.SaveConfig();
 
             LoadModList();
         }
@@ -68,16 +70,41 @@ namespace KenshiModTool
 
         private void AskSteamPathIfRequired()
         {
-            if (string.IsNullOrEmpty(LoadService.config.SteamModsPath))
+            if (LoadService.config.SteamModsPath == "NONE")
             {
-                var dialog = new CommonOpenFileDialog();
-                dialog.IsFolderPicker = true;
-                dialog.Title = Directory.Exists("C:\\ProgramS Files (x86)\\Steam\\steamapps\\workshop\\content\\233860") ? "Is this Kenshi Mod Folder (STEAM) P.s. 233860 is the id from kenshi ?" : "You need to select Kenshi Steam Folder, it's your steam folder + \"Steam\\steamapps\\workshop\\content\\233860";
-                dialog.InitialDirectory = "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\233860";
-                CommonFileDialogResult result = dialog.ShowDialog();
-
-                LoadService.config.SteamModsPath = dialog.FileName;
+                LoadService.config.SteamModsPath = "NONE";
+                return;
             }
+
+
+            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Are you using Steam Version?", "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+
+                if (string.IsNullOrEmpty(LoadService.config.SteamModsPath))
+                {
+                    var dialog = new CommonOpenFileDialog();
+                    dialog.IsFolderPicker = true;
+                    dialog.Title = Directory.Exists("C:\\ProgramS Files (x86)\\Steam\\steamapps\\workshop\\content\\233860") ? "Is this Kenshi Mod Folder (STEAM) P.s. 233860 is the id from kenshi ?" : "You need to select Kenshi Steam Folder, it's your steam folder + \"Steam\\steamapps\\workshop\\content\\233860";
+                    dialog.InitialDirectory = "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\233860";
+                    CommonFileDialogResult result = dialog.ShowDialog();
+
+
+                    try
+                    {
+
+                        LoadService.config.SteamModsPath = dialog.FileName;
+                    }
+                    catch (Exception)
+                    {
+                        LoadService.config.SteamModsPath = "NONE";
+                    }
+                }
+            }
+            else
+                LoadService.config.SteamModsPath = "NONE";
+
+
         }
 
         #endregion Environment Functions
@@ -414,11 +441,24 @@ namespace KenshiModTool
 
         private void BtnLaunchGameClick(object sender, RoutedEventArgs e)
         {
-            var psi = new ProcessStartInfo
+            ProcessStartInfo psi;
+            if (LoadService.config.SteamModsPath != "NONE")
             {
-                FileName = "steam://rungameid/233860",
-                UseShellExecute = true
-            };
+                psi = new ProcessStartInfo
+                {
+                    FileName = "steam://rungameid/233860",
+                    UseShellExecute = true
+                };
+            }
+            else
+            {
+                psi = new ProcessStartInfo
+                {
+                    FileName = Path.Combine(LoadService.config.GamePath, "kenshi_x64.exe"),
+                    WorkingDirectory = LoadService.config.GamePath
+
+                };
+            }
             Process.Start(psi);
         }
 
@@ -503,7 +543,7 @@ namespace KenshiModTool
 
             Process compiler = new Process();
             compiler.StartInfo.FileName = LoadService.config.ConflictAnalyzerPath;
-            compiler.StartInfo.Arguments = $"{Constants.modChangesFileName} {Constants.DetailChangesFileName}";
+            compiler.StartInfo.Arguments = $"{ Constants.modChangesFileName} {Constants.DetailChangesFileName}";
             compiler.StartInfo.UseShellExecute = true;
             compiler.StartInfo.RedirectStandardOutput = false;
             compiler.Start();
