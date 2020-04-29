@@ -1,0 +1,87 @@
+<div>
+
+    <table class="table b-table table-striped table-hover">
+        <thead ole="rowgroup">
+            <tr role="row">
+                <th role="columnheader" scope="col" aria-colindex="1" class="" v-if="active">
+                    Active
+                </th>
+                <th role="columnheader" scope="col" aria-colindex="2" class="" v-if="sort">
+                    Order
+                </th>
+                <th role="columnheader" scope="col" aria-colindex="3" class="">
+                    Name
+                </th>
+                <th role="columnheader" scope="col" aria-colindex="4" class="">
+                    Author
+                </th>
+                <th role="columnheader" scope="col" aria-colindex="5" class="">
+                    Categories
+                </th>
+                <th role="columnheader" scope="col" aria-colindex="5" class="">
+                    Tag Changes
+                </th>
+            </tr>
+        </thead>
+        <draggable v-model="mods" @start="drag=true" @end="drag=false" tag="tbody" :sort="sort">
+            <tr role="row" v-for="item in mods" :key="item.name" @contextmenu.prevent="$refs.ctxMenu.open($event, {item: item})">
+                <td role="cell" v-if="active">
+                    <b-form-checkbox v-model="item.active">
+                    </b-form-checkbox>
+                </td>
+                <td role="cell" v-if="sort">
+                    <b-form-input v-model="item.order"></b-form-input>
+                </td>
+                <td role="cell" @click="Detail(item)">
+                    <div class="md-table-cell-container">{{item.fileName}}</div>
+                </td>
+                <td role="cell" @click="Detail(item)">
+                    <div class="md-table-cell-container">{{item.author}}</div>
+                </td>
+                <td role="cell" @click="Detail(item)">
+                    <div class="md-table-cell-container">{{item.categories}}</div>
+                </td>
+                <td role="cell" @click="Detail(item)">
+                    <div class="md-table-cell-container">{{item.typesChanged}}</div>
+                </td>
+            </tr>
+        </draggable>
+
+    </table>
+    <div v-if="detail">
+        <b-navbar toggleable type="dark" variant="dark" fixed="bottom">
+            <b-navbar-brand href="#">Mod Details</b-navbar-brand>
+
+            <b-navbar-toggle target="navbar-toggle-collapse">
+                <template v-slot:default="{ expanded }">
+          <b-icon v-if="expanded" icon="chevron-bar-up"></b-icon>
+          <b-icon v-else icon="chevron-bar-down"></b-icon>
+        </template>
+            </b-navbar-toggle>
+
+            <b-collapse id="navbar-toggle-collapse" is-nav>
+                <div style="background:white; padding:5px;border-radius: 5px;">
+                    <p><b>Author:</b> {{detail.author}}</p>
+                    <p><b>Version:</b> {{detail.version}}</p>
+                    <p><b>Path:</b> {{detail.filePath}}</p>
+                    <p><b>Url: </b> {{detail.url}}</p>
+                    <p style="overflow-y: scroll;max-height: 200px;"><b>Description:</b> {{detail.description}}</p>
+                </div>
+
+            </b-collapse>
+        </b-navbar>
+    </div>
+
+    <b-modal id="modal-center" centered v-model="showDialog" title="Mod Detail" size="lg">
+    </b-modal>
+
+
+    <context-menu id="context-menu" ref="ctxMenu">
+        <li class="ctx-item" @click="CheckModPage_Click()">Visit mod page</li>
+        <li class="ctx-item" @click="ActiveMods()">Active Selected Mods</li>
+        <li class="ctx-item" @click="DeactiveMods()">Deactive Selected Mods</li>
+        <li class="ctx-item" @click="ToggleActive()">Toggle Active Selected Mods</li>
+    </context-menu>
+
+
+</div>

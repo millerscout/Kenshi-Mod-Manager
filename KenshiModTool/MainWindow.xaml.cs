@@ -46,6 +46,9 @@ namespace KenshiModTool
             {
                 InitializeComponent();
 
+                if (SystemParameters.PrimaryScreenWidth >= 1000) this.Width = 1000;
+                else if (SystemParameters.PrimaryScreenWidth >= 750) this.Width = 750;
+
                 CmbSortBy.ItemsSource = Enum.GetValues(typeof(EnumOrder)).Cast<EnumOrder>().Select(sort => new ComboData { Id = (int)sort, Value = $"Sort By: {sort}" });
                 CmbSortBy.SelectedItem = CmbSortBy.Items.GetItemAt(0);
 
@@ -111,7 +114,7 @@ namespace KenshiModTool
             {
                 var dialog = new CommonOpenFileDialog();
                 dialog.IsFolderPicker = true;
-                dialog.Title = Directory.Exists("C:\\prograSm files (x86)\\steam\\steamapps\\common\\Kenshi") ? "Is this Kenshi Folder?" : "What is the game folder?";
+                dialog.Title = Directory.Exists("C:\\program files (x86)\\steam\\steamapps\\common\\Kenshi") ? "Is this Kenshi Folder?" : "What is the game folder?";
                 dialog.InitialDirectory = "C:\\program files (x86)\\steam\\steamapps\\common\\Kenshi";
                 CommonFileDialogResult result = dialog.ShowDialog();
 
@@ -137,7 +140,7 @@ namespace KenshiModTool
 
                     var dialog = new CommonOpenFileDialog();
                     dialog.IsFolderPicker = true;
-                    dialog.Title = Directory.Exists("C:\\ProgramS Files (x86)\\Steam\\steamapps\\workshop\\content\\233860") ? "Is this Kenshi Mod Folder (STEAM) P.s. 233860 is the id from kenshi ?" : "You need to select Kenshi Steam Folder, it's your steam folder + \"Steam\\steamapps\\workshop\\content\\233860";
+                    dialog.Title = Directory.Exists("C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\233860") ? "Is this Kenshi Mod Folder (STEAM) P.s. 233860 is the id from kenshi ?" : "You need to select Kenshi Steam Folder, it's your steam folder + \"Steam\\steamapps\\workshop\\content\\233860";
                     dialog.InitialDirectory = "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\233860";
                     CommonFileDialogResult result = dialog.ShowDialog();
 
@@ -419,34 +422,17 @@ namespace KenshiModTool
 
         private void BtnGameFolder_Click(object sender, RoutedEventArgs e)
         {
-            OpenFolder(LoadService.config.GamePath, "Game folder not configured correctly.");
+            CommonService.OpenFolder(LoadService.config.GamePath, () => MessageBox.Show("Game folder not configured correctly."));
         }
 
         private void GameModFolder_Click(object sender, RoutedEventArgs e)
         {
-            OpenFolder(System.IO.Path.Combine(LoadService.config.GamePath, "Mods"), "Game folder not configured correctly.");
+            CommonService.OpenFolder(System.IO.Path.Combine(LoadService.config.GamePath, "Mods"), () => MessageBox.Show("Game folder not configured correctly."));
         }
 
         private void BtnSteamFolder_Click(object sender, RoutedEventArgs e)
         {
-            OpenFolder(LoadService.config.SteamModsPath, "steam folder not configured correctly.");
-        }
-
-        private static void OpenFolder(string folder, string NotFoundMessage)
-        {
-            if (Directory.Exists(folder))
-            {
-                var psi = new ProcessStartInfo
-                {
-                    FileName = folder,
-                    UseShellExecute = true
-                };
-                Process.Start(psi);
-            }
-            else
-            {
-                MessageBox.Show(NotFoundMessage);
-            }
+            CommonService.OpenFolder(LoadService.config.SteamModsPath, () => MessageBox.Show("steam folder not configured correctly."));
         }
 
         private void BtnOrder_Click(object sender, RoutedEventArgs e)
@@ -510,25 +496,7 @@ namespace KenshiModTool
 
         private void BtnLaunchGameClick(object sender, RoutedEventArgs e)
         {
-            ProcessStartInfo psi;
-            if (LoadService.config.SteamModsPath != "NONE")
-            {
-                psi = new ProcessStartInfo
-                {
-                    FileName = "steam://rungameid/233860",
-                    UseShellExecute = true
-                };
-            }
-            else
-            {
-                psi = new ProcessStartInfo
-                {
-                    FileName = Path.Combine(LoadService.config.GamePath, "kenshi_x64.exe"),
-                    WorkingDirectory = LoadService.config.GamePath
-
-                };
-            }
-            Process.Start(psi);
+            CommonService.StartGame();
         }
 
         private void BtnRefreshMods_Click(object sender, RoutedEventArgs e)
@@ -607,24 +575,11 @@ namespace KenshiModTool
 
         #endregion Details controls
 
-        private void BtnTest_Click(object sender, RoutedEventArgs e)
+        private void OpenTooling(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                Process process = new Process();
-                process.StartInfo.FileName = string.IsNullOrEmpty(LoadService.config.ConflictAnalyzerPath) ? "Mod Conflict Manager.exe" : LoadService.config.ConflictAnalyzerPath;
-                process.StartInfo.Arguments = $"{ Constants.modChangesFileName} {Constants.DetailChangesFileName}";
-                process.StartInfo.UseShellExecute = true;
-                process.StartInfo.RedirectStandardOutput = false;
-                process.Start();
+            var tooling = new Tooling();
+            tooling.Show();
 
-                process.WaitForExit();
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("I'm working on this feature... it's complicated :)");
-
-            }
         }
 
         private void ShowConflicts_check(object sender, RoutedEventArgs e)
@@ -699,6 +654,41 @@ namespace KenshiModTool
         private void ShowTypeChanges(object sender, RoutedEventArgs e)
         {
             UpdateListBox();
+        }
+
+        private void OpenModFolder_Click(object sender, RoutedEventArgs e)
+        {
+            bool failure = false;
+            foreach (var mod in ListBox.SelectedItems)
+            {
+                CommonService.OpenFolder(System.IO.Path.GetDirectoryName(((Mod)mod).FilePath), () => { failure = true; });
+            }
+
+            if (failure)
+            {
+                MessageBox.Show("Game folder not configured correctly.");
+            }
+
+        }
+
+        private void CheckConflicts(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Process process = new Process();
+                process.StartInfo.FileName = string.IsNullOrEmpty(LoadService.config.ConflictAnalyzerPath) ? "Mod Conflict Manager.exe" : LoadService.config.ConflictAnalyzerPath;
+                process.StartInfo.Arguments = $"{ Constants.modChangesFileName} {Constants.DetailChangesFileName}";
+                process.StartInfo.UseShellExecute = true;
+                process.StartInfo.RedirectStandardOutput = false;
+                process.Start();
+
+                process.WaitForExit();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("I'm working on this feature... it's complicated :)");
+
+            }
         }
     }
 }

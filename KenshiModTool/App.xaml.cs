@@ -1,4 +1,8 @@
-﻿using System.Windows;
+﻿using Microsoft.AspNetCore.Hosting;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace KenshiModTool
 {
@@ -7,5 +11,18 @@ namespace KenshiModTool
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+
+            var builder = WebServer.Builder
+                .CreateWebHostBuilder();
+            var task = Task.Run(() =>
+            {
+                builder.Run();
+            });
+
+        }
+    
     }
+  
 }

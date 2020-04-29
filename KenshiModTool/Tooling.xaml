@@ -1,0 +1,83 @@
+﻿<Window x:Class="KenshiModTool.Tooling"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KenshiModTool"
+        mc:Ignorable="d"
+        Title="KMM-Tooling by millerscout" Height="800" Width="600"
+        MinHeight="800" MinWidth="600"
+        WindowStartupLocation="CenterScreen" Icon="/icon.png">
+    <Grid x:Name="MainGrid" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="Auto" Margin="5,0,5,5" ShowGridLines="True">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25" />
+            <RowDefinition Height="35" />
+            <RowDefinition Height="3*" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="35" />
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" Grid.Column="0"  x:Name="lblFind" Content="Find On List" />
+        <Label Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" x:Name="lblSearchInfo" Content="Found ( **** / ****)" HorizontalAlignment="Right" />
+        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" x:Name="txtSearch" TextWrapping="Wrap" TextChanged="TextBox_TextChanged" UndoLimit="20" KeyDown="TxtSearch_KeyDown" Margin="0,5,5,5" />
+        <Button Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" x:Name="btnReloadMods" Content="Refresh List" Margin="0,5,0,5" Click="btnReloadMods_Click" />
+
+        <ListBox  x:Name="ListBox"
+                  Grid.Row="2"
+                  Grid.Column="0"
+                  Grid.ColumnSpan="4"
+                  VerticalAlignment="Stretch"
+                  HorizontalAlignment="Stretch"
+                  SelectionMode="Extended"
+                  BorderThickness="1" Margin="0,5,0,5" 
+                  HorizontalContentAlignment="Stretch">
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Open Mod Folder" CommandParameter="{Binding}"  Click="OpenModFolder_Click" />
+                </ContextMenu>
+            </ListBox.ContextMenu>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Background="{Binding Color}" Width="Auto" HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <CheckBox Grid.Row="0" Grid.Column="0"  IsChecked="{Binding HasSymbLink}"  IsEnabled="False" Margin="5,5,5,0" />
+                        <TextBlock Grid.Row="0" Grid.Column="1"   Text="{Binding DisplayName}"  Margin="5,5,5,0" Width="auto" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Grid Grid.Row="3" Grid.ColumnSpan="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Margin="0,0,5,5" Grid.Column="0"  x:Name="BtnGameFolder"  Content="Open Game Folder" Click="BtnGameFolder_Click" />
+            <Button Margin="0,0,5,5" Grid.Column="1"  x:Name="GameModFolder"  Content="Open Game Mod Folder" Click="GameModFolder_Click" />
+            <Button Margin="0,0,5,5" Grid.Column="2"  x:Name="BtnSteamFolder" Content="Open Steam Mod Folder" Click="BtnSteamFolder_Click" />
+        </Grid>
+        <Grid Grid.Row="4" Grid.ColumnSpan="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Margin="0,5,6,5" Grid.Column="0"  x:Name="BtnClearEmptyFolders" Content="Clear Empty Folders" Click="BtnClearEmptyFolders_Click" />
+            <Button Margin="0,5,5,5" Grid.Column="1"  x:Name="BtnRemoveSymbLinks" Content="Remove SymbLinks" Click="BtnRemoveSymbLinks_Click" Grid.ColumnSpan="2" />
+            <Button Margin="0,5,4,5" Grid.Column="3"  x:Name="BtnCreateSymbLinks" Content="Create SymbLinks" Click="BtnCreateSymbLinks_Click" />
+            <Button Margin="147,5,0,5" Grid.Column="3"  x:Name="BtnLaunchGame"  Content="Launch Game" Click="BtnLaunchGame_Click" Grid.ColumnSpan="2" />
+        </Grid>
+
+    </Grid>
+</Window>

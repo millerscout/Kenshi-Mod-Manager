@@ -2,8 +2,10 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -70,22 +72,73 @@ namespace Core
         {
             return LoadMod(currentMods, Path.Combine(LoadService.config.GamePath, "Mods"));
         }
-
         private static IEnumerable<Mod> LoadSteamMods(List<string> currentMods)
         {
             if (LoadService.config.SteamModsPath == "NONE") return new List<Mod>();
 
             return LoadMod(currentMods, LoadService.config.SteamModsPath);
         }
+        public static bool IsSymbolic(string path)
+        {
+            FileInfo pathInfo = new FileInfo(path);
+            if (pathInfo.Attributes.HasFlag(FileAttributes.Archive))
+            {
+                return new FileInfo(Path.GetDirectoryName(path)).Attributes.HasFlag(FileAttributes.ReparsePoint);
+            }
+            return pathInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
+        }
+        public static void DeleteFolder(string path)
+        {
+            if (Directory.Exists(path))
+                Directory.Delete(path);
+        }
+        public static void CreateSymbLink(IEnumerable<Tuple<string, string>> symblist)
+        {
 
+            Process process = new Process();
+            process.StartInfo.FileName = "cmd";
+            process.StartInfo.Verb = "runas";
+            process.StartInfo.RedirectStandardInput = true;
+
+
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = false;
+            process.Start();
+
+            foreach (var symb in symblist)
+            {
+                process.StandardInput.WriteLine($"mklink /D \"{symb.Item1}\" \"{symb.Item2}\"");
+            }
+
+            process.StandardInput.Flush();
+            process.StandardInput.Close();
+
+            process.WaitForExit();
+        }
+
+        public static void FolderCleanUp(string path)
+        {
+            if (!Directory.Exists(path)) return;
+            foreach (var directory in Directory.GetDirectories(path))
+            {
+                FolderCleanUp(directory);
+                if (Directory.GetFiles(directory).Length == 0 &&
+                    Directory.GetDirectories(directory).Length == 0)
+                {
+                    File.AppendAllText(Constants.Logfile, $"{DateTime.Now} - This Directory was deleted, because it was empty: {directory}.{Environment.NewLine}");
+                    DeleteFolder(directory);
+                }
+            }
+        }
         private static IEnumerable<Mod> LoadMod(List<string> currentMods, string path)
         {
-            var listInfo = new List<Mod>();
+            var listMods = new List<Mod>();
 
             if (Directory.Exists(path))
             {
                 foreach (var item in Directory.GetDirectories(path))
                 {
+                    if (IsSymbolic(item)) continue;
 
                     var modName = Directory.GetFiles(item, "*.mod").FirstOrDefault() ?? item;
                     var mod = new Mod
@@ -124,7 +177,6 @@ namespace Core
                         File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't load metadata from path: {item}.{Environment.NewLine}");
                         metadata = new Metadata { Description = $"This mod couldn't be loaded, maybe is corrupted or a empty folder, check the error.log  and the mod folder {item}" };
                     }
-
                     else
                     {
                         mod.Dependencies = metadata.Dependencies;
@@ -135,7 +187,12 @@ namespace Core
                     }
                     mod.Order = currentMods.IndexOf(Path.GetFileName(mod.FilePath));
 
-                    listInfo.Add(mod);
+                    if (File.Exists($"reports/{mod.FileName}"))
+                    {
+                        mod.TypesChanged = JsonConvert.DeserializeObject<List<string>>(File.ReadAllText($"reports/{mod.FileName}"));
+                    }
+
+                    listMods.Add(mod);
                 }
             }
             else
@@ -143,7 +200,7 @@ namespace Core
                 File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't read folder: {path} .{Environment.NewLine}");
                 File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - When report this error, you may delete config.json and try again.{Environment.NewLine}");
             }
-            return listInfo;
+            return listMods;
         }
 
         private static List<string> getCurrentActiveMods()
@@ -177,10 +234,10 @@ namespace Core
                 mod.Id = xdoc.Descendants("id").FirstOrDefault().Value;
                 mod.Source = SourceEnum.Steam;
             }
-            else
-            {
-                mod.Source = SourceEnum.GameFolder;
-            }
+
+            mod.Source = mod.FilePath.Contains(LoadService.config.GamePath)
+                ? SourceEnum.GameFolder :
+                SourceEnum.Steam;
         }
     }
 }
