@@ -38,8 +38,31 @@
 
 <a href="https://trello.com/b/Zs2CHqSR/kenshi-mod-manager"> Click here </a>
     
+# Conflict Checker
+       if you're willing to test this feature, you'll need to manually configure the config.json.
+       
+       on your config.json
+
+add the line
+
+``` json
+  "ConflictAnalyzerPath": "Mod Conflict Manager.exe"
+```
+
+your config file should look like this:
+``` javascript
+{
+  "gamePath": " {Your game path.} ",
+  "SteamModsPath": " {YourSteam Folder if applicable} ",
+  "SteamPageUrl": "https://steamcommunity.com/sharedfiles/filedetails/?id=",
+  "NexusPageUrl": "https://www.nexusmods.com/kenshi/search/?gsearch=",
+  "ConflictAnalyzerPath": "Mod Conflict Manager.exe"
+}
+```
+
+
 # Known Bugs
-       when you trying to open and nothing happens, try to delete the "config.json" file.
+       - when you trying to open and nothing happens, try to delete the "config.json" file.
      
 # Licence
 
