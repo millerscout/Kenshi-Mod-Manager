@@ -9,5 +9,7 @@ namespace Core
             };
         public const string modChangesFileName = "modChanges.json";
         public const string DetailChangesFileName = "detailChanges.json";
+        public const string Errorfile = "error.log";
+
     }
 }

@@ -37,19 +37,29 @@ namespace KenshiModTool
 
         public MainWindow()
         {
-            InitializeComponent();
+            try
+            {
 
-            MainGrid.ShowGridLines = false;
-            lblSearchInfo.Content = "";
-            RtbDetail.Document.Blocks.Clear();
 
-            LoadService.Setup();
+                InitializeComponent();
 
-            AskGamePathIfRequired();
-            AskSteamPathIfRequired();
-            LoadService.SaveConfig();
+                MainGrid.ShowGridLines = false;
+                lblSearchInfo.Content = "";
+                RtbDetail.Document.Blocks.Clear();
 
-            LoadModList();
+                LoadService.Setup();
+
+                AskGamePathIfRequired();
+                AskSteamPathIfRequired();
+                LoadService.SaveConfig();
+
+                LoadModList();
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} -  {ex.Message}.{Environment.NewLine}");
+                File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace} {Environment.NewLine}");
+            }
         }
 
         #region Environment Functions
@@ -544,7 +554,7 @@ namespace KenshiModTool
         {
 
             Process compiler = new Process();
-            compiler.StartInfo.FileName = LoadService.config.ConflictAnalyzerPath;
+            compiler.StartInfo.FileName = string.IsNullOrEmpty(LoadService.config.ConflictAnalyzerPath) ? "Mod Conflict Manager.exe" : LoadService.config.ConflictAnalyzerPath;
             compiler.StartInfo.Arguments = $"{ Constants.modChangesFileName} {Constants.DetailChangesFileName}";
             compiler.StartInfo.UseShellExecute = true;
             compiler.StartInfo.RedirectStandardOutput = false;
