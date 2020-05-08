@@ -73,9 +73,11 @@ namespace Core
             {
                 foreach (var item in Directory.GetDirectories(path))
                 {
+
+                    var modName = Directory.GetFiles(item, "*.mod").FirstOrDefault() ?? item;
                     var mod = new Mod
                     {
-                        FilePath = Directory.GetFiles(item, "*.mod").FirstOrDefault()
+                        FilePath = modName
                     };
 
                     try
@@ -94,12 +96,24 @@ namespace Core
 
                     Func<string, bool> predicate = f => f == Path.GetFileName(mod.FilePath);
                     mod.Active = currentMods.Any(predicate);
-                    Metadata metadata = ModMetadataReader.LoadMetadata(mod.FilePath);
+
+                    Metadata metadata = new Metadata { };
+                    try
+                    {
+                        metadata = ModMetadataReader.LoadMetadata(mod.FilePath);
+                    }
+                    catch (Exception ex)
+                    {
+                        metadata = new Metadata { Description = $"This mod couldn't be loaded, maybe is corrupted or a empty folder, check the error.log and the mod folder {item}"};
+                        File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Check the folder: {item}.{Environment.NewLine}");
+                    }
 
                     if (metadata is null)
                     {
-                        File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't load metadata.{Environment.NewLine}");
+                        File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't load metadata from path: {item}.{Environment.NewLine}");
+                        metadata = new Metadata { Description = $"This mod couldn't be loaded, maybe is corrupted or a empty folder, check the error.log  and the mod folder {item}"};
                     }
+
                     else
                     {
                         mod.Dependencies = metadata.Dependencies;
@@ -116,7 +130,7 @@ namespace Core
             else
             {
                 File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't read folder: {path} .{Environment.NewLine}");
-                File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - When report this error, first your config, you may delete config.json.{Environment.NewLine}");
+                File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - When report this error, you may delete config.json and try again.{Environment.NewLine}");
             }
             return listInfo;
         }

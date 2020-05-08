@@ -40,7 +40,9 @@ namespace Core.Models
         {
             get
             {
-                return Path.GetFileNameWithoutExtension(FilePath);
+                return Path.HasExtension(FilePath) ?
+                Path.GetFileNameWithoutExtension(FilePath) :
+                $"[Error]: {Path.GetFileNameWithoutExtension(FilePath)}";
             }
         }
 

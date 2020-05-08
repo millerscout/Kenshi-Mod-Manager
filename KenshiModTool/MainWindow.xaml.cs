@@ -135,7 +135,7 @@ namespace KenshiModTool
             {
                 var mod = ModList.FirstOrDefault(c => c.FilePath.Contains(txtSearch.Text));
 
-                SearchList = ModList.Where(c => c.FilePath.ToLower().Contains(txtSearch.Text.ToLower()) || c.Id == txtSearch.Text).OrderBy(m => m.Order).ToArray();
+                SearchList = ModList.Where(c => c.FilePath.Contains(txtSearch.Text, StringComparison.CurrentCultureIgnoreCase)|| c.DisplayName.Contains(txtSearch.Text, StringComparison.CurrentCultureIgnoreCase) || c.Id == txtSearch.Text).OrderBy(m => m.Order).ToArray();
 
                 if (SearchList.Length == 0)
                 {
@@ -205,6 +205,11 @@ namespace KenshiModTool
                 if (mod.Conflicts.Count > 0)
                 {
                     mod.Color = ModColors.HasConflictsColor;
+                }
+
+                if (!Path.HasExtension(mod.FileName))
+                {
+                    mod.Color = ModColors.SomeErrorWhileReadingMetadataColor;
                 }
             }
 
