@@ -14,6 +14,8 @@ namespace Core
 
         public static void Setup()
         {
+            if (File.Exists("error.log"))
+                File.Delete("error.log");
             if (File.Exists("config.json"))
             {
                 config = JsonConvert.DeserializeObject<KenshiToolConfig>(File.ReadAllText("config.json"));
@@ -53,69 +55,85 @@ namespace Core
 
         private static IEnumerable<Mod> LoadFolderMods(List<string> currentMods)
         {
-            var listInfo = new List<Mod>();
-            foreach (var item in Directory.GetDirectories(Path.Combine(LoadService.config.GamePath, "Mods")))
-            {
-                Console.WriteLine(item + "Found");
-
-                var mod = new Mod
-                {
-                    FilePath = Directory.GetFiles(item, "*.mod").FirstOrDefault()
-                };
-
-                ReadAndSetInfo(Path.Combine(item, $"_{Path.GetFileNameWithoutExtension(mod.FilePath)}.info"), mod);
-
-                Func<string, bool> predicate = f => f == Path.GetFileName(mod.FilePath);
-                mod.Active = currentMods.Any(predicate);
-
-                Metadata metadata = ModMetadataReader.LoadMetadata(mod.FilePath);
-                mod.Order = currentMods.IndexOf(Path.GetFileName(mod.FilePath));
-                mod.Dependencies = metadata.Dependencies;
-                mod.Description = metadata.Description;
-                mod.References = metadata.Referenced;
-                mod.Version = metadata.Version.ToString();
-                mod.Author = metadata.Author;
-
-                if (!listInfo.Any(m => m.DisplayName == mod.DisplayName))
-                    listInfo.Add(mod);
-            }
-            return listInfo;
+            return LoadMod(currentMods, Path.Combine(LoadService.config.GamePath, "Mods"));
         }
 
         private static IEnumerable<Mod> LoadSteamMods(List<string> currentMods)
         {
-            var listInfo = new List<Mod>();
-
             if (LoadService.config.SteamModsPath == "NONE") return new List<Mod>();
 
-            foreach (var item in Directory.GetDirectories(LoadService.config.SteamModsPath))
+            return LoadMod(currentMods, LoadService.config.SteamModsPath);
+        }
+
+        private static IEnumerable<Mod> LoadMod(List<string> currentMods, string path)
+        {
+            var listInfo = new List<Mod>();
+
+            if (Directory.Exists(path))
             {
-                Console.WriteLine(item + "Found");
-
-                var mod = new Mod
+                foreach (var item in Directory.GetDirectories(path))
                 {
-                    FilePath = Directory.GetFiles(item, "*.mod").FirstOrDefault()
-                };
+                    var mod = new Mod
+                    {
+                        FilePath = Directory.GetFiles(item, "*.mod").FirstOrDefault()
+                    };
 
-                ReadAndSetInfo(Path.Combine(item, $"_{Path.GetFileNameWithoutExtension(mod.FilePath)}.info"), mod);
+                    try
+                    {
+                        ReadAndSetInfo(Path.Combine(item, $"_{Path.GetFileNameWithoutExtension(mod.FilePath)}.info"), mod);
+                    }
+                    catch (Exception ex)
+                    {
 
-                Func<string, bool> predicate = f => f == Path.GetFileName(mod.FilePath);
-                mod.Active = currentMods.Any(predicate);
-                Metadata metadata = ModMetadataReader.LoadMetadata(mod.FilePath);
-                mod.Order = currentMods.IndexOf(Path.GetFileName(mod.FilePath));
-                mod.Dependencies = metadata.Dependencies;
-                mod.Description = metadata.Description;
-                mod.References = metadata.Referenced;
-                mod.Version = metadata.Version.ToString();
-                mod.Author = metadata.Author;
-                listInfo.Add(mod);
+                        File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't load metadata.{Environment.NewLine}");
+                        File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - The mod {mod.FilePath} may be corrupted. {Environment.NewLine}");
+
+                        File.AppendAllText(Constants.Errorfile, $"{ex.Message}");
+                        File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace}");
+                    }
+
+                    Func<string, bool> predicate = f => f == Path.GetFileName(mod.FilePath);
+                    mod.Active = currentMods.Any(predicate);
+                    Metadata metadata = ModMetadataReader.LoadMetadata(mod.FilePath);
+
+                    if (metadata is null)
+                    {
+                        File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't load metadata.{Environment.NewLine}");
+                    }
+                    else
+                    {
+                        mod.Dependencies = metadata.Dependencies;
+                        mod.Description = metadata.Description;
+                        mod.References = metadata.Referenced;
+                        mod.Version = metadata.Version.ToString();
+                        mod.Author = metadata.Author;
+                    }
+                    mod.Order = currentMods.IndexOf(Path.GetFileName(mod.FilePath));
+
+                    listInfo.Add(mod);
+                }
+            }
+            else
+            {
+                File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't read folder: {path} .{Environment.NewLine}");
+                File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - When report this error, first your config, you may delete config.json.{Environment.NewLine}");
             }
             return listInfo;
         }
 
         private static List<string> getCurrentActiveMods()
         {
-            return File.ReadAllLines(Path.Combine(config.GamePath, "data", "mods.cfg")).Select(c => c.Trim()).ToList();
+            try
+            {
+                return File.ReadAllLines(Path.Combine(config.GamePath, "data", "mods.cfg")).Select(c => c.Trim()).ToList();
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't read mods.cfg, check your config, you may delete as well, the folder will be requested again.{Environment.NewLine}");
+                File.AppendAllText(Constants.Errorfile, $"{ex.Message}{Environment.NewLine}");
+                File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace}{Environment.NewLine}");
+                return new List<string>();
+            }
         }
 
         private static void ReadAndSetInfo(string filename, Mod mod)
