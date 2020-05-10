@@ -86,7 +86,6 @@ namespace Core
                     }
                     catch (Exception ex)
                     {
-
                         File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't load metadata.{Environment.NewLine}");
                         File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - The mod {mod.FilePath} may be corrupted. {Environment.NewLine}");
 

@@ -544,6 +544,35 @@ namespace Core
             {
                 rule.ModsOrdered.Clear();
             }
+
+
+            var required = ordered.Where(c => c.Dependencies.Any()).ToList();
+
+            foreach (var item in required)
+            {
+                var oldOrder = item.Order;
+
+
+                var dependencies = ordered.Where(c =>
+                    item.Dependencies.Any(q => q.IndexOf(c.FileName, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                );
+
+                if (!dependencies.Any()) continue;
+                if (oldOrder > dependencies.Max(c => c.Order)) continue;
+
+                ordered.Remove(ordered.FirstOrDefault(c => c.UniqueIdentifier == item.UniqueIdentifier));
+
+
+
+                ordered.InsertRange(
+                    ordered.IndexOf(dependencies.OrderBy(c => c.Order).Last())+1
+                , new List<Mod> { item });
+
+                for (int ii = 0; ii < ordered.Count; ii++)
+                {
+                    ordered.ElementAt(ii).Order = ii;
+                }
+            }
             return ordered.OrderBy(o => ordered);
 
             void removeModFromOtherList(Mod mod, int order)

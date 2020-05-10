@@ -298,3 +298,4 @@ __pycache__/
 *_REMOTE_*.txt
 
 # End of https://www.gitignore.io/api/git,dotnetcore,aspnetcore
+ClientApp/dist/

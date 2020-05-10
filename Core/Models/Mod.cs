@@ -18,7 +18,6 @@ namespace Core.Models
         public IEnumerable<string> Categories { get; set; }
         public string FilePath { get; set; }
         public bool Active { get; set; }
-        public bool OrderedAutomatically { get; set; }
         public string Color { get; set; }
         public ConcurrentStack<string> Conflicts { get; set; } = new ConcurrentStack<string>();
 
@@ -70,6 +69,7 @@ namespace Core.Models
         /// don`t know what is this used for... but seems something important while ordering.
         /// </summary>
         public List<string> References { get; set; }
+        public bool OrderedAutomatically { get; internal set; }
     }
     public class Conflict
     {
