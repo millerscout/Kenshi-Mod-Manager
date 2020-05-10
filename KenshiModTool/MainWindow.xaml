@@ -17,19 +17,24 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="25" />
             <RowDefinition Height="35" />
+            <RowDefinition Height="25" />
             <RowDefinition Height="3*" />
             <RowDefinition Height="30" />
             <RowDefinition Height="*" />
             <RowDefinition Height="35" />
         </Grid.RowDefinitions>
-        <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="1" x:Name="lblFind" Content="Find On List" />
+        <Label Grid.Row="0" Grid.Column="0"  x:Name="lblFind" Content="Find On List" />
         <CheckBox x:Name="chk_showConflicts" Grid.Row="0" Grid.Column="1" IsChecked="{Binding ShowConflicts}" Checked="ShowConflicts_check" Unchecked="ShowConflicts_check" Margin="5,5,5,0" Content="Show conflicts" />
         <Label Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" x:Name="lblSearchInfo" Content="Found ( **** / ****)" HorizontalAlignment="Right" />
         <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" x:Name="txtSearch" TextWrapping="Wrap" TextChanged="TextBox_TextChanged" UndoLimit="20" KeyDown="TxtSearch_KeyDown" Margin="0,5,5,5" />
         <Button Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" x:Name="btnReloadMods" Content="Refresh List" Click="BtnRefreshMods_Click" Margin="0,5,0,5" />
 
+
+        <ComboBox x:Name="CmbSortBy" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="1" SelectionChanged="OrderBy_SelectionChanged" HorizontalAlignment="Stretch" DisplayMemberPath="Value" SelectedValuePath="Id"  />
+        <CheckBox x:Name="ShowSteamMods" Grid.Row="2" Grid.Column="3" IsChecked="{Binding ShowSteamMods}" Checked="ShowTypeChanges" Unchecked="ShowTypeChanges" Margin="5,5,5,0" Content="Steam Mods" />
+        <CheckBox x:Name="ShowRegularMods" Grid.Row="2" Grid.Column="1" IsChecked="{Binding ShowRegularMods}" Checked="ShowTypeChanges" Unchecked="ShowTypeChanges" Margin="5,5,5,0" Content="Regular Mods" />
         <ListBox  x:Name="ListBox"
-                  Grid.Row="2"
+                  Grid.Row="3"
                   Grid.Column="0"
                   Grid.ColumnSpan="4"
                   VerticalAlignment="Stretch"
@@ -65,7 +70,7 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Grid Grid.Row="3" Grid.ColumnSpan="4">
+        <Grid Grid.Row="4" Grid.ColumnSpan="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
@@ -77,10 +82,10 @@
             <Button Margin="0,0,5,5" Grid.Column="1"  x:Name="GameModFolder"  Content="Open Game Mod Folder" Click="GameModFolder_Click" />
             <Button Margin="0,0,5,5" Grid.Column="2"  x:Name="BtnSteamFolder" Content="Open Steam Mod Folder" Click="BtnSteamFolder_Click" />
             <Button Margin="0,0,5,5" Grid.Column="3"  x:Name="btnOrder"       Content="Order Mods (Beta!)" Click="BtnOrder_Click" />
-            <Button Margin="0,0,0,5" Grid.Column="4"  x:Name="btnTest"       Content="TestConflicts" Click="BtnTest_Click" />
+            <Button Margin="0,0,0,5" Grid.Column="4"  x:Name="btnTest"       Content="Check Conflicts(WIP)" Click="BtnTest_Click" />
         </Grid>
 
-        <ScrollViewer Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4">
+        <ScrollViewer Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="4">
             <RichTextBox IsDocumentEnabled="True" x:Name="RtbDetail" IsReadOnly="True"  AcceptsReturn="True" AcceptsTab="True">
                 <RichTextBox.Resources>
                     <Style TargetType="{x:Type Paragraph}">
@@ -99,7 +104,7 @@ Phasellus quis dignissim ipsum. Nulla interdum lobortis posuere. Duis consequat 
             </RichTextBox>
         </ScrollViewer>
 
-        <Grid Grid.Row="5" Grid.ColumnSpan="4">
+        <Grid Grid.Row="6" Grid.ColumnSpan="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
@@ -111,5 +116,6 @@ Phasellus quis dignissim ipsum. Nulla interdum lobortis posuere. Duis consequat 
             <Button Margin="0,5,5,5" Grid.Column="2"  x:Name="btnLoadProfile" Content="Load mod Profile" Click="BtnLoadProfile_Click" />
             <Button Margin="0,5,0,5" Grid.Column="4"  x:Name="BtnLaunchGame"  Content="Launch Game" Click="BtnLaunchGameClick" />
         </Grid>
+        
     </Grid>
 </Window>

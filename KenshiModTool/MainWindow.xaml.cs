@@ -1,17 +1,20 @@
 ﻿using Core;
 using Core.Models;
 using KenshiModTool.Model;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -35,13 +38,16 @@ namespace KenshiModTool
         public ConcurrentDictionary<string, DetailChanges> DetailIndex = new ConcurrentDictionary<string, DetailChanges>();
         public bool ShowConflicts { get; set; } = false;
 
+        public EnumOrder CurrentOrder = EnumOrder.Order;
+
         public MainWindow()
         {
             try
             {
-
-
                 InitializeComponent();
+
+                CmbSortBy.ItemsSource = Enum.GetValues(typeof(EnumOrder)).Cast<EnumOrder>().Select(sort => new ComboData { Id = (int)sort, Value = $"Sort By: {sort}" });
+                CmbSortBy.SelectedItem = CmbSortBy.Items.GetItemAt(0);
 
                 MainGrid.ShowGridLines = false;
                 lblSearchInfo.Content = "";
@@ -135,7 +141,7 @@ namespace KenshiModTool
             {
                 var mod = ModList.FirstOrDefault(c => c.FilePath.Contains(txtSearch.Text));
 
-                SearchList = ModList.Where(c => c.FilePath.Contains(txtSearch.Text, StringComparison.CurrentCultureIgnoreCase)|| c.DisplayName.Contains(txtSearch.Text, StringComparison.CurrentCultureIgnoreCase) || c.Id == txtSearch.Text).OrderBy(m => m.Order).ToArray();
+                SearchList = ModList.Where(c => c.FilePath.Contains(txtSearch.Text, StringComparison.CurrentCultureIgnoreCase) || c.DisplayName.Contains(txtSearch.Text, StringComparison.CurrentCultureIgnoreCase) || c.Id == txtSearch.Text).OrderBy(m => m.Order).ToArray();
 
                 if (SearchList.Length == 0)
                 {
@@ -213,12 +219,16 @@ namespace KenshiModTool
                 }
             }
 
-            ListBox.ItemsSource = ModList.OrderBy(q => q.Order);
+
+            ListBox.ItemsSource = ModList
+                .OrderBy(CurrentOrder)
+                .Filter(ShowRegularMods.IsChecked ?? false, ShowSteamMods.IsChecked ?? false);
 
             if (SearchList.Length > 0)
                 ListBox.ScrollIntoView(SearchList[currentIndexSearch]);
-        }
 
+
+        }
         public void SetNewOrder(Mod current, int New, bool ignoreUpdateList = false)
         {
             Dictionary<Guid, Tuple<int, bool>> order = new Dictionary<Guid, Tuple<int, bool>> {
@@ -570,6 +580,13 @@ namespace KenshiModTool
 
         private void ShowConflicts_check(object sender, RoutedEventArgs e)
         {
+
+            if (!File.Exists(Constants.modChangesFileName))
+            {
+                MessageBox.Show("You need to Click check conflicts, beware, it'll take a while.");
+                return;
+            }
+
             chk_showConflicts.IsChecked = false;
 
             var alreadyLoaded = ConflictIndex.Count > 0 && DetailIndex.Count > 0;
@@ -621,6 +638,17 @@ namespace KenshiModTool
 
             }
 
+            UpdateListBox();
+        }
+
+        private void OrderBy_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            CurrentOrder = (EnumOrder)(CmbSortBy.SelectedItem as ComboData).Id;
+            UpdateListBox();
+        }
+
+        private void ShowTypeChanges(object sender, RoutedEventArgs e)
+        {
             UpdateListBox();
         }
     }
