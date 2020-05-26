@@ -53,6 +53,12 @@ namespace KenshiModTool
                 lblSearchInfo.Content = "";
                 RtbDetail.Document.Blocks.Clear();
 
+                Style itemContainerStyle = new Style(typeof(ListBoxItem));
+                itemContainerStyle.Setters.Add(new Setter(ListBoxItem.AllowDropProperty, true));
+                itemContainerStyle.Setters.Add(new EventSetter(ListBoxItem.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(PreviewDragAndDrop)));
+                itemContainerStyle.Setters.Add(new EventSetter(ListBoxItem.DropEvent, new DragEventHandler(SetDropAction)));
+                ListBox.ItemContainerStyle = itemContainerStyle;
+
                 LoadService.Setup();
 
                 AskGamePathIfRequired();
@@ -65,6 +71,35 @@ namespace KenshiModTool
             {
                 File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} -  {ex.Message}.{Environment.NewLine}");
                 File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace} {Environment.NewLine}");
+            }
+        }
+
+        void PreviewDragAndDrop(object sender, MouseButtonEventArgs e)
+        {
+
+            if (sender is ListBoxItem)
+            {
+                ListBoxItem draggedItem = sender as ListBoxItem;
+                DragDrop.DoDragDrop(draggedItem, draggedItem.DataContext, DragDropEffects.Move);
+                draggedItem.IsSelected = true;
+            }
+        }
+
+        void SetDropAction(object sender, DragEventArgs e)
+        {
+            Mod droppedData = e.Data.GetData(typeof(Mod)) as Mod;
+            Mod target = ((ListBoxItem)(sender)).DataContext as Mod;
+
+            int oldIndex = ListBox.Items.IndexOf(droppedData);
+            int targetIdx = ListBox.Items.IndexOf(target);
+            if (oldIndex == targetIdx)
+            {
+                ListBox.SelectedItem = target;
+            }
+            else
+            {
+                SetNewOrder(droppedData, targetIdx < 0 ? 0 : target.Order);
+                UpdateListBox();
             }
         }
 
@@ -567,15 +602,22 @@ namespace KenshiModTool
 
         private void BtnTest_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                Process process = new Process();
+                process.StartInfo.FileName = string.IsNullOrEmpty(LoadService.config.ConflictAnalyzerPath) ? "Mod Conflict Manager.exe" : LoadService.config.ConflictAnalyzerPath;
+                process.StartInfo.Arguments = $"{ Constants.modChangesFileName} {Constants.DetailChangesFileName}";
+                process.StartInfo.UseShellExecute = true;
+                process.StartInfo.RedirectStandardOutput = false;
+                process.Start();
 
-            Process compiler = new Process();
-            compiler.StartInfo.FileName = string.IsNullOrEmpty(LoadService.config.ConflictAnalyzerPath) ? "Mod Conflict Manager.exe" : LoadService.config.ConflictAnalyzerPath;
-            compiler.StartInfo.Arguments = $"{ Constants.modChangesFileName} {Constants.DetailChangesFileName}";
-            compiler.StartInfo.UseShellExecute = true;
-            compiler.StartInfo.RedirectStandardOutput = false;
-            compiler.Start();
+                process.WaitForExit();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("I'm working on this feature... it's complicated :)");
 
-            compiler.WaitForExit();
+            }
         }
 
         private void ShowConflicts_check(object sender, RoutedEventArgs e)
