@@ -12,6 +12,13 @@
 <p>This project is being Part of the <a href="https://discord.gg/g7F6aHw">Genesis Modding Guild</a>, you can look up for support there at #kmm-tool</p>
 
 
+# How to Use?
+
+<p>
+       <a href ="https://www.youtube.com/watch?v=OT-n6t6FZb0">
+         Found on Youtube from hekheler<a/> this video is a better explanation that i couldn't write properly :)
+</p>
+<p>Hope he don't mind sharing his video :x</p>
 
 # Requisite:
 [3.1 NetCore](https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-aspnetcore-3.1.3-windows-x64-installer) or [latest](https://dotnet.microsoft.com/download/dotnet-core/current)
