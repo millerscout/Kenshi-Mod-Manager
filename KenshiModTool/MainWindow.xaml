@@ -54,6 +54,7 @@
                 <DataTemplate>
                     <Grid Background="{Binding Color}" Width="Auto" HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10" />
                             <ColumnDefinition Width="50" />
                             <ColumnDefinition Width="25" />
                             <ColumnDefinition Width="*" />
@@ -62,10 +63,11 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding Order}"  KeyDown="RibbonTextBox_KeyDown" MaxLength="5"  Margin="5,5,5,5" Width="40" />
-                        <CheckBox Grid.Row="0" Grid.Column="1"  IsChecked="{Binding Active}" Checked="UpdateCheckBox" Unchecked="UpdateCheckBox" Margin="5,5,5,0" />
-                        <TextBlock Grid.Row="0" Grid.Column="2"   Text="{Binding DisplayName}"  Margin="5,5,5,0" Width="auto" />
-                        <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding DisplayCategories}" Margin="5,5,5,0" Width="auto" />
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="|||"  Margin="0,5,0,0" Width="10" Name="Handle" />
+                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Order}"  KeyDown="RibbonTextBox_KeyDown" MaxLength="5"  Margin="5,5,5,5" Width="40" />
+                        <CheckBox Grid.Row="0" Grid.Column="2"  IsChecked="{Binding Active}" Checked="UpdateCheckBox" Unchecked="UpdateCheckBox" Margin="5,5,5,0" />
+                        <TextBlock Grid.Row="0" Grid.Column="3"   Text="{Binding DisplayName}"  Margin="5,5,5,0" Width="auto" />
+                        <TextBlock Grid.Row="0" Grid.Column="4" Text="{Binding DisplayCategories}" Margin="5,5,5,0" Width="auto" />
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
