@@ -77,7 +77,8 @@ namespace KenshiModTool
         void PreviewDragAndDrop(object sender, MouseButtonEventArgs e)
         {
 
-            if (sender is ListBoxItem)
+            var target = ((MouseDevice)e.Device).Target;
+            if (sender is ListBoxItem && target is TextBlock && (target as TextBlock).Name == "Handle")
             {
                 ListBoxItem draggedItem = sender as ListBoxItem;
                 DragDrop.DoDragDrop(draggedItem, draggedItem.DataContext, DragDropEffects.Move);
@@ -99,7 +100,6 @@ namespace KenshiModTool
             else
             {
                 SetNewOrder(droppedData, targetIdx < 0 ? 0 : target.Order);
-                UpdateListBox();
             }
         }
 
@@ -266,15 +266,17 @@ namespace KenshiModTool
         }
         public void SetNewOrder(Mod current, int New, bool ignoreUpdateList = false)
         {
+            if (New < 0) New = 0;
             Dictionary<Guid, Tuple<int, bool>> order = new Dictionary<Guid, Tuple<int, bool>> {
                 {current.UniqueIdentifier, new Tuple<int, bool>(New,true)}
             };
-            foreach (var item in ModList.Where(q => q.Order != -1 && q.Order >= New && q.UniqueIdentifier != current.UniqueIdentifier).OrderBy(c => c.Order))
+            foreach (var item in ModList.Where(q => q.Order != -1 && q.UniqueIdentifier != current.UniqueIdentifier).OrderBy(c => c.Order))
                 order.Add(item.UniqueIdentifier, new Tuple<int, bool>(item.Order, false));
 
-            var i = New + 1;
+            var i = 0;
             foreach (var item in order.Where(q => !q.Value.Item2).OrderBy(c => c.Value.Item1))
             {
+                if (i == New) i++;
                 order[item.Key] = new Tuple<int, bool>(i, true);
                 i++;
             }
@@ -284,6 +286,11 @@ namespace KenshiModTool
                 ModList.FirstOrDefault(m => m.UniqueIdentifier == item.Key).Order = item.Value.Item1;
             }
 
+            var max = ModList.Where(c => c.Active && c.UniqueIdentifier != current.UniqueIdentifier).Max(q => q.Order);
+            if (New > max)
+            {
+                ModList.FirstOrDefault(m => m.UniqueIdentifier == current.UniqueIdentifier).Order = max + 1;
+            }
             if (!ignoreUpdateList)
                 UpdateListBox();
         }
