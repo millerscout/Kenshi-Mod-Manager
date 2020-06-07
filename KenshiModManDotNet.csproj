@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="icons\Buttons\AutoSort_32px.png" />
+    <None Remove="icons\Buttons\Compare_32px.png" />
+    <None Remove="icons\Buttons\Delete_32px.png" />
+    <None Remove="icons\Buttons\File_32px.png" />
+    <None Remove="icons\Buttons\Folder_32px.png" />
+    <None Remove="icons\Buttons\Folder_Game_32px.png" />
+    <None Remove="icons\Buttons\Folder_Mods_32px.png" />
+    <None Remove="icons\Buttons\Folder_Steam_32px.png" />
+    <None Remove="icons\Buttons\Refresh_32px.png" />
+    <None Remove="icons\Buttons\Save_32px.png" />
+    <None Remove="icons\Buttons\Search_16px.png" />
+    <None Remove="icons\Buttons\Synchronize_32px.png" />
+    <None Remove="icons\FCS_32.png" />
+    <None Remove="icons\Kenshi_32.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="icons\Buttons\AutoSort_32px.png" />
+    <Resource Include="icons\Buttons\Compare_32px.png" />
+    <Resource Include="icons\Buttons\Delete_32px.png" />
+    <Resource Include="icons\Buttons\File_32px.png" />
+    <Resource Include="icons\Buttons\Folder_32px.png" />
+    <Resource Include="icons\Buttons\Folder_Game_32px.png" />
+    <Resource Include="icons\Buttons\Folder_Mods_32px.png" />
+    <Resource Include="icons\Buttons\Folder_Steam_32px.png" />
+    <Resource Include="icons\Buttons\Refresh_32px.png" />
+    <Resource Include="icons\Buttons\Save_32px.png" />
+    <Resource Include="icons\Buttons\Search_16px.png" />
+    <Resource Include="icons\Buttons\Synchronize_32px.png" />
+    <Resource Include="icons\FCS_32.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icons\Kenshi_32.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+</Project>
