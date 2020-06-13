@@ -18,6 +18,7 @@ check it on: https://github.com/millerscout/Kenshi-Mod-Manager</Description>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="flurl.http" Version="2.4.2" />
     <PackageReference Include="newtonsoft.json" Version="12.0.3" />
   </ItemGroup>
 
