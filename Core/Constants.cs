@@ -10,6 +10,8 @@ namespace Core
         public const string modChangesFileName = "modChanges.json";
         public const string DetailChangesFileName = "detailChanges.json";
         public const string Errorfile = "error.log";
+        public const string ConfigFile = "config.json";
+        public const string MasterlistFile = "masterlist.json";
 
     }
 }

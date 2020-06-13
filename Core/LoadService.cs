@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace Core
@@ -14,11 +15,13 @@ namespace Core
 
         public static void Setup()
         {
-            if (File.Exists("error.log"))
-                File.Delete("error.log");
-            if (File.Exists("config.json"))
+
+
+            if (File.Exists(Constants.Errorfile))
+                File.Delete(Constants.Errorfile);
+            if (File.Exists(Constants.ConfigFile))
             {
-                config = JsonConvert.DeserializeObject<KenshiToolConfig>(File.ReadAllText("config.json"));
+                config = JsonConvert.DeserializeObject<KenshiToolConfig>(File.ReadAllText(Constants.ConfigFile));
             }
             else
             {
@@ -27,9 +30,19 @@ namespace Core
                     GamePath = "",
                     SteamModsPath = "",
                     SteamPageUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=",
-                    NexusPageUrl = "https://www.nexusmods.com/kenshi/search/?gsearch="
+                    NexusPageUrl = "https://www.nexusmods.com/kenshi/search/?gsearch=",
+                    MasterlistSource = "millerscout/kmm-masterlist"
                 };
             }
+
+            var version = RuleService.GetLatestVersion();
+
+            if (!string.IsNullOrEmpty(version) && version != config.MasterlistVersion)
+            {
+                config.MasterlistVersion = version;
+                RuleService.UpdateMasterFile();
+            }
+
 
         }
 
@@ -88,7 +101,6 @@ namespace Core
                     {
                         File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't load metadata.{Environment.NewLine}");
                         File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - The mod {mod.FilePath} may be corrupted. {Environment.NewLine}");
-
                         File.AppendAllText(Constants.Errorfile, $"{ex.Message}");
                         File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace}");
                     }
@@ -103,14 +115,14 @@ namespace Core
                     }
                     catch (Exception ex)
                     {
-                        metadata = new Metadata { Description = $"This mod couldn't be loaded, maybe is corrupted or a empty folder, check the error.log and the mod folder {item}"};
+                        metadata = new Metadata { Description = $"This mod couldn't be loaded, maybe is corrupted or a empty folder, check the error.log and the mod folder {item}" };
                         File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Check the folder: {item}.{Environment.NewLine}");
                     }
 
                     if (metadata is null)
                     {
                         File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't load metadata from path: {item}.{Environment.NewLine}");
-                        metadata = new Metadata { Description = $"This mod couldn't be loaded, maybe is corrupted or a empty folder, check the error.log  and the mod folder {item}"};
+                        metadata = new Metadata { Description = $"This mod couldn't be loaded, maybe is corrupted or a empty folder, check the error.log  and the mod folder {item}" };
                     }
 
                     else
