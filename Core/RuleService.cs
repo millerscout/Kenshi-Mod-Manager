@@ -127,7 +127,7 @@ namespace Core
             }
 
 
-            var required = ordered.Where(c => c.Dependencies.Any()).ToList();
+            var required = ordered.Where(c => c.AllDependencies.Any()).ToList();
 
             foreach (var item in required)
             {
@@ -135,7 +135,7 @@ namespace Core
 
 
                 var dependencies = ordered.Where(c =>
-                    item.Dependencies.Any(q => q.IndexOf(c.FileName, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                    item.AllDependencies.Any(q => q.IndexOf(c.FileName, StringComparison.CurrentCultureIgnoreCase) >= 0)
                 );
 
                 if (!dependencies.Any()) continue;
