@@ -22,6 +22,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Navigation;
 
 namespace KenshiModTool
@@ -232,18 +233,30 @@ namespace KenshiModTool
             foreach (var mod in ModList)
             {
                 mod.Color = SearchList.Any(s => s.UniqueIdentifier == mod.UniqueIdentifier) ? ModColors.SearchColor : "";
-                var dependencies = mod
-                    .Dependencies
-                    .Concat(mod.References)
-                    .Where(c => !Constants.SkippableMods.Contains(c.ToLower()));
 
-                if (dependencies.Count() > 0)
+                if (mod.AllDependencies.Any())
                 {
                     if (mod.Active)
-                        if (ModList.Where(m => !m.Active).Any(c => dependencies.Any(r => r.Contains(c.FileName, StringComparison.CurrentCultureIgnoreCase))))
+                    {
+                        bool HasError = false;
+                        foreach (var item in mod.AllDependencies)
+                        {
+                            if (!ModList.Any(c => c.Active && c.Order < mod.Order && c.FileName.Contains(item, StringComparison.CurrentCultureIgnoreCase)))
+                            {
+                                HasError = true;
+                                break;
+                            }
+                        }
+
+                        if (HasError)
                         {
                             mod.Color = ModColors.RequisiteNotFoundColor;
                         }
+                    }
+
+
+
+
                 }
 
                 if (mod.Conflicts.Count > 0)
@@ -264,6 +277,8 @@ namespace KenshiModTool
 
             if (SearchList.Length > 0)
                 ListBox.ScrollIntoView(SearchList[currentIndexSearch]);
+
+            ListBox_SelectionChanged(this, null);
 
 
         }
@@ -340,9 +355,9 @@ namespace KenshiModTool
                 Paragraph paragraph = new Paragraph();
 
                 if (mod.Dependencies != null && mod.Dependencies.Count > 0)
-                    Write("Dependencies:", string.Join(", ", mod.Dependencies));
+                    WriteRequisites("Dependencies: ", mod.Dependencies);
                 if (mod.References != null && mod.References.Count > 0)
-                    Write("References:", string.Join(", ", mod.References));
+                    WriteRequisites("References: ", mod.References);
 
                 if (mod.Conflicts.Count > 0)
                 {
@@ -381,6 +396,32 @@ namespace KenshiModTool
 
                 RtbDetail.Document = document;
 
+                void WriteRequisites(string title, List<string> requisite)
+                {
+                    if (!requisite.Any()) return;
+
+                    paragraph.Inlines.Add(new Bold(new Run(title)));
+
+                    for (int i = 0; i < requisite.Count; i++)
+                    {
+                        var req = requisite[i];
+
+                        var color = ModList.Where(c => c.Active && c.Order < mod.Order).Any(c => c.FileName.Contains(req)) ? Brushes.Green : Brushes.Red;
+                        if (!mod.Active) color = Brushes.Black;
+
+                        var text = req ?? "";
+
+                        paragraph.Inlines.Add(new Run($"{text}")
+                        {
+                            Foreground = color
+                        });
+
+                        if ((i + 1) < requisite.Count && requisite.Count > 1) paragraph.Inlines.Add($" ,");
+                    }
+                    paragraph.Inlines.Add($"{Environment.NewLine}");
+
+                }
+
                 void Write(string title, string Value)
                 {
                     Value = Value ?? "";
@@ -408,6 +449,8 @@ namespace KenshiModTool
             }
 
         }
+
+
 
         #endregion List Manipulation
 
