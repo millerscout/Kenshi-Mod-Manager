@@ -70,6 +70,8 @@ namespace Core.Models
         /// don`t know what is this used for... but seems something important while ordering.
         /// </summary>
         public List<string> References { get; set; }
+
+        public IEnumerable<string> AllDependencies => Dependencies.Concat(References).Where(c => !Constants.SkippableMods.Contains(c.ToLower()));
         public bool OrderedAutomatically { get; internal set; }
     }
     public class Conflict
