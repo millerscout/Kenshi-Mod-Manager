@@ -16,6 +16,7 @@ namespace Core.Models
         public string Version { get; set; }
         public int Order { get; set; }
         public IEnumerable<string> Categories { get; set; }
+        public IEnumerable<string> TypesChanged { get; set; }
         public string FilePath { get; set; }
         public bool Active { get; set; }
         public string Color { get; set; }

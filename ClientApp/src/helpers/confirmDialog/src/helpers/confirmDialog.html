@@ -1,0 +1,17 @@
+
+<div>
+      <!-- Modal component -->
+      <b-modal
+        ref="confirmModal"
+        cancel-title="No"
+        :title="dialog.title"
+        size="sm"
+        v-model="dialog.active"
+        ok-title="Yes"
+        class="text-dark w-50 float-left"
+        @ok="confirm"
+        @cancel="cancel"
+        centered 
+      >{{dialog.body}}
+      </b-modal>
+</div>

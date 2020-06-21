@@ -24,6 +24,8 @@
             <RowDefinition Height="35" />
         </Grid.RowDefinitions>
         <Label Grid.Row="0" Grid.Column="0"  x:Name="lblFind" Content="Find On List" />
+
+        <!--<Button Margin="0,5,0,0" Grid.Row="0" Grid.Column="1"  x:Name="btnOpenWebView" Content="Open WebView" Click="OpenWebview" />-->
         <CheckBox x:Name="chk_showConflicts" Grid.Row="0" Grid.Column="1" IsChecked="{Binding ShowConflicts}" Checked="ShowConflicts_check" Unchecked="ShowConflicts_check" Margin="5,5,5,0" Content="Show conflicts" />
         <Label Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" x:Name="lblSearchInfo" Content="Found ( **** / ****)" HorizontalAlignment="Right" />
         <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" x:Name="txtSearch" TextWrapping="Wrap" TextChanged="TextBox_TextChanged" UndoLimit="20" KeyDown="TxtSearch_KeyDown" Margin="0,5,5,5" />
@@ -45,6 +47,7 @@
             <ListBox.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Visit mod page" CommandParameter="{Binding}"  Click="CheckModPage_Click" />
+                    <MenuItem Header="Open Mod Folder" CommandParameter="{Binding}"  Click="OpenModFolder_Click" />
                     <MenuItem Header="Active Selected Mods" CommandParameter="{Binding}"  Click="ActiveMods" />
                     <MenuItem Header="Deactive Selected Mods" CommandParameter="{Binding}"  Click="DeactiveMods" />
                     <MenuItem Header="Toggle Active Selected Mods" CommandParameter="{Binding}"  Click="ToggleActive" />
@@ -79,12 +82,14 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Button Margin="0,0,5,5" Grid.Column="0"  x:Name="BtnGameFolder"  Content="Open Game Folder" Click="BtnGameFolder_Click" />
             <Button Margin="0,0,5,5" Grid.Column="1"  x:Name="GameModFolder"  Content="Open Game Mod Folder" Click="GameModFolder_Click" />
             <Button Margin="0,0,5,5" Grid.Column="2"  x:Name="BtnSteamFolder" Content="Open Steam Mod Folder" Click="BtnSteamFolder_Click" />
             <Button Margin="0,0,5,5" Grid.Column="3"  x:Name="btnOrder"       Content="Order Mods (Beta!)" Click="BtnOrder_Click" />
-            <Button Margin="0,0,0,5" Grid.Column="4"  x:Name="btnTest"       Content="Check Conflicts(WIP)" Click="BtnTest_Click" />
+            <Button Margin="0,0,5,5" Grid.Column="4"  x:Name="btnCheckConflicts"       Content="Check Conflicts(WIP!)" Click="CheckConflicts" />
+            <Button Margin="0,0,0,5" Grid.Column="5"  x:Name="btnTooling"       Content="Folder Management" Click="OpenTooling" />
         </Grid>
 
         <ScrollViewer Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="4">
@@ -118,6 +123,6 @@ Phasellus quis dignissim ipsum. Nulla interdum lobortis posuere. Duis consequat 
             <Button Margin="0,5,5,5" Grid.Column="2"  x:Name="btnLoadProfile" Content="Load mod Profile" Click="BtnLoadProfile_Click" />
             <Button Margin="0,5,0,5" Grid.Column="4"  x:Name="BtnLaunchGame"  Content="Launch Game" Click="BtnLaunchGameClick" />
         </Grid>
-        
+
     </Grid>
 </Window>
