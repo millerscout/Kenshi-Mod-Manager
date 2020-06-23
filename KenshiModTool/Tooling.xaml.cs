@@ -184,7 +184,7 @@ namespace KenshiModTool
             bool failure = false;
             foreach (var mod in ListBox.SelectedItems)
             {
-                CommonService.OpenFolder(System.IO.Path.GetDirectoryName(((Mod)mod).FilePath), () => { failure = true; });
+                CommonService.OpenFolder(System.IO.Path.GetDirectoryName(((ModFolder)mod).FilePath), () => { failure = true; });
             }
 
             if (failure)
