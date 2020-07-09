@@ -6,6 +6,7 @@ Param(
 )
 
 function getVersion() {
+	Invoke-Expression "git fetch | Write-Verbose"	
     $tag = Invoke-Expression "git describe --tags --always 2>&1"
 
     $tag = $tag.Split('-')[0]
@@ -97,6 +98,23 @@ setVersionInDir $dir $newVersion
 commitVersion $bumpKind $newVersion
 
 Write-Output $newVersion
+
+dotnet publish -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\FullRelease-86x.pubxml
+dotnet publish -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\FullRelease-x64.pubxml
+dotnet publish -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\Standalone-x64.pubxml
+dotnet publish -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\Standalone-x86.pubxml
+
+xcopy "..\ModConflictManager\publish\x86\Mod Conflict Manager.exe" publish\Standalone-x86
+xcopy "..\ModConflictManager\publish\x86\Mod Conflict Manager.exe" publish\FullRelease-x86
+xcopy "..\ModConflictManager\publish\x64\Mod Conflict Manager.exe" publish\Standalone-x64
+xcopy "..\ModConflictManager\publish\x64\Mod Conflict Manager.exe" publish\FullRelease-x64
+
+Remove-Item "publish" -Include *.pdb -Recurse -force
+
+7z a -tzip "publish\FullRelease-x64" -r "publish\FullRelease-x64"
+7z a -tzip "publish\FullRelease-x86" -r "publish\FullRelease-x86"
+7z a -tzip "publish\Standalone-x64" -r "publish\Standalone-x64"
+7z a -tzip "publish\Standalone-x86" -r "publish\Standalone-x86"
 
 $secret_key = Get-Content $env:APPDATA"..\..\..\.ssh\Token(Oauth)Kenshideploy"
 $secret_key
