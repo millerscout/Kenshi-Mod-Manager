@@ -97,3 +97,39 @@ setVersionInDir $dir $newVersion
 commitVersion $bumpKind $newVersion
 
 Write-Output $newVersion
+
+$secret_key = Get-Content $env:APPDATA"..\..\..\.ssh\Token(Oauth)Kenshideploy"
+$secret_key
+$headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+$headers.Add("Authorization", $secret_key)
+$headers.Add("Content-Type", "application/json")
+
+$body = "{
+`n  `"tag_name`": `"v$($newVersion)`",
+`n  `"target_commitish`": `"master`",
+`n  `"name`": `"v$($newVersion)`",
+`n  `"body`": `"test automation`",
+`n  `"draft`": false,
+`n  `"prerelease`": false
+`n}"
+
+$response = Invoke-RestMethod 'https://api.github.com/repos/millerscout/Kenshi-Mod-Manager/releases
+' -Method 'POST' -Headers $headers -Body $body
+$id = $response.id
+
+$dir = "C:\project\Kenshi-Mod-Manager\publish"
+$info_files = Get-ChildItem $dir -Filter "*.zip"
+
+foreach($file in $info_files)
+{
+    $name = $file | Select-object name | ForEach-Object {$_.Name}
+
+    Clear-Variable headers 
+    $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+    $headers.Add("Authorization", $secret_key)
+    $headers.Add("Content-Type", "application/zip")
+    $body = ".\publish\$($name)"
+    $path = "https://uploads.github.com/repos/millerscout/Kenshi-Mod-Manager/releases/$($id)/assets?name=$($name)"
+    $response = Invoke-RestMethod $path -Method 'POST' -Headers $headers -Infile $body
+    $response.id
+}
