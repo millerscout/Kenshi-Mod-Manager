@@ -126,7 +126,7 @@ $body = "{
 `n  `"tag_name`": `"v$($newVersion)`",
 `n  `"target_commitish`": `"master`",
 `n  `"name`": `"v$($newVersion)`",
-`n  `"body`": `"test automation`",
+`n  `"body`": `"Text not avaiable Yet.`",
 `n  `"draft`": false,
 `n  `"prerelease`": false
 `n}"
