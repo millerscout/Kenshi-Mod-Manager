@@ -12,6 +12,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
@@ -46,6 +47,8 @@ namespace KenshiModTool
             try
             {
                 InitializeComponent();
+
+                this.Title = $"[v{Assembly.GetExecutingAssembly().GetName().Version.ToString(2)}] - {this.Title}";
 
                 if (SystemParameters.PrimaryScreenWidth >= 1000) this.Width = 1000;
                 else if (SystemParameters.PrimaryScreenWidth >= 750) this.Width = 750;

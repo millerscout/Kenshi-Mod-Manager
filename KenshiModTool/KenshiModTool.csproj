@@ -5,6 +5,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>1.19</Version>
+    <AssemblyVersion>1.19</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
