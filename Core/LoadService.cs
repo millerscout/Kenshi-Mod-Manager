@@ -108,29 +108,11 @@ namespace Core
         }
         public static void CreateSymbLink(IEnumerable<Tuple<string, string>> symblist)
         {
-
-            if (File.Exists("symb[add].logs")) File.Delete("symb[add].logs");
-
-            Process process = new Process();
-            process.StartInfo.FileName = "cmd";
-            process.StartInfo.Verb = "runas";
-            process.StartInfo.RedirectStandardInput = true;
-
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = false;
-
-            process.Start();
-
             foreach (var symb in symblist)
             {
-                process.StandardInput.WriteLine($"mklink /D \"{symb.Item1}\" \"{symb.Item2}\" >> symb[add].logs");
+                Murphy.SymbolicLink.SymbolicLink.create(symb.Item2, symb.Item1);
             }
-            process.StandardInput.Flush();
-            process.StandardInput.Close();
-
-            process.WaitForExit();
         }
-
         public static void FolderCleanUp(string path)
         {
             if (!Directory.Exists(path)) return;
