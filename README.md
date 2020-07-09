@@ -70,7 +70,7 @@ your config file should look like this:
 
 # Known Bugs
        - when you trying to open and nothing happens, try to delete the "config.json" file.
-     
+
 # Licence
 
 Few free to modify this project, don't forget to credit me :)
@@ -82,3 +82,17 @@ Few free to modify this project, don't forget to credit me :)
          <img src="https://github.com/millerscout/Kenshi-Mod-Manager/raw/master/Donation.png" alt="Buy me a coffee" style="max-width:100%;">
      </a>
 </p>
+
+# How generate builds (this is a reminder for me)
+
+for minor version
+``` 
+ $ build-all.bat minor
+ $ push
+```
+
+for major version
+``` 
+ $ build-all.bat major
+ $ push
+```
