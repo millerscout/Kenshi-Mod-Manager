@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -33,6 +34,7 @@ namespace KenshiModTool
             {
                 InitializeComponent();
 
+                this.Title = $"[v{Assembly.GetExecutingAssembly().GetName().Version.ToString(2)}] - {this.Title}";
                 MainGrid.ShowGridLines = false;
                 lblSearchInfo.Content = "";
 
@@ -133,7 +135,18 @@ namespace KenshiModTool
                     System.IO.Path.GetDirectoryName(c.FilePath)
                     )
                 );
+
+            var appendLog = new List<string> {
+                $"{DateTime.Now} - Trying to Create SymbLinks:"
+            };
+
+
             LoadService.CreateSymbLink(symblist);
+
+            appendLog.Add($"{DateTime.Now} - Detailed List:");
+            appendLog.AddRange(symblist.Select(item => $"{DateTime.Now} From {item.Item2} To {item.Item1}:"));
+
+            File.AppendAllLines(Constants.Logfile, appendLog);
 
             LoadModList();
         }

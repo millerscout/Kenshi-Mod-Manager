@@ -1,4 +1,6 @@
 @RD /S /Q "publish"
+powershell -ExecutionPolicy ByPass -File versioning.ps1 %1 -verbose
+
 
 dotnet publish -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\FullRelease-86x.pubxml
 dotnet publish -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\FullRelease-x64.pubxml

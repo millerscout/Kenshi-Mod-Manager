@@ -44,6 +44,7 @@ namespace Core
                 config.MasterlistVersion = version;
                 RuleService.UpdateMasterFile();
             }
+            if (File.Exists(Constants.Logfile)) File.Delete(Constants.Logfile);
 
 
         }
@@ -62,6 +63,19 @@ namespace Core
             list.AddRange(LoadSteamMods(currentMods));
             list.AddRange(LoadFolderMods(currentMods));
 
+            var qtdByType = string.Join(", ",
+                list.GroupBy(c => c.Source).Select(q => $"{q.Key} - {q.Count()}")
+            );
+
+            var appendLog = new List<string> {
+                $"{DateTime.Now} - Loaded: {list.Count()} Mods",
+                $"{DateTime.Now} - {qtdByType}",
+
+            };
+            appendLog.Add($"{DateTime.Now} - Detailed List:");
+            appendLog.AddRange(list.Select(item => $"{DateTime.Now} - {item.Source} - {item.FilePath}"));
+
+            File.AppendAllLines(Constants.Logfile, appendLog);
             //get removed mods.
             //var all = currentMods.Where(c => !list.Any(e => Path.GetFileName(e.Name) == c));
             //list.AddRange(all.Select(n => new Mod { Source = SourceEnum.Other, Name = n, Active = true }));
@@ -95,21 +109,22 @@ namespace Core
         public static void CreateSymbLink(IEnumerable<Tuple<string, string>> symblist)
         {
 
+            if (File.Exists("symb[add].logs")) File.Delete("symb[add].logs");
+
             Process process = new Process();
             process.StartInfo.FileName = "cmd";
             process.StartInfo.Verb = "runas";
             process.StartInfo.RedirectStandardInput = true;
 
-
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = false;
+
             process.Start();
 
             foreach (var symb in symblist)
             {
-                process.StandardInput.WriteLine($"mklink /D \"{symb.Item1}\" \"{symb.Item2}\"");
+                process.StandardInput.WriteLine($"mklink /D \"{symb.Item1}\" \"{symb.Item2}\" >> symb[add].logs");
             }
-
             process.StandardInput.Flush();
             process.StandardInput.Close();
 
