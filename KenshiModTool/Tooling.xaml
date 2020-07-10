@@ -81,9 +81,9 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Button Margin="0,5,6,5" Grid.Column="0"  x:Name="BtnClearEmptyFolders" Content="Clear Empty Folders" Click="BtnClearEmptyFolders_Click" />
-            <Button Margin="0,5,5,5" Grid.Column="1"  x:Name="BtnRemoveSymbLinks" Content="Remove SymbLinks" Click="BtnRemoveSymbLinks_Click" Grid.ColumnSpan="2" />
-            <Button Margin="0,5,4,5" Grid.Column="3"  x:Name="BtnCreateSymbLinks" Content="Create SymbLinks" Click="BtnCreateSymbLinks_Click" />
-            <Button Margin="147,5,0,5" Grid.Column="3"  x:Name="BtnLaunchGame"  Content="Launch Game" Click="BtnLaunchGame_Click" Grid.ColumnSpan="2" />
+            <Button Margin="0,5,5,5" Grid.Column="1"  x:Name="BtnRemoveSymbLinks" Content="Remove SymbLinks" Click="BtnRemoveSymbLinks_Click" />
+            <Button Margin="0,5,4,5" Grid.Column="2"  x:Name="BtnCreateSymbLinks" Content="Create SymbLinks" Click="BtnCreateSymbLinks_Click" />
+            <Button Margin="0,5,0,5" Grid.Column="3"  x:Name="BtnLaunchGame"  Content="Launch Game" Click="BtnLaunchGame_Click"/>
         </Grid>
 
     </Grid>
