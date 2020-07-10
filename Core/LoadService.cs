@@ -108,10 +108,10 @@ namespace Core
         }
         public static void CreateSymbLink(IEnumerable<Tuple<string, string>> symblist)
         {
-            foreach (var symb in symblist)
+            Parallel.ForEach(symblist, (symb) =>
             {
                 Murphy.SymbolicLink.SymbolicLink.create(symb.Item2, symb.Item1);
-            }
+            });
         }
         public static void FolderCleanUp(string path)
         {

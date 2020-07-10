@@ -1,5 +1,6 @@
 #inspiration from https://gist.github.com/kumichou/acefc48476957aad6b0c9abf203c304c
 [CmdletBinding()]
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Param(
     [Parameter(Mandatory=$True,Position=1)]
     [string]$bumpKind
@@ -116,6 +117,9 @@ Remove-Item "publish" -Include *.pdb -Recurse -force
 7z a -tzip "publish\Standalone-x64" -r "publish\Standalone-x64"
 7z a -tzip "publish\Standalone-x86" -r "publish\Standalone-x86"
 
+Invoke-Expression "git push --tags | Write-Verbose"
+Invoke-Expression "git push  | Write-Verbose"
+
 $secret_key = Get-Content $env:APPDATA"..\..\..\.ssh\Token(Oauth)Kenshideploy"
 $secret_key
 $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
@@ -135,7 +139,7 @@ $response = Invoke-RestMethod 'https://api.github.com/repos/millerscout/Kenshi-M
 ' -Method 'POST' -Headers $headers -Body $body
 $id = $response.id
 
-$dir = "C:\project\Kenshi-Mod-Manager\publish"
+$dir = "publish"
 $info_files = Get-ChildItem $dir -Filter "*.zip"
 
 foreach($file in $info_files)

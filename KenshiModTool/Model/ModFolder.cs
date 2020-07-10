@@ -16,7 +16,7 @@ namespace KenshiModTool.Model
             FilePath = mod.FilePath;
             UniqueIdentifier = mod.UniqueIdentifier;
             Source = mod.Source;
-            
+
             var symbLink = System.IO.Path.Combine(LoadService.config.GamePath, "Mods", System.IO.Path.GetFileNameWithoutExtension(mod.FilePath));
             HasSymbLink = Directory.Exists(symbLink) && LoadService.IsSymbolic(symbLink);
 
@@ -28,5 +28,6 @@ namespace KenshiModTool.Model
         public string DisplayName { get; }
         public string FilePath { get; }
         public bool HasSymbLink { get; set; }
+        public bool Selected { get; set; }
     }
 }
