@@ -24,7 +24,9 @@
         <Label Grid.Row="0" Grid.Column="0"  x:Name="lblFind" Content="Find On List" />
         <Label Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" x:Name="lblSearchInfo" Content="Found ( **** / ****)" HorizontalAlignment="Right" />
         <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" x:Name="txtSearch" TextWrapping="Wrap" TextChanged="TextBox_TextChanged" UndoLimit="20" KeyDown="TxtSearch_KeyDown" Margin="0,5,5,5" />
-        <Button Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" x:Name="btnReloadMods" Content="Refresh List" Margin="0,5,0,5" Click="btnReloadMods_Click" />
+        <Button Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" x:Name="btnReloadMods" Content="Refresh List" Margin="0,5,5,5" Click="btnReloadMods_Click" />
+        <Button Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" x:Name="btnSelectAll" Content="Select all Mods" Margin="0,5,0,5" Click="SelectAll_Click" />
+
 
         <ListBox  x:Name="ListBox"
                   Grid.Row="2"
@@ -38,6 +40,9 @@
             <ListBox.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Open Mod Folder" CommandParameter="{Binding}"  Click="OpenModFolder_Click" />
+                    <MenuItem Header="Select All" CommandParameter="{Binding}"  Click="SelectAll_Click" />
+                    <MenuItem Header="Invert Selection" CommandParameter="{Binding}"  Click="Invert_Click" />
+                    <MenuItem Header="Create/Remove Symblink Selected Mods" CommandParameter="{Binding}"  Click="CreateSymbSelected_Click" />
                 </ContextMenu>
             </ListBox.ContextMenu>
             <ListBox.ItemTemplate>
@@ -45,13 +50,15 @@
                     <Grid Background="{Binding Color}" Width="Auto" HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="30" />
+                            <ColumnDefinition Width="2*" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <CheckBox Grid.Row="0" Grid.Column="0"  IsChecked="{Binding HasSymbLink}"  IsEnabled="False" Margin="5,5,5,0" />
+                        <CheckBox Grid.Row="0" Grid.Column="0"  IsChecked="{Binding Selected}"  Margin="5,5,5,0" />
                         <TextBlock Grid.Row="0" Grid.Column="1"   Text="{Binding DisplayName}"  Margin="5,5,5,0" Width="auto" />
+                        <TextBlock Grid.Row="0" Grid.Column="2"   Text="{Binding Source}"  Margin="5,5,5,0" Width="auto" />
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>

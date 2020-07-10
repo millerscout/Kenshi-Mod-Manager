@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -52,10 +53,14 @@ namespace KenshiModTool
             foreach (var mod in ModList)
             {
                 mod.Color = SearchList.Any(s => s.UniqueIdentifier == mod.UniqueIdentifier) ? ModColors.SearchColor : "";
+
+                if (mod.HasSymbLink) mod.Color = ModColors.Symblinked;
+
             }
 
-
+            ListBox.ItemsSource = new List<Object>();
             ListBox.ItemsSource = ModList;
+
 
             if (SearchList.Length > 0)
                 ListBox.ScrollIntoView(SearchList[currentIndexSearch]);
@@ -115,7 +120,7 @@ namespace KenshiModTool
         private void BtnRemoveSymbLinks_Click(object sender, RoutedEventArgs e)
         {
             var symblist = ModList
-               .Where(c => c.Source == SourceEnum.Steam && c.HasSymbLink)
+               .Where(c => c.Source == SourceEnum.Steam && c.HasSymbLink && c.Selected)
                .Select(c => System.IO.Path.Combine(LoadService.config.ModFolder, System.IO.Path.GetFileNameWithoutExtension(c.FilePath)));
             foreach (var folder in symblist)
             {
@@ -129,24 +134,27 @@ namespace KenshiModTool
         private void BtnCreateSymbLinks_Click(object sender, RoutedEventArgs e)
         {
             var symblist = ModList
-                .Where(c => c.Source == SourceEnum.Steam && !c.HasSymbLink)
+                .Where(c => c.Source == SourceEnum.Steam && !c.HasSymbLink && c.Selected)
                 .Select(c => new Tuple<string, string>(
                     System.IO.Path.Combine(LoadService.config.ModFolder, System.IO.Path.GetFileNameWithoutExtension(c.FilePath)),
                     System.IO.Path.GetDirectoryName(c.FilePath)
                     )
                 );
+            if (!symblist.Any()) return;
 
-            var appendLog = new List<string> {
+            Task.Run(() =>
+            {
+                var appendLog = new List<string> {
                 $"{DateTime.Now} - Trying to Create SymbLinks:"
-            };
+                };
 
+                appendLog.Add($"{DateTime.Now} - Detailed List:");
+                appendLog.AddRange(symblist.Select(item => $"{DateTime.Now} From {item.Item2} To {item.Item1}:"));
+
+                File.AppendAllLines(Constants.Logfile, appendLog);
+            });
 
             LoadService.CreateSymbLink(symblist);
-
-            appendLog.Add($"{DateTime.Now} - Detailed List:");
-            appendLog.AddRange(symblist.Select(item => $"{DateTime.Now} From {item.Item2} To {item.Item1}:"));
-
-            File.AppendAllLines(Constants.Logfile, appendLog);
 
             LoadModList();
         }
@@ -203,6 +211,57 @@ namespace KenshiModTool
             if (failure)
             {
                 MessageBox.Show("Game folder not configured correctly.");
+            }
+        }
+
+        private void SelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var item in ModList.Where(c => !c.Selected)) item.Selected = true;
+
+            UpdateListBox();
+        }
+        private void Invert_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var item in ModList) item.Selected = !item.Selected;
+
+            UpdateListBox();
+        }
+
+        private void CreateSymbSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (ListBox.SelectedItems != null && ListBox.SelectedItems.Count > 0)
+            {
+                var symblist = new List<Tuple<string, string>>();
+                foreach (ModFolder mod in ListBox.SelectedItems)
+                {
+                    if (mod.HasSymbLink)
+                    {
+                        LoadService.DeleteFolder(System.IO.Path.Combine(LoadService.config.ModFolder, System.IO.Path.GetFileNameWithoutExtension(mod.FilePath)));
+                    }
+                    else
+                    {
+                        symblist.Add(new Tuple<string, string>(
+                      System.IO.Path.Combine(LoadService.config.ModFolder, System.IO.Path.GetFileNameWithoutExtension(mod.FilePath)),
+                      System.IO.Path.GetDirectoryName(mod.FilePath)
+                      ));
+                    }
+                }
+
+                Task.Run(() =>
+                {
+                    var appendLog = new List<string> {
+                $"{DateTime.Now} - Trying to Create SymbLinks:"
+            };
+
+                    appendLog.Add($"{DateTime.Now} - Detailed List:");
+                    appendLog.AddRange(symblist.Select(item => $"{DateTime.Now} From {item.Item2} To {item.Item1}:"));
+
+                    File.AppendAllLines(Constants.Logfile, appendLog);
+                });
+
+                LoadService.CreateSymbLink(symblist);
+
+                LoadModList();
             }
         }
     }
