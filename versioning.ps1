@@ -1,10 +1,11 @@
 #inspiration from https://gist.github.com/kumichou/acefc48476957aad6b0c9abf203c304c
 [CmdletBinding()]
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Param(
     [Parameter(Mandatory=$True,Position=1)]
     [string]$bumpKind
 )
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 function getVersion() {
 	Invoke-Expression "git fetch | Write-Verbose"	
