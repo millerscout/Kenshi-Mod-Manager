@@ -141,7 +141,7 @@ $response = Invoke-RestMethod 'https://api.github.com/repos/millerscout/Kenshi-M
 $id = $response.id
 
 $dir = "publish"
-$info_files = Get-ChildItem $dir -Filter "*.zip"
+$info_files = Get-ChildItem $dir -Filter "*.zip" | Sort-Object -Descending
 
 foreach($file in $info_files)
 {
