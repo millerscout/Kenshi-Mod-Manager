@@ -148,11 +148,16 @@ foreach($file in $info_files)
     $name = $file | Select-object name | ForEach-Object {$_.Name}
 
     Clear-Variable headers 
+	Clear-Variable body
+	Clear-Variable path
+	Clear-Variable response
     $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
     $headers.Add("Authorization", $secret_key)
     $headers.Add("Content-Type", "application/zip")
     $body = ".\publish\$($name)"
     $path = "https://uploads.github.com/repos/millerscout/Kenshi-Mod-Manager/releases/$($id)/assets?name=$($name)"
+	$path
+	$body
     $response = Invoke-RestMethod $path -Method 'POST' -Headers $headers -Infile $body
     $response.id
 }
