@@ -112,11 +112,12 @@ xcopy "..\ModConflictManager\publish\x64\Mod Conflict Manager.exe" publish\Stand
 xcopy "..\ModConflictManager\publish\x64\Mod Conflict Manager.exe" publish\FullRelease-x64
 
 Remove-Item "publish" -Include *.pdb -Recurse -force
-
-7z a -tzip "publish\FullRelease-x64" -r "publish\FullRelease-x64"
-7z a -tzip "publish\FullRelease-x86" -r "publish\FullRelease-x86"
-7z a -tzip "publish\Standalone-x64" -r "publish\Standalone-x64"
-7z a -tzip "publish\Standalone-x86" -r "publish\Standalone-x86"
+cd publish
+7z a -tzip "FullRelease-x64" -r "FullRelease-x64"
+7z a -tzip "FullRelease-x86" -r "FullRelease-x86"
+7z a -tzip "Standalone-x64" -r "Standalone-x64"
+7z a -tzip "Standalone-x86" -r "Standalone-x86"
+cd..
 
 Invoke-Expression "git push --tags | Write-Verbose"
 Invoke-Expression "git push  | Write-Verbose"
@@ -141,17 +142,16 @@ $response = Invoke-RestMethod 'https://api.github.com/repos/millerscout/Kenshi-M
 $id = $response.id
 
 $dir = "publish"
-$info_files = Get-ChildItem $dir -Filter "*.zip" | Sort-Object -Descending
+$info_files = Get-ChildItem $dir -Filter "*.zip"
 
-foreach($file in $info_files)
-{
-    $name = $file | Select-object name | ForEach-Object {$_.Name}
-
+function UploadFile($name) {
+    
     Clear-Variable headers 
 	Clear-Variable body
 	Clear-Variable path
 	Clear-Variable response
     $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+    $secret_key = Get-Content $env:APPDATA"..\..\..\.ssh\Token(Oauth)Kenshideploy"
     $headers.Add("Authorization", $secret_key)
     $headers.Add("Content-Type", "application/zip")
     $body = ".\publish\$($name)"
@@ -160,4 +160,33 @@ foreach($file in $info_files)
 	$body
     $response = Invoke-RestMethod $path -Method 'POST' -Headers $headers -Infile $body
     $response.id
+}
+
+foreach($file in $info_files)
+{
+    $name = $file | Select-object name | ForEach-Object {$_.Name}
+    
+    
+    $Stoploop = $false
+    [int]$Retrycount = "0"
+    do {
+        try {
+            UploadFile $name
+            Write-Host "Job completed"
+            $Stoploop = $true
+        }
+        catch {
+            if ($Retrycount -gt 3){
+                Write-Host "Could not send Package after 3 retrys."
+                $Stoploop = $true
+            }
+            else {
+                Write-Host "Could not send package retrying in 30 seconds..."
+                Start-Sleep -Seconds 30
+                $Retrycount = $Retrycount + 1
+            }
+        }
+    }
+    While ($Stoploop -eq $false)
+
 }

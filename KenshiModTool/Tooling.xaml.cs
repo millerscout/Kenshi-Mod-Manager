@@ -253,8 +253,8 @@ namespace KenshiModTool
                     {
 
                         var appendLog = new List<string> {
-                $"{DateTime.Now} - Trying to Create SymbLinks:"
-            };
+                            $"{DateTime.Now} - Trying to Create SymbLinks:"
+                        };
 
                         appendLog.Add($"{DateTime.Now} - Detailed List:");
                         appendLog.AddRange(symblist.Select(item => $"{DateTime.Now} From {item.Item2} To {item.Item1}:"));

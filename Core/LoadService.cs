@@ -112,6 +112,15 @@ namespace Core
             {
                 try
                 {
+                    if (Directory.Exists(symb.Item1))
+                    {
+                        var appendLog = new List<string> {
+                            $"{DateTime.Now} - Folder already exist, maybe you installed manually the mod on kenshi's folder? if not you may delete."
+                        };
+
+                        File.AppendAllLines(Constants.Logfile, appendLog);
+                        return;
+                    }
                     Murphy.SymbolicLink.SymbolicLink.create(symb.Item2, symb.Item1);
                 }
                 catch (Exception ex)
