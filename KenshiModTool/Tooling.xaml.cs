@@ -249,14 +249,25 @@ namespace KenshiModTool
 
                 Task.Run(() =>
                 {
-                    var appendLog = new List<string> {
+                    try
+                    {
+
+                        var appendLog = new List<string> {
                 $"{DateTime.Now} - Trying to Create SymbLinks:"
             };
 
-                    appendLog.Add($"{DateTime.Now} - Detailed List:");
-                    appendLog.AddRange(symblist.Select(item => $"{DateTime.Now} From {item.Item2} To {item.Item1}:"));
+                        appendLog.Add($"{DateTime.Now} - Detailed List:");
+                        appendLog.AddRange(symblist.Select(item => $"{DateTime.Now} From {item.Item2} To {item.Item1}:"));
 
-                    File.AppendAllLines(Constants.Logfile, appendLog);
+
+                        File.AppendAllLines(Constants.Logfile, appendLog);
+                    }
+                    catch (Exception ex)
+                    {
+                        File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Failed to write log of symblinks.{Environment.NewLine}");
+                        File.AppendAllText(Constants.Errorfile, $"{ex.Message}");
+                        File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace}");
+                    }
                 });
 
                 LoadService.CreateSymbLink(symblist);

@@ -110,7 +110,17 @@ namespace Core
         {
             Parallel.ForEach(symblist, (symb) =>
             {
-                Murphy.SymbolicLink.SymbolicLink.create(symb.Item2, symb.Item1);
+                try
+                {
+                    Murphy.SymbolicLink.SymbolicLink.create(symb.Item2, symb.Item1);
+                }
+                catch (Exception ex)
+                {
+                    File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Failed to link folder.{Environment.NewLine}");
+                    File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Source: {symb.Item2} >> Target: {symb.Item1}.{Environment.NewLine}");
+                    File.AppendAllText(Constants.Errorfile, $"{ex.Message}");
+                    File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace}");
+                }
             });
         }
         public static void FolderCleanUp(string path)
