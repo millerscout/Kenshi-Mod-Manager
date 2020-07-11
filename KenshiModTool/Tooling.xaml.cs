@@ -51,16 +51,10 @@ namespace KenshiModTool
         private void UpdateListBox()
         {
             foreach (var mod in ModList)
-            {
                 mod.Color = SearchList.Any(s => s.UniqueIdentifier == mod.UniqueIdentifier) ? ModColors.SearchColor : "";
-
-                if (mod.HasSymbLink) mod.Color = ModColors.Symblinked;
-
-            }
 
             ListBox.ItemsSource = new List<Object>();
             ListBox.ItemsSource = ModList;
-
 
             if (SearchList.Length > 0)
                 ListBox.ScrollIntoView(SearchList[currentIndexSearch]);
@@ -136,13 +130,14 @@ namespace KenshiModTool
             var symblist = ModList
                 .Where(c => c.Source == SourceEnum.Steam && !c.HasSymbLink && c.Selected)
                 .Select(c => new Tuple<string, string>(
-                    System.IO.Path.Combine(LoadService.config.ModFolder, System.IO.Path.GetFileNameWithoutExtension(c.FilePath)),
-                    System.IO.Path.GetDirectoryName(c.FilePath)
+                        System.IO.Path.Combine(LoadService.config.ModFolder, System.IO.Path.GetFileNameWithoutExtension(c.FilePath)),
+                        System.IO.Path.GetDirectoryName(c.FilePath)
                     )
                 );
+
             if (!symblist.Any()) return;
 
-            Task.Run(() =>
+            var logging = Task.Run(() =>
             {
                 var appendLog = new List<string> {
                 $"{DateTime.Now} - Trying to Create SymbLinks:"
@@ -156,6 +151,7 @@ namespace KenshiModTool
 
             LoadService.CreateSymbLink(symblist);
 
+            logging.Wait();
             LoadModList();
         }
 
@@ -231,46 +227,71 @@ namespace KenshiModTool
         {
             if (ListBox.SelectedItems != null && ListBox.SelectedItems.Count > 0)
             {
-                var symblist = new List<Tuple<string, string>>();
-                foreach (ModFolder mod in ListBox.SelectedItems)
+                ExecuteSymbLink(ShouldDelete: false);
+
+                LoadModList();
+            }
+        }
+
+        private void ExecuteSymbLink(bool ShouldDelete = true, bool ShouldAdd = true)
+        {
+            var symblist = new List<Tuple<string, string>>();
+            foreach (ModFolder mod in ListBox.SelectedItems)
+            {
+                if (mod.HasSymbLink)
                 {
-                    if (mod.HasSymbLink)
-                    {
+                    if (ShouldDelete)
                         LoadService.DeleteFolder(System.IO.Path.Combine(LoadService.config.ModFolder, System.IO.Path.GetFileNameWithoutExtension(mod.FilePath)));
-                    }
-                    else
-                    {
+                }
+                else
+                {
+                    if (ShouldAdd)
                         symblist.Add(new Tuple<string, string>(
                       System.IO.Path.Combine(LoadService.config.ModFolder, System.IO.Path.GetFileNameWithoutExtension(mod.FilePath)),
                       System.IO.Path.GetDirectoryName(mod.FilePath)
                       ));
-                    }
                 }
+            }
 
-                Task.Run(() =>
-                {
-                    try
-                    {
 
-                        var appendLog = new List<string> {
+            try
+            {
+                if (!symblist.Any()) return;
+
+                var appendLog = new List<string> {
                             $"{DateTime.Now} - Trying to Create SymbLinks:"
-                        };
+                            };
 
-                        appendLog.Add($"{DateTime.Now} - Detailed List:");
-                        appendLog.AddRange(symblist.Select(item => $"{DateTime.Now} From {item.Item2} To {item.Item1}:"));
+                appendLog.Add($"{DateTime.Now} - Detailed List:");
+                appendLog.AddRange(symblist.Select(item => $"{DateTime.Now} From {item.Item2} To {item.Item1}:"));
 
+                File.AppendAllLines(Constants.Logfile, appendLog);
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Failed to write log of symblinks.{Environment.NewLine}");
+                File.AppendAllText(Constants.Errorfile, $"{ex.Message}");
+                File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace}");
+            }
 
-                        File.AppendAllLines(Constants.Logfile, appendLog);
-                    }
-                    catch (Exception ex)
-                    {
-                        File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Failed to write log of symblinks.{Environment.NewLine}");
-                        File.AppendAllText(Constants.Errorfile, $"{ex.Message}");
-                        File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace}");
-                    }
-                });
+            LoadService.CreateSymbLink(symblist);
+        }
 
-                LoadService.CreateSymbLink(symblist);
+        private void ToggleSymbSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (ListBox.SelectedItems != null && ListBox.SelectedItems.Count > 0)
+            {
+                ExecuteSymbLink();
+
+                LoadModList();
+            }
+        }
+
+        private void RemoveSymbSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (ListBox.SelectedItems != null && ListBox.SelectedItems.Count > 0)
+            {
+                ExecuteSymbLink(ShouldAdd: false);
 
                 LoadModList();
             }

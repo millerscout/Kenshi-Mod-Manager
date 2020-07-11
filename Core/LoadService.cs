@@ -1,6 +1,7 @@
 ﻿using Core.Models;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -76,9 +77,6 @@ namespace Core
             appendLog.AddRange(list.Select(item => $"{DateTime.Now} - {item.Source} - {item.FilePath}"));
 
             File.AppendAllLines(Constants.Logfile, appendLog);
-            //get removed mods.
-            //var all = currentMods.Where(c => !list.Any(e => Path.GetFileName(e.Name) == c));
-            //list.AddRange(all.Select(n => new Mod { Source = SourceEnum.Other, Name = n, Active = true }));
             return list;
         }
 
@@ -99,6 +97,20 @@ namespace Core
             {
                 return new FileInfo(Path.GetDirectoryName(path)).Attributes.HasFlag(FileAttributes.ReparsePoint);
             }
+
+            try
+            {
+                if (Directory.GetFiles(path).Length > 0)
+                {
+                    /// valid path
+                };
+            }
+            catch (Exception ex)
+            {
+                DeleteFolder(path);
+                return true;
+            }
+
             return pathInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
         }
         public static void DeleteFolder(string path)
@@ -108,29 +120,34 @@ namespace Core
         }
         public static void CreateSymbLink(IEnumerable<Tuple<string, string>> symblist)
         {
+            var sync = new object();
+            var infoLogList = new ConcurrentBag<string>();
+            var errorLogList = new ConcurrentBag<string>();
             Parallel.ForEach(symblist, (symb) =>
             {
                 try
                 {
                     if (Directory.Exists(symb.Item1))
                     {
-                        var appendLog = new List<string> {
-                            $"{DateTime.Now} - Folder already exist, maybe you installed manually the mod on kenshi's folder? if not you may delete."
-                        };
-
-                        File.AppendAllLines(Constants.Logfile, appendLog);
+                        infoLogList.Add($"{DateTime.Now} - Folder already exist, maybe you installed manually the mod on kenshi's folder? if not you may delete.");
                         return;
                     }
                     Murphy.SymbolicLink.SymbolicLink.create(symb.Item2, symb.Item1);
                 }
                 catch (Exception ex)
                 {
-                    File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Failed to link folder.{Environment.NewLine}");
-                    File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Source: {symb.Item2} >> Target: {symb.Item1}.{Environment.NewLine}");
-                    File.AppendAllText(Constants.Errorfile, $"{ex.Message}");
-                    File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace}");
+                    infoLogList.Add($"{DateTime.Now} - Failed to link folder.");
+                    infoLogList.Add($"{DateTime.Now} - Source: {symb.Item2} >> Target: {symb.Item1}.");
+                    infoLogList.Add($"{ex.Message}");
+                    infoLogList.Add($"{ex.StackTrace}");
                 }
             });
+
+            if (infoLogList.Count > 0)
+                File.AppendAllLines(Constants.Logfile, infoLogList);
+            if (errorLogList.Count > 0)
+                File.AppendAllLines(Constants.Errorfile, errorLogList);
+
         }
         public static void FolderCleanUp(string path)
         {
