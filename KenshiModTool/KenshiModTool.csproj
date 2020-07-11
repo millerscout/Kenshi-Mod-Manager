@@ -11,6 +11,7 @@
   <ItemGroup>
     <None Remove="icon.ico" />
     <None Remove="icon.png" />
+    <None Remove="icons\link.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +29,7 @@
     <Resource Include="icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="icons\link.png" />
   </ItemGroup>
 
 </Project>

@@ -6,6 +6,5 @@
         public static string RequisiteNotFoundColor { get; set; } = "red";
         public static string HasConflictsColor { get; set; } = "purple";
         public static string SomeErrorWhileReadingMetadataColor { get; set; } = "gray";
-        public static string Symblinked { get; set; } = "#e6eeff";
     }
 }
