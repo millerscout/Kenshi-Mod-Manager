@@ -13,6 +13,7 @@ namespace Core
         public const string Logfile = "info.log";
         public const string ConfigFile = "config.json";
         public const string MasterlistFile = "masterlist.json";
-
+        public const string SteamRegistryKey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Valve\\Steam";
+        public const string DefaultSteamDirectory = "C:\\Program Files (x86)\\Steam";
     }
 }
