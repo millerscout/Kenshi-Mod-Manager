@@ -33,6 +33,17 @@ namespace KenshiModTool
             }
             Process.Start(psi);
         }
+
+        internal static void StartFCS()
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = Path.Combine(LoadService.config.GamePath, "forgotten construction set.exe"),
+                WorkingDirectory = LoadService.config.GamePath
+
+            };
+            Process.Start(psi);
+        }
         internal static void OpenFolder(string path, Action action)
         {
             if (Directory.Exists(path))

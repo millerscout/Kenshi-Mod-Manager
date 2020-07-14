@@ -19,7 +19,6 @@
         <BitmapImage x:Key="imgConflicts" UriSource="icons\Buttons\Compare_32px.png" />
         <BitmapImage x:Key="imgSyncMod" UriSource="icons\Buttons\Synchronize_32px.png" />
         <BitmapImage x:Key="imgRemoveMod" UriSource="icons\Buttons\Delete_32px.png" />
-
         <BitmapImage x:Key="imgSearch" UriSource="icons\Buttons\Search_16px.png" />
     </Window.Resources>
     <DockPanel>

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
@@ -20,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Controls.Ribbon;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -40,31 +42,27 @@ namespace KenshiModTool
         public ConcurrentDictionary<string, DetailChanges> DetailIndex = new ConcurrentDictionary<string, DetailChanges>();
         public bool ShowConflicts { get; set; } = false;
 
-        public EnumOrder CurrentOrder = EnumOrder.Order;
-
         public MainWindow()
         {
             try
             {
                 InitializeComponent();
 
+
                 this.Title = $"[v{Assembly.GetExecutingAssembly().GetName().Version.ToString(2)}] - {this.Title}";
 
                 if (SystemParameters.PrimaryScreenWidth >= 1000) this.Width = 1000;
                 else if (SystemParameters.PrimaryScreenWidth >= 750) this.Width = 750;
 
-                CmbSortBy.ItemsSource = Enum.GetValues(typeof(EnumOrder)).Cast<EnumOrder>().Select(sort => new ComboData { Id = (int)sort, Value = $"Sort By: {sort}" });
-                CmbSortBy.SelectedItem = CmbSortBy.Items.GetItemAt(0);
-
                 MainGrid.ShowGridLines = false;
                 lblSearchInfo.Content = "";
                 RtbDetail.Document.Blocks.Clear();
+                ListView.Items.Clear();
 
-                Style itemContainerStyle = new Style(typeof(ListBoxItem));
-                itemContainerStyle.Setters.Add(new Setter(ListBoxItem.AllowDropProperty, true));
-                itemContainerStyle.Setters.Add(new EventSetter(ListBoxItem.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(PreviewDragAndDrop)));
-                itemContainerStyle.Setters.Add(new EventSetter(ListBoxItem.DropEvent, new DragEventHandler(SetDropAction)));
-                ListBox.ItemContainerStyle = itemContainerStyle;
+                Style itemContainerStyle = ListView.ItemContainerStyle;
+                itemContainerStyle.Setters.Add(new Setter(ListViewItem.AllowDropProperty, true));
+                itemContainerStyle.Setters.Add(new EventSetter(ListViewItem.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(PreviewDragAndDrop)));
+                itemContainerStyle.Setters.Add(new EventSetter(ListViewItem.DropEvent, new DragEventHandler(SetDropAction)));
 
                 LoadService.Setup();
 
@@ -73,6 +71,17 @@ namespace KenshiModTool
                 LoadService.SaveConfig();
 
                 LoadModList();
+
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    var source = ((GridView)ListView.View).Columns[2].Header as GridViewColumnHeader;
+                    SortHeaderClick(source, null);
+
+                }), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
+
+
+
+
             }
             catch (Exception ex)
             {
@@ -85,9 +94,9 @@ namespace KenshiModTool
         {
 
             var target = ((MouseDevice)e.Device).Target;
-            if (sender is ListBoxItem && target is TextBlock && (target as TextBlock).Name == "Handle")
+            if (sender is ListViewItem && target is TextBlock && (target as TextBlock).Name == "Handle")
             {
-                ListBoxItem draggedItem = sender as ListBoxItem;
+                ListViewItem draggedItem = sender as ListViewItem;
                 DragDrop.DoDragDrop(draggedItem, draggedItem.DataContext, DragDropEffects.Move);
                 draggedItem.IsSelected = true;
             }
@@ -96,13 +105,13 @@ namespace KenshiModTool
         void SetDropAction(object sender, DragEventArgs e)
         {
             Mod droppedData = e.Data.GetData(typeof(Mod)) as Mod;
-            Mod target = ((ListBoxItem)(sender)).DataContext as Mod;
+            Mod target = ((ListViewItem)(sender)).DataContext as Mod;
 
-            int oldIndex = ListBox.Items.IndexOf(droppedData);
-            int targetIdx = ListBox.Items.IndexOf(target);
+            int oldIndex = ListView.Items.IndexOf(droppedData);
+            int targetIdx = ListView.Items.IndexOf(target);
             if (oldIndex == targetIdx)
             {
-                ListBox.SelectedItem = target;
+                ListView.SelectedItem = target;
             }
             else
             {
@@ -199,7 +208,7 @@ namespace KenshiModTool
                 }
             }
 
-            UpdateListBox();
+            UpdateListView();
         }
 
         private void TxtSearch_KeyDown(object sender, KeyEventArgs e)
@@ -216,7 +225,7 @@ namespace KenshiModTool
 
                     lblSearchInfo.Content = $"Found:  {currentIndexSearch + 1}/{SearchList.Length}.";
 
-                    ListBox.ScrollIntoView(SearchList[currentIndexSearch]);
+                    ListView.ScrollIntoView(SearchList[currentIndexSearch]);
                 }
             }
         }
@@ -232,10 +241,10 @@ namespace KenshiModTool
             foreach (var mod in LoadService.GetListOfMods())
                 ModList.Add(mod);
 
-            UpdateListBox();
+            UpdateListView();
         }
 
-        private void UpdateListBox()
+        private void UpdateListView()
         {
             foreach (var mod in ModList)
             {
@@ -277,15 +286,14 @@ namespace KenshiModTool
                 }
             }
 
-
-            ListBox.ItemsSource = ModList
-                .OrderBy(CurrentOrder)
+            ListView.ItemsSource = new List<object>();
+            ListView.ItemsSource = ModList
                 .Filter(ShowRegularMods.IsChecked ?? false, ShowSteamMods.IsChecked ?? false);
 
             if (SearchList.Length > 0)
-                ListBox.ScrollIntoView(SearchList[currentIndexSearch]);
+                ListView.ScrollIntoView(SearchList[currentIndexSearch]);
 
-            ListBox_SelectionChanged(this, null);
+            ListView_SelectionChanged(this, null);
 
 
         }
@@ -317,7 +325,7 @@ namespace KenshiModTool
                 ModList.FirstOrDefault(m => m.UniqueIdentifier == current.UniqueIdentifier).Order = max + 1;
             }
             if (!ignoreUpdateList)
-                UpdateListBox();
+                UpdateListView();
         }
 
         private void RibbonTextBox_KeyDown(object sender, KeyEventArgs e)
@@ -348,15 +356,15 @@ namespace KenshiModTool
                 SetNewOrder(mod, 0);
             }
 
-            UpdateListBox();
+            UpdateListView();
         }
 
-        private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (ListBox.SelectedItems.Count > 0)
+            if (ListView.SelectedItems.Count > 0)
             {
                 var list = new List<string>();
-                Mod mod = ListBox.SelectedItems[0] as Mod;
+                Mod mod = ListView.SelectedItems[0] as Mod;
                 FlowDocument document = new FlowDocument();
 
                 Paragraph paragraph = new Paragraph();
@@ -497,7 +505,7 @@ namespace KenshiModTool
             foreach (var mod in mods.OrderBy(m => m.Order))
                 ModList.Add(mod);
 
-            UpdateListBox();
+            UpdateListView();
         }
 
         private void SaveModProfile_Click(object sender, RoutedEventArgs e)
@@ -541,7 +549,7 @@ namespace KenshiModTool
                 }
             }
 
-            UpdateListBox();
+            UpdateListView();
         }
 
         private void BtnLaunchGameClick(object sender, RoutedEventArgs e)
@@ -567,7 +575,7 @@ namespace KenshiModTool
 
         private void CheckModPage_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var mod in ListBox.SelectedItems)
+            foreach (var mod in ListView.SelectedItems)
             {
                 if (!string.IsNullOrEmpty(((Mod)mod).Url))
                 {
@@ -583,7 +591,7 @@ namespace KenshiModTool
 
         private void ToggleActive(object sender, RoutedEventArgs e)
         {
-            foreach (Mod mod in ListBox.SelectedItems)
+            foreach (Mod mod in ListView.SelectedItems)
             {
                 mod.Active = !mod.Active;
                 SetNewOrder(mod, mod.Active ? 0 : -1);
@@ -592,7 +600,7 @@ namespace KenshiModTool
 
         private void DeactiveMods(object sender, RoutedEventArgs e)
         {
-            foreach (Mod mod in ListBox.SelectedItems)
+            foreach (Mod mod in ListView.SelectedItems)
             {
                 mod.Active = false;
                 SetNewOrder(mod, -1);
@@ -601,12 +609,12 @@ namespace KenshiModTool
 
         private void ActiveMods(object sender, RoutedEventArgs e)
         {
-            foreach (Mod mod in ListBox.SelectedItems)
+            foreach (Mod mod in ListView.SelectedItems)
             {
                 mod.Active = true;
                 SetNewOrder(mod, 0, true);
             }
-            UpdateListBox();
+            UpdateListView();
         }
 
         #endregion Context Menu actions
@@ -640,8 +648,6 @@ namespace KenshiModTool
                 MessageBox.Show("You need to Click check conflicts, beware, it'll take a while.");
                 return;
             }
-
-            chk_showConflicts.IsChecked = false;
 
             var alreadyLoaded = ConflictIndex.Count > 0 && DetailIndex.Count > 0;
             var list = new Task[] {
@@ -692,24 +698,17 @@ namespace KenshiModTool
 
             }
 
-            UpdateListBox();
+            UpdateListView();
         }
-
-        private void OrderBy_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            CurrentOrder = (EnumOrder)(CmbSortBy.SelectedItem as ComboData).Id;
-            UpdateListBox();
-        }
-
         private void ShowTypeChanges(object sender, RoutedEventArgs e)
         {
-            UpdateListBox();
+            UpdateListView();
         }
 
         private void OpenModFolder_Click(object sender, RoutedEventArgs e)
         {
             bool failure = false;
-            foreach (var mod in ListBox.SelectedItems)
+            foreach (var mod in ListView.SelectedItems)
             {
                 CommonService.OpenFolder(System.IO.Path.GetDirectoryName(((Mod)mod).FilePath), () => { failure = true; });
             }
@@ -737,8 +736,93 @@ namespace KenshiModTool
             catch (Exception)
             {
                 MessageBox.Show("I'm working on this feature... it's complicated :)");
-
             }
         }
+
+        private GridViewColumnHeader listViewSortCol = null;
+        private SortAdorner listViewSortAdorner = null;
+        private void SortHeaderClick(object sender, RoutedEventArgs e)
+        {
+            GridViewColumnHeader column = (sender as GridViewColumnHeader);
+            string sortBy = column.Tag.ToString();
+            if (listViewSortCol != null)
+            {
+                AdornerLayer.GetAdornerLayer(listViewSortCol).Remove(listViewSortAdorner);
+                ListView.Items.SortDescriptions.Clear();
+            }
+
+            ListSortDirection newDir = ListSortDirection.Ascending;
+            if (listViewSortCol == column && listViewSortAdorner.Direction == newDir)
+                newDir = ListSortDirection.Descending;
+
+            listViewSortCol = column;
+            listViewSortAdorner = new SortAdorner(listViewSortCol, newDir);
+            AdornerLayer.GetAdornerLayer(listViewSortCol).Add(listViewSortAdorner);
+            ListView.Items.SortDescriptions.Add(new SortDescription(sortBy, newDir));
+        }
+
+        public class SortAdorner : Adorner
+        {
+            private static Geometry ascGeometry =
+                Geometry.Parse("M 0 4 L 3.5 0 L 7 4 Z");
+
+            private static Geometry descGeometry =
+                Geometry.Parse("M 0 0 L 3.5 4 L 7 0 Z");
+
+            public ListSortDirection Direction { get; private set; }
+
+            public SortAdorner(UIElement element, ListSortDirection dir)
+                : base(element)
+            {
+                this.Direction = dir;
+            }
+
+            protected override void OnRender(DrawingContext drawingContext)
+            {
+                base.OnRender(drawingContext);
+
+                if (AdornedElement.RenderSize.Width < 20)
+                    return;
+
+                TranslateTransform transform = new TranslateTransform
+                    (
+                        AdornedElement.RenderSize.Width - 15,
+                        (AdornedElement.RenderSize.Height - 5) / 2
+                    );
+                drawingContext.PushTransform(transform);
+
+                Geometry geometry = ascGeometry;
+                if (this.Direction == ListSortDirection.Descending)
+                    geometry = descGeometry;
+                drawingContext.DrawGeometry(Brushes.Black, null, geometry);
+
+                drawingContext.Pop();
+            }
+
+        }
+
+        private void ToolbarLoaded(object sender, RoutedEventArgs e)
+        {
+            var toolBar = sender as ToolBar;
+
+
+            var overflowGrid = toolBar.Template.FindName("OverflowGrid", toolBar) as FrameworkElement;
+            if (overflowGrid != null)
+            {
+                overflowGrid.Visibility = Visibility.Collapsed;
+            }
+            var mainPanelBorder = toolBar.Template.FindName("MainPanelBorder", toolBar) as FrameworkElement;
+            if (mainPanelBorder != null)
+            {
+                mainPanelBorder.Margin = new Thickness();
+            }
+        }
+
+        private void StartFCS(object sender, RoutedEventArgs e)
+        {
+            CommonService.StartFCS();
+        }
+
     }
+
 }
