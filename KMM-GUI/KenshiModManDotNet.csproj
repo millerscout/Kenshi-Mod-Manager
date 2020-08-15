@@ -4,13 +4,9 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
-    <Version>1.28</Version>
-    <AssemblyVersion>1.28</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="icon.ico" />
-    <None Remove="icon.png" />
     <None Remove="icons\Buttons\AutoSort_32px.png" />
     <None Remove="icons\Buttons\Compare_32px.png" />
     <None Remove="icons\Buttons\Delete_32px.png" />
@@ -25,24 +21,9 @@
     <None Remove="icons\Buttons\Synchronize_32px.png" />
     <None Remove="icons\FCS_32.png" />
     <None Remove="icons\Kenshi_32.png" />
-    <None Remove="icons\link.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
-    <PackageReference Include="WebWindow" Version="0.1.0-20200214.10" />
-    <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj" />
-    <ProjectReference Include="..\WebServer\WebServer.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="icon.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
     <Resource Include="icons\Buttons\AutoSort_32px.png" />
     <Resource Include="icons\Buttons\Compare_32px.png" />
     <Resource Include="icons\Buttons\Delete_32px.png" />
@@ -61,7 +42,6 @@
     <Resource Include="icons\Kenshi_32.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="icons\link.png" />
   </ItemGroup>
 
 </Project>

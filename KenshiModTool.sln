@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KenshiModTool", "KenshiModT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProject", "TestProject\TestProject.csproj", "{E0D26283-13FE-41DD-88CA-B32EA57330EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebServer", "WebServer\WebServer.csproj", "{FA948549-71E0-4F73-9102-466871F90375}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebServer", "WebServer\WebServer.csproj", "{FA948549-71E0-4F73-9102-466871F90375}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KenshiModManDotNet", "KMM-GUI\KenshiModManDotNet.csproj", "{87B15E29-ED7C-4979-9B1B-88B12AC5899F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{FA948549-71E0-4F73-9102-466871F90375}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA948549-71E0-4F73-9102-466871F90375}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA948549-71E0-4F73-9102-466871F90375}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87B15E29-ED7C-4979-9B1B-88B12AC5899F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87B15E29-ED7C-4979-9B1B-88B12AC5899F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87B15E29-ED7C-4979-9B1B-88B12AC5899F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87B15E29-ED7C-4979-9B1B-88B12AC5899F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
