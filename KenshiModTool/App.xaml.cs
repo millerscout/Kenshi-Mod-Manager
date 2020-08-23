@@ -1,5 +1,8 @@
 ﻿//using Microsoft.AspNetCore.Hosting;
 using Core;
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -16,13 +19,13 @@ namespace KenshiModTool
     {
         public App() : base()
         {
+        #if !DEBUG
+            AppCenter.Start("18ca8610-280d-4fe8-8275-c876357993a4", typeof(Analytics), typeof(Crashes));
+        #endif
+
             this.Dispatcher.UnhandledException += OnDispatcherUnhandledException;
-            //var builder = WebServer.Builder
-            //    .CreateWebHostBuilder();
-            //var task = Task.Run(() =>
-            //{
-            //    builder.Run();
-            //});
+
+
         }
 
         void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)

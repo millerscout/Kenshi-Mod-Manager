@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:KenshiModTool"
         xmlns:Models="clr-namespace:Core.Models;assembly=Core" x:Class="KenshiModTool.MainWindow"
         mc:Ignorable="d"
-        Title="Kenshi Mod Manager by millerscout" Height="800" Width="600"
+        Title="Kenshi Mod Manager by millerscout" Height="800" Width="800"
         MinHeight="800" MinWidth="600"
         WindowStartupLocation="CenterScreen" Icon="/icon.png" Background="#eef5fd">
     <Window.Resources>
@@ -22,6 +22,8 @@
         <BitmapImage x:Key="imgSyncMod" UriSource="icons\Buttons\Synchronize_32px.png" />
         <BitmapImage x:Key="imgRemoveMod" UriSource="icons\Buttons\Delete_32px.png" />
         <BitmapImage x:Key="imgSearch" UriSource="icons\Buttons\Search_16px.png" />
+        <BitmapImage x:Key="Gear" UriSource="icons\Gear_50px.png" />
+        
 
         <Style TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#fff"/>
@@ -66,7 +68,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="80" />
+            <RowDefinition Height="45" />
             <RowDefinition Height="50" />
             <RowDefinition Height="35" />
 
@@ -75,28 +77,34 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="35" />
         </Grid.RowDefinitions>
-        <ToolBarTray DockPanel.Dock="Top" ToolBar.OverflowMode="Never" IsLocked="True" >
+        <ToolBarTray Grid.ColumnSpan="3" DockPanel.Dock="Top" ToolBar.OverflowMode="Never" IsLocked="True" >
             <ToolBar Loaded="ToolbarLoaded"  Band="1" BandIndex="1">
                 <Button ToolTip="Save Mod Order" VerticalAlignment="Top" Click="SaveModList_Click">
-                    <StackPanel Orientation="Vertical" Width="64">
+                    <StackPanel Orientation="Vertical" Width="100">
                         <Image Source="{StaticResource imgSaveMod}" Width="16" Height="16"/>
                         <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Save Mod Order"/></TextBlock>
                     </StackPanel>
                 </Button>
                 <Button ToolTip="Auto Order Mod List" VerticalAlignment="Top" Click="BtnOrder_Click">
-                    <StackPanel Orientation="Vertical" Width="64">
+                    <StackPanel Orientation="Vertical" Width="150">
                         <Image Source="{StaticResource imgOrderMods}" Width="16" Height="16"/>
                         <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Order Mods (Beta)"/></TextBlock>
                     </StackPanel>
                 </Button>
                 <Button ToolTip="Check Conflict" VerticalAlignment="Top" Click="CheckConflicts">
-                    <StackPanel Orientation="Vertical" Width="64">
+                    <StackPanel Orientation="Vertical" Width="150">
                         <Image Source="{StaticResource imgConflicts}" Width="16" Height="16"/>
                         <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Check Conflicts (WIP)"/></TextBlock>
                     </StackPanel>
                 </Button>
+                <!--<Button ToolTip="Configure KMM" VerticalAlignment="Top" Click="CheckConflicts">
+                    <StackPanel Orientation="Vertical" Width="100">
+                        <Image Source="{StaticResource Gear}" Width="16" Height="16"/>
+                        <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Configure"/></TextBlock>
+                    </StackPanel>
+                </Button>-->
             </ToolBar>
-            <ToolBar Loaded="ToolbarLoaded" Band="2" BandIndex="2" VerticalContentAlignment="Center">
+            <!--<ToolBar Loaded="ToolbarLoaded" Band="2" BandIndex="2" VerticalContentAlignment="Center">
                 <Separator/>
                 <Button ToolTip="Launch Game" VerticalAlignment="Top" Click="BtnLaunchGameClick">
                     <StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
@@ -123,7 +131,7 @@
                         <Image Source="{StaticResource imgSteamFolder}" Width="32" Height="32"/>
                     </StackPanel>
                 </Button>
-            </ToolBar>
+            </ToolBar>-->
         </ToolBarTray>
 
         <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="Auto" Margin="0,0,5,5" >

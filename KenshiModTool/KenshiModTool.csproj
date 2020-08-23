@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <PublishTrimmed>true</PublishTrimmed>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
     <Version>1.28</Version>
@@ -24,11 +25,14 @@
     <None Remove="icons\Buttons\Search_16px.png" />
     <None Remove="icons\Buttons\Synchronize_32px.png" />
     <None Remove="icons\FCS_32.png" />
+    <None Remove="icons\Gear_50px.png" />
     <None Remove="icons\Kenshi_32.png" />
     <None Remove="icons\link.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AppCenter.Analytics" Version="3.4.0" />
+    <PackageReference Include="Microsoft.AppCenter.Crashes" Version="3.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
     <PackageReference Include="WebWindow" Version="0.1.0-20200214.10" />
     <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
@@ -58,6 +62,7 @@
     <Resource Include="icons\FCS_32.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="icons\Gear_50px.png" />
     <Resource Include="icons\Kenshi_32.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
