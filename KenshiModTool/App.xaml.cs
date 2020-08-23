@@ -25,7 +25,6 @@ namespace KenshiModTool
             this.Dispatcher.UnhandledException += OnDispatcherUnhandledException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-
 #if DEBUG
             AppCenter.SetEnabledAsync(false);
 #endif

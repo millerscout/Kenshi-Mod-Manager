@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="SelectVersion.xaml.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="icon.ico" />
     <None Remove="icon.png" />
     <None Remove="icons\Buttons\AutoSort_32px.png" />
@@ -27,6 +31,10 @@
     <None Remove="icons\Gear_50px.png" />
     <None Remove="icons\Kenshi_32.png" />
     <None Remove="icons\link.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="SelectVersion.xaml" />
   </ItemGroup>
 
   <ItemGroup>

@@ -9,6 +9,16 @@ namespace TestProject
     {
         private static void Main(string[] args)
         {
+            //bootingupMods();
+
+            if (SteamWorkshop.Init())
+            {
+                var t = SteamWorkshop.getAllModIds();
+            }
+        }
+
+        private static void bootingupMods()
+        {
             ///Booting Mods.
             ///
             LoadService.Setup();

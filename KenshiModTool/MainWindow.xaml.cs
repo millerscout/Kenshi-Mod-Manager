@@ -57,13 +57,13 @@ namespace KenshiModTool
                 MainGrid.ShowGridLines = false;
                 lblSearchInfo.Content = "";
                 RtbDetail.Document.Blocks.Clear();
-                ListView.Items.Clear();
+                lsView.Items.Clear();
 
-                Style itemContainerStyle = ListView.ItemContainerStyle;
+                Style itemContainerStyle = lsView.ItemContainerStyle;
                 itemContainerStyle.Setters.Add(new Setter(ListViewItem.AllowDropProperty, true));
                 itemContainerStyle.Setters.Add(new EventSetter(ListViewItem.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(PreviewDragAndDrop)));
                 itemContainerStyle.Setters.Add(new EventSetter(ListViewItem.DropEvent, new DragEventHandler(SetDropAction)));
-
+                lsView.ContextMenuOpening += LsView_ContextMenuOpening;
                 LoadService.Setup();
 
                 AskGamePathIfRequired();
@@ -72,9 +72,20 @@ namespace KenshiModTool
 
                 LoadModList();
 
+                if (ModList.Count > 0)
+                {
+                    var files = Directory.GetFiles(Directory.GetCurrentDirectory(), $"{Constants.BackupSubscribeList}*").OrderBy(c => c);
+                    if (files.Count() > LoadService.config.MaxLogFiles)
+                        File.Delete(files.FirstOrDefault());
+
+                    File.WriteAllText($"{Constants.BackupSubscribeList}{DateTime.Now:yyyyMMddHHmmss}.info", string.Join(Environment.NewLine, ModList.Where(c => c.Source == SourceEnum.Steam).Select(q => q.Id)));
+
+                }
+
+
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    var source = ((GridView)ListView.View).Columns[2].Header as GridViewColumnHeader;
+                    var source = ((GridView)lsView.View).Columns[2].Header as GridViewColumnHeader;
                     SortHeaderClick(source, null);
 
                 }), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
@@ -90,6 +101,24 @@ namespace KenshiModTool
             }
         }
 
+        private void LsView_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            if (lsView.SelectedItems.Count > 0)
+            {
+                var q = lsView.ContextMenu;
+                foreach (Mod mod in lsView.SelectedItems)
+                {
+                    if (mod.Source == SourceEnum.Steam)
+                    {
+                        MenuUnSubs.Visibility = Visibility.Visible;
+                        MenuUnSubs.Height = Double.NaN;
+                        return;
+                    }
+                }
+            }
+            MenuUnSubs.Visibility = Visibility.Hidden;
+            MenuUnSubs.Height = Double.NaN;
+        }
         void PreviewDragAndDrop(object sender, MouseButtonEventArgs e)
         {
 
@@ -107,11 +136,11 @@ namespace KenshiModTool
             Mod droppedData = e.Data.GetData(typeof(Mod)) as Mod;
             Mod target = ((ListViewItem)(sender)).DataContext as Mod;
 
-            int oldIndex = ListView.Items.IndexOf(droppedData);
-            int targetIdx = ListView.Items.IndexOf(target);
+            int oldIndex = lsView.Items.IndexOf(droppedData);
+            int targetIdx = lsView.Items.IndexOf(target);
             if (oldIndex == targetIdx)
             {
-                ListView.SelectedItem = target;
+                lsView.SelectedItem = target;
             }
             else
             {
@@ -225,7 +254,7 @@ namespace KenshiModTool
 
                     lblSearchInfo.Content = $"Found:  {currentIndexSearch + 1}/{SearchList.Length}.";
 
-                    ListView.ScrollIntoView(SearchList[currentIndexSearch]);
+                    lsView.ScrollIntoView(SearchList[currentIndexSearch]);
                 }
             }
         }
@@ -286,12 +315,12 @@ namespace KenshiModTool
                 }
             }
 
-            ListView.ItemsSource = new List<object>();
-            ListView.ItemsSource = ModList
+            lsView.ItemsSource = new List<object>();
+            lsView.ItemsSource = ModList
                 .Filter(ShowRegularMods.IsChecked ?? false, ShowSteamMods.IsChecked ?? false);
 
             if (SearchList.Length > 0)
-                ListView.ScrollIntoView(SearchList[currentIndexSearch]);
+                lsView.ScrollIntoView(SearchList[currentIndexSearch]);
 
             ListView_SelectionChanged(this, null);
 
@@ -319,7 +348,10 @@ namespace KenshiModTool
                 ModList.FirstOrDefault(m => m.UniqueIdentifier == item.Key).Order = item.Value.Item1;
             }
 
-            var max = ModList.Where(c => c.Active && c.UniqueIdentifier != current.UniqueIdentifier).Max(q => q.Order);
+
+            var curList = ModList.Where(c => c.Active && c.UniqueIdentifier != current.UniqueIdentifier);
+            var max = curList.Count() > 0 ? curList.Max(q => q.Order) : 0;
+
             if (New > max)
             {
                 ModList.FirstOrDefault(m => m.UniqueIdentifier == current.UniqueIdentifier).Order = max + 1;
@@ -361,10 +393,10 @@ namespace KenshiModTool
 
         private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (ListView.SelectedItems.Count > 0)
+            if (lsView.SelectedItems.Count > 0)
             {
                 var list = new List<string>();
-                Mod mod = ListView.SelectedItems[0] as Mod;
+                Mod mod = lsView.SelectedItems[0] as Mod;
                 FlowDocument document = new FlowDocument();
 
                 Paragraph paragraph = new Paragraph();
@@ -575,7 +607,7 @@ namespace KenshiModTool
 
         private void CheckModPage_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var mod in ListView.SelectedItems)
+            foreach (var mod in lsView.SelectedItems)
             {
                 if (!string.IsNullOrEmpty(((Mod)mod).Url))
                 {
@@ -591,7 +623,7 @@ namespace KenshiModTool
 
         private void ToggleActive(object sender, RoutedEventArgs e)
         {
-            foreach (Mod mod in ListView.SelectedItems)
+            foreach (Mod mod in lsView.SelectedItems)
             {
                 mod.Active = !mod.Active;
                 SetNewOrder(mod, mod.Active ? 0 : -1);
@@ -600,7 +632,7 @@ namespace KenshiModTool
 
         private void DeactiveMods(object sender, RoutedEventArgs e)
         {
-            foreach (Mod mod in ListView.SelectedItems)
+            foreach (Mod mod in lsView.SelectedItems)
             {
                 mod.Active = false;
                 SetNewOrder(mod, -1);
@@ -609,7 +641,7 @@ namespace KenshiModTool
 
         private void ActiveMods(object sender, RoutedEventArgs e)
         {
-            foreach (Mod mod in ListView.SelectedItems)
+            foreach (Mod mod in lsView.SelectedItems)
             {
                 mod.Active = true;
                 SetNewOrder(mod, 0, true);
@@ -708,7 +740,7 @@ namespace KenshiModTool
         private void OpenModFolder_Click(object sender, RoutedEventArgs e)
         {
             bool failure = false;
-            foreach (var mod in ListView.SelectedItems)
+            foreach (var mod in lsView.SelectedItems)
             {
                 CommonService.OpenFolder(System.IO.Path.GetDirectoryName(((Mod)mod).FilePath), () => { failure = true; });
             }
@@ -748,7 +780,7 @@ namespace KenshiModTool
             if (listViewSortCol != null)
             {
                 AdornerLayer.GetAdornerLayer(listViewSortCol).Remove(listViewSortAdorner);
-                ListView.Items.SortDescriptions.Clear();
+                lsView.Items.SortDescriptions.Clear();
             }
 
             ListSortDirection newDir = ListSortDirection.Ascending;
@@ -758,7 +790,7 @@ namespace KenshiModTool
             listViewSortCol = column;
             listViewSortAdorner = new SortAdorner(listViewSortCol, newDir);
             AdornerLayer.GetAdornerLayer(listViewSortCol).Add(listViewSortAdorner);
-            ListView.Items.SortDescriptions.Add(new SortDescription(sortBy, newDir));
+            lsView.Items.SortDescriptions.Add(new SortDescription(sortBy, newDir));
         }
 
         public class SortAdorner : Adorner
@@ -823,6 +855,25 @@ namespace KenshiModTool
             CommonService.StartFCS();
         }
 
+        private void UnSubscribe(object sender, RoutedEventArgs e)
+        {
+            foreach (Mod mod in lsView.SelectedItems)
+            {
+                if (mod.Source == SourceEnum.Steam)
+                {
+                    File.AppendAllText("unsubscribedMods", $"{mod.Id}{Environment.NewLine}");
+                    SteamWorkshop.Unsubscribe(ulong.Parse(mod.Id));
+                }
+            }
+
+        }
+
+        private void OpenConfiguration(object sender, RoutedEventArgs e)
+        {
+
+            var config = new Configuration();
+            config.Show();
+        }
     }
 
 }

@@ -16,7 +16,6 @@ check it on: https://github.com/millerscout/Kenshi-Mod-Manager</Description>
     <PackageTags>ModTool, Gaming, Kenshi</PackageTags>
     <RepositoryUrl>https://github.com/millerscout/Kenshi-Mod-Manager</RepositoryUrl>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="flurl.http" Version="2.4.2" />
     <PackageReference Include="Murphy.SymbolicLink" Version="1.0.0" />
@@ -24,9 +23,22 @@ check it on: https://github.com/millerscout/Kenshi-Mod-Manager</Description>
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Steamworks.NET">
+      <HintPath>..\..\ForgottenConstructionSet\forgotten construction set\dependencies\Steamworks.NET.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="config.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Update="Steamworks.NET.dll">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="steam_api64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    
   </ItemGroup>
 
 </Project>

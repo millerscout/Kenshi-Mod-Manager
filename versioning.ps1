@@ -103,22 +103,16 @@ commitVersion $bumpKind $newVersion
 
 Write-Output $newVersion
 
-dotnet publish -c Release -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\FullRelease-86x.pubxml
-dotnet publish -c Release -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\FullRelease-x64.pubxml
-dotnet publish -c Release -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\Standalone-x64.pubxml
-dotnet publish -c Release -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\Standalone-x86.pubxml
+dotnet publish -c Release -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\FullRelease.pubxml
+dotnet publish -c Release -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\Standalone.pubxml
 
-xcopy "..\ModConflictManager\publish\x86\Mod Conflict Manager.exe" publish\Standalone-x86
-xcopy "..\ModConflictManager\publish\x86\Mod Conflict Manager.exe" publish\FullRelease-x86
-xcopy "..\ModConflictManager\publish\x64\Mod Conflict Manager.exe" publish\Standalone-x64
-xcopy "..\ModConflictManager\publish\x64\Mod Conflict Manager.exe" publish\FullRelease-x64
+xcopy "..\ModConflictManager\publish\x64\Mod Conflict Manager.exe" publish\Standalone
+xcopy "..\ModConflictManager\publish\x64\Mod Conflict Manager.exe" publish\FullRelease
 
 Remove-Item "publish" -Include *.pdb -Recurse -force
 cd publish
-7z a -tzip "FullRelease-x64" -r "FullRelease-x64"
-7z a -tzip "FullRelease-x86" -r "FullRelease-x86"
-7z a -tzip "Standalone-x64" -r "Standalone-x64"
-7z a -tzip "Standalone-x86" -r "Standalone-x86"
+7z a -tzip "FullRelease" -r "FullRelease"
+7z a -tzip "Standalone" -r "Standalone"
 cd..
 
 Invoke-Expression "git push --tags | Write-Verbose"
@@ -134,7 +128,7 @@ $body = "{
 `n  `"tag_name`": `"v$($newVersion)`",
 `n  `"target_commitish`": `"master`",
 `n  `"name`": `"v$($newVersion)`",
-`n  `"body`": `"Requirement if you use Standalone:  [.Net Core 3.1.7 x86](https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-aspnetcore-3.1.7-windows-x86-installer) or [.Net Core 3.1.7 x64](https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-desktop-3.1.7-windows-x64-installer)\nText not avaiable Yet.`",
+`n  `"body`": `"Requirement if you use Standalone: [.Net Core 3.1.7 x64](https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-desktop-3.1.7-windows-x64-installer)\nText not avaiable Yet.`",
 `n  `"draft`": false,
 `n  `"prerelease`": false
 `n}"

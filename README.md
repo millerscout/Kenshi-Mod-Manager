@@ -21,7 +21,7 @@
 <p>Hope he don't mind sharing his video :x</p>
 
 # Requisite:
-[.Net Core 3.1.7 x86](https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-aspnetcore-3.1.7-windows-x86-installer) or [.Net Core 3.1.7 x64](https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-desktop-3.1.7-windows-x64-installer)
+[.Net Core 3.1.7](https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-desktop-3.1.7-windows-x64-installer)
 
 <p align="center">
        <img src="../assets/Releases/v1.6/print.png?raw=true">
