@@ -134,7 +134,7 @@ $body = "{
 `n  `"tag_name`": `"v$($newVersion)`",
 `n  `"target_commitish`": `"master`",
 `n  `"name`": `"v$($newVersion)`",
-`n  `"body`": `"Text not avaiable Yet.`",
+`n  `"body`": `"Requirement if you use Standalone:  [.Net Core 3.1.7 x86](https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-aspnetcore-3.1.7-windows-x86-installer) or [.Net Core 3.1.7 x64](https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-desktop-3.1.7-windows-x64-installer)\nText not avaiable Yet.`",
 `n  `"draft`": false,
 `n  `"prerelease`": false
 `n}"
@@ -150,7 +150,6 @@ function UploadFile($name) {
     
     Clear-Variable headers 
 	Clear-Variable body
-	Clear-Variable path
 	Clear-Variable response
     $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
     $secret_key = Get-Content $env:APPDATA"..\..\..\.ssh\Token(Oauth)Kenshideploy"
