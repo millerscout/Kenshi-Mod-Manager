@@ -3,6 +3,7 @@ using Core;
 using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -19,13 +20,21 @@ namespace KenshiModTool
     {
         public App() : base()
         {
-        #if !DEBUG
             AppCenter.Start("18ca8610-280d-4fe8-8275-c876357993a4", typeof(Analytics), typeof(Crashes));
-        #endif
 
             this.Dispatcher.UnhandledException += OnDispatcherUnhandledException;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
 
+#if DEBUG
+            AppCenter.SetEnabledAsync(false);
+#endif
+
+        }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            File.AppendAllText(Constants.Errorfile, $"{JsonConvert.SerializeObject(e.ExceptionObject)} {Environment.NewLine}");
         }
 
         void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
