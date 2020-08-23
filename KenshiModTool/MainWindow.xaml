@@ -97,12 +97,12 @@
                         <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Check Conflicts (WIP)"/></TextBlock>
                     </StackPanel>
                 </Button>
-                <!--<Button ToolTip="Configure KMM" VerticalAlignment="Top" Click="CheckConflicts">
+                <Button ToolTip="Configure KMM" VerticalAlignment="Top" Click="OpenConfiguration">
                     <StackPanel Orientation="Vertical" Width="100">
                         <Image Source="{StaticResource Gear}" Width="16" Height="16"/>
                         <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Configure"/></TextBlock>
                     </StackPanel>
-                </Button>-->
+                </Button>
             </ToolBar>
             <!--<ToolBar Loaded="ToolbarLoaded" Band="2" BandIndex="2" VerticalContentAlignment="Center">
                 <Separator/>
@@ -181,7 +181,7 @@
             </TextBox>
         </DockPanel>
         <Button Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" x:Name="btnReloadMods" Content="Refresh List" Click="BtnRefreshMods_Click" Margin="0,5,0,5" />
-        <ListView  x:Name="ListView"
+        <ListView  x:Name="lsView"
                   Grid.Row="3"
                   Grid.Column="0"
                   Grid.ColumnSpan="4"
@@ -237,12 +237,13 @@
                 </GridView>
             </ListView.View>
             <ListView.ContextMenu>
-                <ContextMenu>
+                <ContextMenu >
                     <MenuItem Header="Visit mod page" CommandParameter="{Binding}"  Click="CheckModPage_Click" />
                     <MenuItem Header="Open Mod Folder" CommandParameter="{Binding}"  Click="OpenModFolder_Click" />
                     <MenuItem Header="Active Selected Mods" CommandParameter="{Binding}"  Click="ActiveMods" />
                     <MenuItem Header="Deactive Selected Mods" CommandParameter="{Binding}"  Click="DeactiveMods" />
                     <MenuItem Header="Toggle Active Selected Mods" CommandParameter="{Binding}"  Click="ToggleActive" />
+                    <MenuItem Name="MenuUnSubs"  Header="Unsubscribe (STEAM)" CommandParameter="{Binding}"  Click="UnSubscribe"/>
                 </ContextMenu>
             </ListView.ContextMenu>
             <!--<ListView.ItemTemplate>

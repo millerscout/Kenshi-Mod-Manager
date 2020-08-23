@@ -10,6 +10,7 @@
         public string ConflictAnalyzerPath { get; set; }
         public string MasterlistVersion { get; set; }
         public string MasterlistSource { get; set; }
+        public int MaxLogFiles { get; set; } = 5;
 
     }
 }

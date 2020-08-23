@@ -4,5 +4,7 @@
   "SteamPageUrl": "https://steamcommunity.com/sharedfiles/filedetails/?id=",
   "NexusPageUrl": "https://www.nexusmods.com/kenshi/search/?gsearch=",
   "ConflictAnalyzerPath": "C:\\project\\ModConflictManager\\publish\\x64\\Mod Conflict Manager.exe",
-  "masterlistSource": "millerscout/kmm-masterlist"
+  "masterlistSource": "millerscout/kmm-masterlist",
+  "MaxLogFiles": "5"
+
 }

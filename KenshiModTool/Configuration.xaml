@@ -1,0 +1,40 @@
+﻿<Window x:Class="KenshiModTool.Configuration"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KenshiModTool"
+        mc:Ignorable="d"
+        Title="Configuration" Height="260" Width="298" WindowStartupLocation="CenterScreen" Icon="/icon.png">
+    <Grid  HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="30" />
+
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" Grid.Column="0" Content="Game Path" HorizontalAlignment="Stretch" />
+        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" x:Name="TxtGamePath" TextWrapping="Wrap" UndoLimit="20"  Margin="5,5,5,5" HorizontalAlignment="Stretch"/>
+        <Separator Grid.Row="2" />
+
+        <Label Grid.Row="3" Grid.Column="0" Content="Steam Path" HorizontalAlignment="Stretch" />
+        <TextBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="1" x:Name="txtSteamPath" TextWrapping="Wrap" UndoLimit="20"  Margin="5,5,5,5" HorizontalAlignment="Stretch"/>
+        <Separator Grid.Row="5" />
+
+        <Label Grid.Row="6" Grid.Column="0" Content="Masterlist" HorizontalAlignment="Stretch" />
+        <TextBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="1" x:Name="txtMasterlist" TextWrapping="Wrap" UndoLimit="20"  Margin="5,5,5,5" HorizontalAlignment="Stretch"/>
+        <Separator Grid.Row="8" />
+        
+        <Button Grid.Row="9" Content="Save" Click="Save"></Button>
+    </Grid>
+</Window>

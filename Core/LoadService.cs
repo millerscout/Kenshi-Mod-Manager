@@ -18,8 +18,6 @@ namespace Core
 
         public static void Setup()
         {
-
-
             if (File.Exists(Constants.Errorfile))
                 File.Delete(Constants.Errorfile);
             if (File.Exists(Constants.ConfigFile))
@@ -34,7 +32,8 @@ namespace Core
                     SteamModsPath = "",
                     SteamPageUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=",
                     NexusPageUrl = "https://www.nexusmods.com/kenshi/search/?gsearch=",
-                    MasterlistSource = "millerscout/kmm-masterlist"
+                    MasterlistSource = "millerscout/kmm-masterlist",
+                    MaxLogFiles = 5
                 };
             }
 
