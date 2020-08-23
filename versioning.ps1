@@ -103,10 +103,10 @@ commitVersion $bumpKind $newVersion
 
 Write-Output $newVersion
 
-dotnet publish -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\FullRelease-86x.pubxml
-dotnet publish -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\FullRelease-x64.pubxml
-dotnet publish -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\Standalone-x64.pubxml
-dotnet publish -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\Standalone-x86.pubxml
+dotnet publish -c Release -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\FullRelease-86x.pubxml
+dotnet publish -c Release -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\FullRelease-x64.pubxml
+dotnet publish -c Release -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\Standalone-x64.pubxml
+dotnet publish -c Release -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\Standalone-x86.pubxml
 
 xcopy "..\ModConflictManager\publish\x86\Mod Conflict Manager.exe" publish\Standalone-x86
 xcopy "..\ModConflictManager\publish\x86\Mod Conflict Manager.exe" publish\FullRelease-x86
