@@ -77,6 +77,8 @@ function setVersionInDir($dir, $version) {
 
 
 $validCommands = @("major", "minor")
+Invoke-Expression "git checkout master"
+Invoke-Expression "git pull"
 
 if ($bumpKind -eq '')
 {
