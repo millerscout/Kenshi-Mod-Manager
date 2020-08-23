@@ -28,6 +28,7 @@ function bumpVersion($kind, $version) {
     switch ($kind) {
         "major" {
             $major = [int]$major + 1
+			$minor = 0
         }
         "minor" {
             $minor = [int]$minor + 1
