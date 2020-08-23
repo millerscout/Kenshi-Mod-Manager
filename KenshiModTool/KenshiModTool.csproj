@@ -5,8 +5,8 @@
     <PublishTrimmed>true</PublishTrimmed>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
-    <Version>1.28</Version>
-    <AssemblyVersion>1.28</AssemblyVersion>
+    <Version>1.30</Version>
+    <AssemblyVersion>1.30</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
