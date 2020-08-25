@@ -23,11 +23,10 @@
         <BitmapImage x:Key="imgRemoveMod" UriSource="icons\Buttons\Delete_32px.png" />
         <BitmapImage x:Key="imgSearch" UriSource="icons\Buttons\Search_16px.png" />
         <BitmapImage x:Key="Gear" UriSource="icons\Gear_50px.png" />
-        
 
         <Style TargetType="{x:Type Button}">
-            <Setter Property="Background" Value="#fff"/>
-            <Setter Property="Foreground" Value="#000"/>
+            <Setter Property="Background" Value="#fff" />
+            <Setter Property="Foreground" Value="#000" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
@@ -36,7 +35,7 @@
                             BorderThickness="1"
                             Padding="4"
                             BorderBrush="#000">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -46,7 +45,7 @@
                     <Trigger.EnterActions>
                         <BeginStoryboard>
                             <Storyboard>
-                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Coral" Duration="0:0:1" SpeedRatio="2"/>
+                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Coral" Duration="0:0:1" SpeedRatio="2" />
                             </Storyboard>
                         </BeginStoryboard>
                     </Trigger.EnterActions>
@@ -77,64 +76,64 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="35" />
         </Grid.RowDefinitions>
-        <ToolBarTray Grid.ColumnSpan="3" DockPanel.Dock="Top" ToolBar.OverflowMode="Never" IsLocked="True" >
+        <ToolBarTray Grid.ColumnSpan="3" DockPanel.Dock="Top" ToolBar.OverflowMode="Never" IsLocked="True">
             <ToolBar Loaded="ToolbarLoaded"  Band="1" BandIndex="1">
                 <Button ToolTip="Save Mod Order" VerticalAlignment="Top" Click="SaveModList_Click">
                     <StackPanel Orientation="Vertical" Width="100">
-                        <Image Source="{StaticResource imgSaveMod}" Width="16" Height="16"/>
-                        <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Save Mod Order"/></TextBlock>
+                        <Image Source="{StaticResource imgSaveMod}" Width="16" Height="16" />
+                        <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Save Mod Order" /></TextBlock>
                     </StackPanel>
                 </Button>
                 <Button ToolTip="Auto Order Mod List" VerticalAlignment="Top" Click="BtnOrder_Click">
                     <StackPanel Orientation="Vertical" Width="150">
-                        <Image Source="{StaticResource imgOrderMods}" Width="16" Height="16"/>
-                        <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Order Mods (Beta)"/></TextBlock>
+                        <Image Source="{StaticResource imgOrderMods}" Width="16" Height="16" />
+                        <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Order Mods (Beta)" /></TextBlock>
                     </StackPanel>
                 </Button>
                 <Button ToolTip="Check Conflict" VerticalAlignment="Top" Click="CheckConflicts">
                     <StackPanel Orientation="Vertical" Width="150">
-                        <Image Source="{StaticResource imgConflicts}" Width="16" Height="16"/>
-                        <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Check Conflicts (WIP)"/></TextBlock>
+                        <Image Source="{StaticResource imgConflicts}" Width="16" Height="16" />
+                        <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Check Conflicts (WIP)" /></TextBlock>
                     </StackPanel>
                 </Button>
                 <Button ToolTip="Configure KMM" VerticalAlignment="Top" Click="OpenConfiguration">
                     <StackPanel Orientation="Vertical" Width="100">
-                        <Image Source="{StaticResource Gear}" Width="16" Height="16"/>
-                        <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Configure"/></TextBlock>
+                        <Image Source="{StaticResource Gear}" Width="16" Height="16" />
+                        <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Configure" /></TextBlock>
                     </StackPanel>
                 </Button>
             </ToolBar>
             <!--<ToolBar Loaded="ToolbarLoaded" Band="2" BandIndex="2" VerticalContentAlignment="Center">
-                <Separator/>
+                <Separator />
                 <Button ToolTip="Launch Game" VerticalAlignment="Top" Click="BtnLaunchGameClick">
                     <StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
-                        <Image Source="{StaticResource imgKenshi}" HorizontalAlignment="Center" Stretch="Uniform" Width="32" Height="32"/>
+                        <Image Source="{StaticResource imgKenshi}" HorizontalAlignment="Center" Stretch="Uniform" Width="32" Height="32" />
                     </StackPanel>
                 </Button>
                 <Button ToolTip="Launch Forgotten Construction Set (Modding Tool)" VerticalAlignment="Top" Click="StartFCS">
                     <StackPanel Orientation="Vertical">
-                        <Image Source="{StaticResource imgFCS}" Width="32" Height="32"/>
+                        <Image Source="{StaticResource imgFCS}" Width="32" Height="32" />
                     </StackPanel>
                 </Button>
                 <Button ToolTip="Open Game Folder" VerticalAlignment="Top" Click="GameModFolder_Click">
                     <StackPanel Orientation="Vertical">
-                        <Image Source="{StaticResource imgGameFolder}" Width="32" Height="32"/>
+                        <Image Source="{StaticResource imgGameFolder}" Width="32" Height="32" />
                     </StackPanel>
                 </Button>
                 <Button ToolTip="Open Mods Folder" VerticalAlignment="Top" Click="OpenModFolder_Click">
                     <StackPanel Orientation="Vertical">
-                        <Image Source="{StaticResource imgModsFolder}" Width="32" Height="32"/>
+                        <Image Source="{StaticResource imgModsFolder}" Width="32" Height="32" />
                     </StackPanel>
                 </Button>
                 <Button ToolTip="Open Steam Folder" VerticalAlignment="Top" Click="BtnSteamFolder_Click">
                     <StackPanel Orientation="Vertical">
-                        <Image Source="{StaticResource imgSteamFolder}" Width="32" Height="32"/>
+                        <Image Source="{StaticResource imgSteamFolder}" Width="32" Height="32" />
                     </StackPanel>
                 </Button>
             </ToolBar>-->
         </ToolBarTray>
 
-        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="Auto" Margin="0,0,5,5" >
+        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="Auto" Margin="0,0,5,5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="160" />
                 <ColumnDefinition Width="160" />
@@ -145,23 +144,23 @@
                 <RowDefinition Height="25" />
                 <RowDefinition Height="25" />
             </Grid.RowDefinitions>
-            <Rectangle  Grid.Row="0" Grid.Column="0"  Grid.ColumnSpan="3" HorizontalAlignment="Stretch" Fill="LightGray" Height="1"/>
+            <Rectangle  Grid.Row="0" Grid.Column="0"  Grid.ColumnSpan="3" HorizontalAlignment="Stretch" Fill="LightGray" Height="1" />
 
-            <Label Grid.Row="1" Margin="-5,0,0,0" Content="Filters:"/>
+            <Label Grid.Row="1" Margin="-5,0,0,0" Content="Filters:" />
             <CheckBox x:Name="ShowSteamMods" Grid.Row="2" Grid.Column="0" IsChecked="{Binding ShowSteamMods}" Checked="ShowTypeChanges" Unchecked="ShowTypeChanges" Margin="0,5,5,0" Content="Steam Mods" />
             <CheckBox x:Name="ShowRegularMods" Grid.Row="2" Grid.Column="1" IsChecked="{Binding ShowRegularMods}" Checked="ShowTypeChanges" Unchecked="ShowTypeChanges" Margin="5,5,5,0" Content="Regular Mods" />
             <!--<Button Margin="0,5,0,0" Grid.Row="1" Grid.Column="1"  x:Name="btnOpenWebView" Content="Open WebView" Click="OpenWebview" />-->
             <!--<Button x:Name="chk_showConflicts" Grid.Row="1" Grid.Column="1" Click="ShowConflicts_check" Content="Show conflicts" />-->
-            <Label Grid.Row="2" Grid.Column="3"  x:Name="lblSearchInfo" Content="Found ( **** / ****)" HorizontalAlignment="Right"/>
+            <Label Grid.Row="2" Grid.Column="3"  x:Name="lblSearchInfo" Content="Found ( **** / ****)" HorizontalAlignment="Right" />
         </Grid>
-        <DockPanel  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="1" LastChildFill="True" Background="White" Margin="0,5,5,5" >
+        <DockPanel  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="1" LastChildFill="True" Background="White" Margin="0,5,5,5">
             <TextBox  x:Name="txtSearch" TextWrapping="Wrap" TextChanged="TextBox_TextChanged" UndoLimit="20" KeyDown="TxtSearch_KeyDown" Width="Auto" Padding="2">
                 <TextBox.Style>
                     <Style xmlns:sys="clr-namespace:System;assembly=mscorlib" TargetType="{x:Type TextBox}">
                         <Style.Resources>
                             <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
                                 <VisualBrush.Visual>
-                                    <Label Content="Search" Foreground="Black"/>
+                                    <Label Content="Search" Foreground="Black" />
                                 </VisualBrush.Visual>
                             </VisualBrush>
                         </Style.Resources>
@@ -181,6 +180,7 @@
             </TextBox>
         </DockPanel>
         <Button Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" x:Name="btnReloadMods" Content="Refresh List" Click="BtnRefreshMods_Click" Margin="0,5,0,5" />
+        <ProgressBar Name="PBStatus" Grid.Row="3" Grid.ColumnSpan="3" Minimum="0" Maximum="100" Value="0" Height="6px" VerticalAlignment="Top" />
         <ListView  x:Name="lsView"
                   Grid.Row="3"
                   Grid.Column="0"
@@ -188,9 +188,8 @@
                   VerticalAlignment="Stretch"
                   HorizontalAlignment="Stretch"
                   SelectionMode="Extended"
-                  BorderThickness="1" Margin="0,5,0,5" SelectionChanged="ListView_SelectionChanged"
-                  HorizontalContentAlignment="Stretch"
-                   >
+                  BorderThickness="1" Margin="0,10,0,5" SelectionChanged="ListView_SelectionChanged"
+                  HorizontalContentAlignment="Stretch">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Background" Value="{Binding Color}"></Setter>
@@ -213,37 +212,37 @@
                                 </Grid>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
-                        <GridViewColumnHeader Tag="Active" Click="SortHeaderClick"/>
+                        <GridViewColumnHeader Tag="Active" Click="SortHeaderClick" />
                     </GridViewColumn>
                     <GridViewColumn>
-                        <GridViewColumn.CellTemplate >
+                        <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid  HorizontalAlignment="Stretch">
                                     <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Order}"  KeyDown="RibbonTextBox_KeyDown" MaxLength="5"  Margin="5,5,5,5" Width="40" />
                                 </Grid>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
-                        <GridViewColumnHeader Tag="Order" Click="SortHeaderClick"/>
+                        <GridViewColumnHeader Tag="Order" Click="SortHeaderClick" />
                     </GridViewColumn>
                     <GridViewColumn DisplayMemberBinding="{Binding DisplayName}" Width="200">
-                        <GridViewColumnHeader Tag="DisplayName" Click="SortHeaderClick" Content="Name"/>
+                        <GridViewColumnHeader Tag="DisplayName" Click="SortHeaderClick" Content="Name" />
                     </GridViewColumn>
                     <GridViewColumn DisplayMemberBinding="{Binding DisplayCategories}">
-                        <GridViewColumnHeader Tag="DisplayCategories" Click="SortHeaderClick" Content="Categories"/>
+                        <GridViewColumnHeader Tag="DisplayCategories" Click="SortHeaderClick" Content="Categories" />
                     </GridViewColumn>
                     <GridViewColumn DisplayMemberBinding="{Binding Source}">
-                        <GridViewColumnHeader Tag="Source" Click="SortHeaderClick" Content="Source"/>
+                        <GridViewColumnHeader Tag="Source" Click="SortHeaderClick" Content="Source" />
                     </GridViewColumn>
                 </GridView>
             </ListView.View>
             <ListView.ContextMenu>
-                <ContextMenu >
+                <ContextMenu>
                     <MenuItem Header="Visit mod page" CommandParameter="{Binding}"  Click="CheckModPage_Click" />
                     <MenuItem Header="Open Mod Folder" CommandParameter="{Binding}"  Click="OpenModFolder_Click" />
                     <MenuItem Header="Active Selected Mods" CommandParameter="{Binding}"  Click="ActiveMods" />
                     <MenuItem Header="Deactive Selected Mods" CommandParameter="{Binding}"  Click="DeactiveMods" />
                     <MenuItem Header="Toggle Active Selected Mods" CommandParameter="{Binding}"  Click="ToggleActive" />
-                    <MenuItem Name="MenuUnSubs"  Header="Unsubscribe (STEAM)" CommandParameter="{Binding}"  Click="UnSubscribe"/>
+                    <MenuItem Name="MenuUnSubs"  Header="Unsubscribe (STEAM)" CommandParameter="{Binding}"  Click="UnSubscribe" />
                 </ContextMenu>
             </ListView.ContextMenu>
             <!--<ListView.ItemTemplate>
@@ -259,7 +258,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        
+
                         <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Order}"  KeyDown="RibbonTextBox_KeyDown" MaxLength="5"  Margin="5,5,5,5" Width="40" />
                         <CheckBox Grid.Row="1" Grid.Column="2"  IsChecked="{Binding Active}" Checked="UpdateCheckBox" Unchecked="UpdateCheckBox" Margin="5,5,5,0" />
                         <TextBlock Grid.Row="1" Grid.Column="3"   Text="{Binding DisplayName}"  Margin="5,5,5,0" Width="auto" />
@@ -267,9 +266,9 @@
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>-->
-            <Models:Mod Author="Test 1" Active="True" Color="&quot;red&quot;" Description="" Id="2" Order="1" FilePath="&quot;c:\sample.mod&quot;" Source="GameFolder"/>
-            <Models:Mod Author="With Error" FilePath="&quot;&quot;" Order="-1" Active="True" Color="&quot;gray&quot;"/>
-            <Models:Mod Color="&quot;#ff9632&quot;" FilePath="&quot;c:\Search.mod&quot;"/>
+            <Models:Mod Author="Test 1" Active="True" Color="&quot;red&quot;" Description="" Id="2" Order="1" FilePath="&quot;c:\sample.mod&quot;" Source="GameFolder" />
+            <Models:Mod Author="With Error" FilePath="&quot;&quot;" Order="-1" Active="True" Color="&quot;gray&quot;" />
+            <Models:Mod Color="&quot;#ff9632&quot;" FilePath="&quot;c:\Search.mod&quot;" />
         </ListView>
         <Grid Grid.Row="4" Grid.ColumnSpan="4">
             <Grid.ColumnDefinitions>
@@ -294,11 +293,11 @@
                 </RichTextBox.Resources>
                 <FlowDocument>
                     <Paragraph>
-                        <Run Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nulla elit, ultrices at nulla sed, bibendum facilisis odio. Integer et velit et enim finibus efficitur. Nullam fermentum ornare elementum. Vivamus non ipsum libero. Nunc ultrices hendrerit ipsum, et molestie nisi bibendum eu. Nam aliquet vel lorem ac venenatis. Nullam sed nunc porta, mollis nulla in, sollicitudin ligula."/>
+                        <Run Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nulla elit, ultrices at nulla sed, bibendum facilisis odio. Integer et velit et enim finibus efficitur. Nullam fermentum ornare elementum. Vivamus non ipsum libero. Nunc ultrices hendrerit ipsum, et molestie nisi bibendum eu. Nam aliquet vel lorem ac venenatis. Nullam sed nunc porta, mollis nulla in, sollicitudin ligula." />
                     </Paragraph>
                     <Paragraph Foreground="Blue">
                         <Bold>
-                            <Run Text="Aenean non mauris placerat, dignissim nisi dictum, semper lorem. Vestibulum venenatis ullamcorper mattis. Donec pretium imperdiet porttitor. Suspendisse eu ex at orci iaculis luctus. Cras pellentesque lacus ac ipsum ultricies consequat. Vestibulum et iaculis tellus. Phasellus elit massa, feugiat at placerat vitae, placerat nec justo. Phasellus eu augue varius, porta purus ac, venenatis leo. Proin turpis nisl, pellentesque eget fringilla quis, aliquam ultrices nisi. Praesent eros lectus, interdum ut interdum ac, gravida vel libero. Donec magna elit, ullamcorper eu purus vel, commodo suscipit dui. Sed sed eleifend enim. Vestibulum feugiat dignissim ante, vel venenatis turpis. Etiam mauris mauris, dignissim ut eleifend vitae, bibendum id mauris. Suspendisse at orci gravida nunc suscipit rutrum vel eget lorem. Phasellus quis dignissim ipsum. Nulla interdum lobortis posuere. Duis consequat neque nec magna dictum, vitae consectetur magna blandit. Nunc euismod molestie tellus, quis interdum dolor lobortis et. Nullam interdum sed quam vitae fermentum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Duis in odio justo. Sed in nisl consequat, viverra metus sed, tincidunt libero."/>
+                            <Run Text="Aenean non mauris placerat, dignissim nisi dictum, semper lorem. Vestibulum venenatis ullamcorper mattis. Donec pretium imperdiet porttitor. Suspendisse eu ex at orci iaculis luctus. Cras pellentesque lacus ac ipsum ultricies consequat. Vestibulum et iaculis tellus. Phasellus elit massa, feugiat at placerat vitae, placerat nec justo. Phasellus eu augue varius, porta purus ac, venenatis leo. Proin turpis nisl, pellentesque eget fringilla quis, aliquam ultrices nisi. Praesent eros lectus, interdum ut interdum ac, gravida vel libero. Donec magna elit, ullamcorper eu purus vel, commodo suscipit dui. Sed sed eleifend enim. Vestibulum feugiat dignissim ante, vel venenatis turpis. Etiam mauris mauris, dignissim ut eleifend vitae, bibendum id mauris. Suspendisse at orci gravida nunc suscipit rutrum vel eget lorem. Phasellus quis dignissim ipsum. Nulla interdum lobortis posuere. Duis consequat neque nec magna dictum, vitae consectetur magna blandit. Nunc euismod molestie tellus, quis interdum dolor lobortis et. Nullam interdum sed quam vitae fermentum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Duis in odio justo. Sed in nisl consequat, viverra metus sed, tincidunt libero." />
                         </Bold>
                     </Paragraph>
                 </FlowDocument>
@@ -315,7 +314,5 @@
             <Button Margin="0,5,5,5" Grid.Column="1"  x:Name="btnLoadProfile" Content="Load mod Profile" Click="BtnLoadProfile_Click" />
             <Button Margin="0,5,0,5" Grid.Column="2"  x:Name="BtnLaunchGame"  Content="Launch Game" Click="BtnLaunchGameClick" />
         </Grid>
-
     </Grid>
-
 </Window>

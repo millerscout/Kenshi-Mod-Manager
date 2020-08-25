@@ -1,7 +1,6 @@
 ﻿using Core;
 using Core.Models;
 using KenshiModTool.Model;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
@@ -9,20 +8,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Controls.Ribbon;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -47,7 +39,6 @@ namespace KenshiModTool
             try
             {
                 InitializeComponent();
-
 
                 this.Title = $"[v{Assembly.GetExecutingAssembly().GetName().Version.ToString(2)}] - {this.Title}";
 
@@ -79,20 +70,13 @@ namespace KenshiModTool
                         File.Delete(files.FirstOrDefault());
 
                     File.WriteAllText($"{Constants.BackupSubscribeList}{DateTime.Now:yyyyMMddHHmmss}.info", string.Join(Environment.NewLine, ModList.Where(c => c.Source == SourceEnum.Steam).Select(q => q.Id)));
-
                 }
-
 
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
                     var source = ((GridView)lsView.View).Columns[2].Header as GridViewColumnHeader;
                     SortHeaderClick(source, null);
-
                 }), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
-
-
-
-
             }
             catch (Exception ex)
             {
@@ -119,9 +103,9 @@ namespace KenshiModTool
             MenuUnSubs.Visibility = Visibility.Hidden;
             MenuUnSubs.Height = Double.NaN;
         }
-        void PreviewDragAndDrop(object sender, MouseButtonEventArgs e)
-        {
 
+        private void PreviewDragAndDrop(object sender, MouseButtonEventArgs e)
+        {
             var target = ((MouseDevice)e.Device).Target;
             if (sender is ListViewItem && target is TextBlock && (target as TextBlock).Name == "Handle")
             {
@@ -131,7 +115,7 @@ namespace KenshiModTool
             }
         }
 
-        void SetDropAction(object sender, DragEventArgs e)
+        private void SetDropAction(object sender, DragEventArgs e)
         {
             Mod droppedData = e.Data.GetData(typeof(Mod)) as Mod;
             Mod target = ((ListViewItem)(sender)).DataContext as Mod;
@@ -176,24 +160,19 @@ namespace KenshiModTool
                 return;
             }
 
-
             if (string.IsNullOrEmpty(LoadService.config.SteamModsPath))
             {
                 MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Are you using Steam Version?", "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
                 if (messageBoxResult == MessageBoxResult.Yes)
                 {
-
-
                     var dialog = new CommonOpenFileDialog();
                     dialog.IsFolderPicker = true;
                     dialog.Title = Directory.Exists("C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\233860") ? "Is this Kenshi Mod Folder (STEAM) P.s. 233860 is the id from kenshi ?" : "You need to select Kenshi Steam Folder, it's your steam folder + \"Steam\\steamapps\\workshop\\content\\233860";
                     dialog.InitialDirectory = "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\233860";
                     CommonFileDialogResult result = dialog.ShowDialog();
 
-
                     try
                     {
-
                         LoadService.config.SteamModsPath = dialog.FileName;
                     }
                     catch (Exception)
@@ -204,9 +183,6 @@ namespace KenshiModTool
                 else
                     LoadService.config.SteamModsPath = "NONE";
             }
-
-
-
         }
 
         #endregion Environment Functions
@@ -298,10 +274,6 @@ namespace KenshiModTool
                             mod.Color = ModColors.RequisiteNotFoundColor;
                         }
                     }
-
-
-
-
                 }
 
                 if (mod.Conflicts.Count > 0)
@@ -315,17 +287,19 @@ namespace KenshiModTool
                 }
             }
 
-            lsView.ItemsSource = new List<object>();
-            lsView.ItemsSource = ModList
-                .Filter(ShowRegularMods.IsChecked ?? false, ShowSteamMods.IsChecked ?? false);
+            this.Dispatcher.Invoke(() =>
+            {
+                lsView.ItemsSource = new List<object>();
+                lsView.ItemsSource = ModList
+                    .Filter(ShowRegularMods.IsChecked ?? false, ShowSteamMods.IsChecked ?? false);
 
-            if (SearchList.Length > 0)
-                lsView.ScrollIntoView(SearchList[currentIndexSearch]);
+                if (SearchList.Length > 0)
+                    lsView.ScrollIntoView(SearchList[currentIndexSearch]);
 
-            ListView_SelectionChanged(this, null);
-
-
+                ListView_SelectionChanged(this, null);
+            });
         }
+
         public void SetNewOrder(Mod current, int New, bool ignoreUpdateList = false)
         {
             if (New < 0) New = 0;
@@ -347,7 +321,6 @@ namespace KenshiModTool
             {
                 ModList.FirstOrDefault(m => m.UniqueIdentifier == item.Key).Order = item.Value.Item1;
             }
-
 
             var curList = ModList.Where(c => c.Active && c.UniqueIdentifier != current.UniqueIdentifier);
             var max = curList.Count() > 0 ? curList.Max(q => q.Order) : 0;
@@ -412,7 +385,6 @@ namespace KenshiModTool
                     Write("Conflicts:", "");
                     Write("*****************   Save mod order and click check conflicts again   *******", "");
 
-
                     foreach (var key in mod.Conflicts)
                     {
                         paragraph.Inlines.Add($"{DetailIndex[key].Type}:{Environment.NewLine}");
@@ -428,7 +400,6 @@ namespace KenshiModTool
                             var priority = i == ConflictIndex[key].ChangeList.Count - 1 && !isRemoved ? " <<<< This Value will be used" : "";
                             var value = isRemoved ? "" : $"- Value: {item.Value}";
                             paragraph.Inlines.Add($"{item.State} {value} - Mod: {item.ModName} {priority} {Environment.NewLine}");
-
                         }
                     }
                     Write("*****************************************************************************", "");
@@ -466,7 +437,6 @@ namespace KenshiModTool
                         if ((i + 1) < requisite.Count && requisite.Count > 1) paragraph.Inlines.Add($" ,");
                     }
                     paragraph.Inlines.Add($"{Environment.NewLine}");
-
                 }
 
                 void Write(string title, string Value)
@@ -484,20 +454,15 @@ namespace KenshiModTool
                     textLink.NavigateUri = new Uri(local ? Path.GetDirectoryName(Value) : Value);
                     textLink.RequestNavigate += TextLink_RequestNavigate;
                     paragraph.Inlines.Add(textLink);
-
                 }
 
                 document.Blocks.Add(paragraph);
-
             }
             else
             {
                 RtbDetail.Document.Blocks.Clear();
             }
-
         }
-
-
 
         #endregion List Manipulation
 
@@ -505,7 +470,8 @@ namespace KenshiModTool
 
         private void SaveModList_Click(object sender, RoutedEventArgs e)
         {
-            File.Copy(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg"), Path.Combine(LoadService.config.GamePath, "data", "mods.cfg.backup"), true);
+            if (File.Exists(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg")))
+                File.Copy(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg"), Path.Combine(LoadService.config.GamePath, "data", "mods.cfg.backup"), true);
 
             File.WriteAllLines(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg"), ModList.Where(m => m.Active).OrderBy(q => q.Order).Select(m => m.FileName));
         }
@@ -621,32 +587,66 @@ namespace KenshiModTool
             }
         }
 
-        private void ToggleActive(object sender, RoutedEventArgs e)
+        private void worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            foreach (Mod mod in lsView.SelectedItems)
-            {
-                mod.Active = !mod.Active;
-                SetNewOrder(mod, mod.Active ? 0 : -1);
-            }
+            PBStatus.Value = e.ProgressPercentage;
         }
 
-        private void DeactiveMods(object sender, RoutedEventArgs e)
+        private BackgroundWorker ListBackgroundWorker = null;
+
+        private void ExecuteWorker(DoWorkEventHandler handler)
         {
-            foreach (Mod mod in lsView.SelectedItems)
+            if (ListBackgroundWorker != null)
             {
-                mod.Active = false;
-                SetNewOrder(mod, -1);
+                MessageBox.Show("Hold on buddy! i'm working on your last request.");
+                return;
             }
+            ListBackgroundWorker = new BackgroundWorker();
+            ListBackgroundWorker.WorkerReportsProgress = true;
+
+            ListBackgroundWorker.DoWork += handler;
+
+            ListBackgroundWorker.ProgressChanged += worker_ProgressChanged;
+            ListBackgroundWorker.RunWorkerCompleted += Worker_RunWorkerCompleted;
+            ListBackgroundWorker.RunWorkerAsync();
         }
 
-        private void ActiveMods(object sender, RoutedEventArgs e)
+        private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            foreach (Mod mod in lsView.SelectedItems)
+            ListBackgroundWorker = null;
+            this.Dispatcher.Invoke(() =>
             {
-                mod.Active = true;
-                SetNewOrder(mod, 0, true);
-            }
-            UpdateListView();
+                PBStatus.Value = 0;
+            });
+        }
+
+        private void ToggleActive(object sender, RoutedEventArgs e) =>
+            UpdateActiveAndOrder((Mod mod) => mod.Active ? 0 : -1, (Mod mod) => mod.setActive(!mod.Active));
+
+        private void DeactiveMods(object sender, RoutedEventArgs e) =>
+            UpdateActiveAndOrder((Mod mod) => -1, (Mod mod) => mod.setActive(false));
+
+        private void ActiveMods(object sender, RoutedEventArgs e) =>
+            UpdateActiveAndOrder((Mod mod) => -1, (Mod mod) => mod.setActive(true));
+
+        private void UpdateActiveAndOrder(Func<Mod, int> newOrder, Func<Mod, Mod> Change)
+        {
+            var length = lsView.SelectedItems.Count;
+            Mod[] arr = new Mod[length];
+            lsView.SelectedItems.CopyTo(arr, 0);
+
+            ExecuteWorker((object sender, DoWorkEventArgs args) =>
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    Mod mod = arr[i];
+
+                    Change(mod);
+                    SetNewOrder(mod, newOrder(mod), true);
+                    (sender as BackgroundWorker).ReportProgress(i.Percent(length));
+                }
+                UpdateListView();
+            });
         }
 
         #endregion Context Menu actions
@@ -669,12 +669,10 @@ namespace KenshiModTool
         {
             var tooling = new Tooling();
             tooling.Show();
-
         }
 
         private void ShowConflicts_check(object sender, RoutedEventArgs e)
         {
-
             if (!File.Exists(Constants.modChangesFileName))
             {
                 MessageBox.Show("You need to Click check conflicts, beware, it'll take a while.");
@@ -691,8 +689,6 @@ namespace KenshiModTool
 
                     if (content.Length > 0)
                         ConflictIndex = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, ModListChanges>>(content);
-
-
                 }
             }),
 
@@ -709,17 +705,13 @@ namespace KenshiModTool
 
             Task.WaitAll(list);
 
-
             if (!alreadyLoaded)
             {
                 Parallel.ForEach(ConflictIndex.Keys, (key) =>
                 {
-
-
                     if (ConflictIndex[key].Mod.Count == 1) return;
                     foreach (var modName in ConflictIndex[key].Mod)
                     {
-
                         var mod = ModList.FirstOrDefault(c => c.FileName == modName);
                         if (!mod.Conflicts.Any(q => q == key))
                         {
@@ -727,11 +719,11 @@ namespace KenshiModTool
                         }
                     }
                 });
-
             }
 
             UpdateListView();
         }
+
         private void ShowTypeChanges(object sender, RoutedEventArgs e)
         {
             UpdateListView();
@@ -749,7 +741,6 @@ namespace KenshiModTool
             {
                 MessageBox.Show("Game folder not configured correctly.");
             }
-
         }
 
         private void CheckConflicts(object sender, RoutedEventArgs e)
@@ -773,6 +764,7 @@ namespace KenshiModTool
 
         private GridViewColumnHeader listViewSortCol = null;
         private SortAdorner listViewSortAdorner = null;
+
         private void SortHeaderClick(object sender, RoutedEventArgs e)
         {
             GridViewColumnHeader column = (sender as GridViewColumnHeader);
@@ -830,13 +822,11 @@ namespace KenshiModTool
 
                 drawingContext.Pop();
             }
-
         }
 
         private void ToolbarLoaded(object sender, RoutedEventArgs e)
         {
             var toolBar = sender as ToolBar;
-
 
             var overflowGrid = toolBar.Template.FindName("OverflowGrid", toolBar) as FrameworkElement;
             if (overflowGrid != null)
@@ -865,15 +855,12 @@ namespace KenshiModTool
                     SteamWorkshop.Unsubscribe(ulong.Parse(mod.Id));
                 }
             }
-
         }
 
         private void OpenConfiguration(object sender, RoutedEventArgs e)
         {
-
             var config = new Configuration();
             config.Show();
         }
     }
-
 }

@@ -3,10 +3,8 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -45,8 +43,6 @@ namespace Core
                 RuleService.UpdateMasterFile();
             }
             if (File.Exists(Constants.Logfile)) File.Delete(Constants.Logfile);
-
-
         }
 
         public static void SaveConfig()
@@ -70,7 +66,6 @@ namespace Core
             var appendLog = new List<string> {
                 $"{DateTime.Now} - Loaded: {list.Count()} Mods",
                 $"{DateTime.Now} - {qtdByType}",
-
             };
             appendLog.Add($"{DateTime.Now} - Detailed List:");
             appendLog.AddRange(list.Select(item => $"{DateTime.Now} - {item.Source} - {item.FilePath}"));
@@ -83,12 +78,14 @@ namespace Core
         {
             return LoadMod(currentMods, Path.Combine(LoadService.config.GamePath, "Mods"));
         }
+
         private static IEnumerable<Mod> LoadSteamMods(List<string> currentMods)
         {
             if (LoadService.config.SteamModsPath == "NONE") return new List<Mod>();
 
             return LoadMod(currentMods, LoadService.config.SteamModsPath);
         }
+
         public static bool IsSymbolic(string path)
         {
             FileInfo pathInfo = new FileInfo(path);
@@ -112,11 +109,13 @@ namespace Core
 
             return pathInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
         }
+
         public static void DeleteFolder(string path)
         {
             if (Directory.Exists(path))
                 Directory.Delete(path);
         }
+
         public static void CreateSymbLink(IEnumerable<Tuple<string, string>> symblist)
         {
             var sync = new object();
@@ -146,8 +145,8 @@ namespace Core
                 File.AppendAllLines(Constants.Logfile, infoLogList);
             if (errorLogList.Count > 0)
                 File.AppendAllLines(Constants.Errorfile, errorLogList);
-
         }
+
         public static void FolderCleanUp(string path)
         {
             if (!Directory.Exists(path)) return;
@@ -162,6 +161,7 @@ namespace Core
                 }
             }
         }
+
         private static IEnumerable<Mod> LoadMod(List<string> currentMods, string path)
         {
             var listMods = new List<Mod>();

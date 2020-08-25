@@ -1,11 +1,9 @@
 ﻿using Core.Models;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Core
 {
@@ -19,9 +17,9 @@ namespace Core
                     return Convert.ToBase64String(SHA256.ComputeHash(fileStream));
             }
         }
+
         public static IEnumerable<Mod> Filter(this IEnumerable<Mod> List, bool showRegularMods, bool showSteamMods)
         {
-
             if (showRegularMods && showSteamMods) return List;
 
             if (showRegularMods)
@@ -31,8 +29,8 @@ namespace Core
                 return List.Where(c => c.Source == SourceEnum.Steam);
 
             return List;
-
         }
 
+        public static int Percent(this int val, int qty) => val * 100 / qty;
     }
 }
