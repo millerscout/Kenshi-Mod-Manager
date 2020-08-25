@@ -6,9 +6,6 @@ using Microsoft.AppCenter.Crashes;
 using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace KenshiModTool
@@ -28,7 +25,6 @@ namespace KenshiModTool
 #if DEBUG
             AppCenter.SetEnabledAsync(false);
 #endif
-
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -36,17 +32,12 @@ namespace KenshiModTool
             File.AppendAllText(Constants.Errorfile, $"{JsonConvert.SerializeObject(e.ExceptionObject)} {Environment.NewLine}");
         }
 
-        void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        private void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             MessageBox.Show("Unhandled exception occurred: \n" + e.Exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
             File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} -  {e.Exception.Message}.{Environment.NewLine}");
             File.AppendAllText(Constants.Errorfile, $"{e.Exception.StackTrace} {Environment.NewLine}");
-
         }
-
-
     }
-
 }
-

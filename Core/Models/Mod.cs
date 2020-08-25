@@ -22,7 +22,11 @@ namespace Core.Models
         public string Color { get; set; }
         public ConcurrentStack<string> Conflicts { get; set; } = new ConcurrentStack<string>();
 
-
+        public Mod setActive(bool newValue)
+        {
+            this.Active = newValue;
+            return this;
+        }
 
         public string Url
         {
@@ -74,6 +78,7 @@ namespace Core.Models
         public IEnumerable<string> AllDependencies => Dependencies.Concat(References).Where(c => !Constants.SkippableMods.Contains(c.ToLower()));
         public bool OrderedAutomatically { get; internal set; }
     }
+
     public class Conflict
     {
         public string ItemChangeName { get; set; }
@@ -82,6 +87,7 @@ namespace Core.Models
         public string Name { get; set; }
         public string Property { get; set; }
     }
+
     public class ConflictItem
     {
         public string Mod { get; set; }

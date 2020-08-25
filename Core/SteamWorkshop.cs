@@ -1,9 +1,7 @@
 ﻿using Steamworks;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Core
 {
@@ -12,17 +10,19 @@ namespace Core
         public static object syncObject = new object();
 
         public static PublishedFileId_t FID(this ulong id) => new PublishedFileId_t(id);
+
         public static bool Init()
         {
             if (!File.Exists("steam_appid.txt")) File.WriteAllText("steam_appid.txt", "233860");
 
             return SteamAPI.Init();
         }
+
         public static void ShutDown()
         {
-
             SteamAPI.Shutdown();
         }
+
         public static IEnumerable<ulong> getAllModIds()
         {
             Init();
@@ -44,7 +44,5 @@ namespace Core
             Init();
             SteamUGC.UnsubscribeItem(id.FID());
         }
-
-
     }
 }
