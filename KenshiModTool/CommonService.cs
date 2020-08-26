@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Windows;
 using System.Windows.Input;
 
 namespace KenshiModTool
@@ -24,6 +25,11 @@ namespace KenshiModTool
             }
             else
             {
+                if (!File.Exists(Path.Combine(LoadService.config.GamePath, "kenshi_x64.exe")))
+                {
+                    MessageBox.Show("i can't open the game, may you check the path ?");
+                    return;
+                }
                 psi = new ProcessStartInfo
                 {
                     FileName = Path.Combine(LoadService.config.GamePath, "kenshi_x64.exe"),

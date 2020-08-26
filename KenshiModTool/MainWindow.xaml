@@ -10,19 +10,13 @@
         MinHeight="800" MinWidth="600"
         WindowStartupLocation="CenterScreen" Icon="/icon.png" Background="#eef5fd">
     <Window.Resources>
-        <BitmapImage x:Key="imgKenshi" UriSource="icons\Kenshi_32.png" />
-        <BitmapImage x:Key="imgFCS" UriSource="icons\FCS_32.png" />
-        <BitmapImage x:Key="imgGameFolder" UriSource="icons\Buttons\Folder_Game_32px.png" />
-        <BitmapImage x:Key="imgModsFolder" UriSource="icons\Buttons\Folder_Mods_32px.png" />
-        <BitmapImage x:Key="imgSteamFolder" UriSource="icons\Buttons\Folder_Steam_32px.png" />
-        <BitmapImage x:Key="imgLoadMod" UriSource="icons\Buttons\Folder_32px.png" />
-        <BitmapImage x:Key="imgSaveMod" UriSource="icons\Buttons\Save_32px.png" />
-        <BitmapImage x:Key="imgOrderMods" UriSource="icons\Buttons\AutoSort_32px.png" />
-        <BitmapImage x:Key="imgConflicts" UriSource="icons\Buttons\Compare_32px.png" />
-        <BitmapImage x:Key="imgSyncMod" UriSource="icons\Buttons\Synchronize_32px.png" />
-        <BitmapImage x:Key="imgRemoveMod" UriSource="icons\Buttons\Delete_32px.png" />
-        <BitmapImage x:Key="imgSearch" UriSource="icons\Buttons\Search_16px.png" />
+
+        <BitmapImage x:Key="imgOrderMods" UriSource="icons\order.png" />
+        <BitmapImage x:Key="imgConflicts" UriSource="icons\conflicts.png" />
         <BitmapImage x:Key="Gear" UriSource="icons\Gear_50px.png" />
+        <BitmapImage x:Key="Save" UriSource="icons\save.png" />
+        <BitmapImage x:Key="checkForUpdate" UriSource="icons\softwareUpdate.png" />
+        
 
         <Style TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#fff" />
@@ -80,7 +74,7 @@
             <ToolBar Loaded="ToolbarLoaded"  Band="1" BandIndex="1">
                 <Button ToolTip="Save Mod Order" VerticalAlignment="Top" Click="SaveModList_Click">
                     <StackPanel Orientation="Vertical" Width="100">
-                        <Image Source="{StaticResource imgSaveMod}" Width="16" Height="16" />
+                        <Image Source="{StaticResource Save}" Width="16" Height="16" />
                         <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Save Mod Order" /></TextBlock>
                     </StackPanel>
                 </Button>
@@ -100,6 +94,12 @@
                     <StackPanel Orientation="Vertical" Width="100">
                         <Image Source="{StaticResource Gear}" Width="16" Height="16" />
                         <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Configure" /></TextBlock>
+                    </StackPanel>
+                </Button>
+                <Button ToolTip="Check for Updates" VerticalAlignment="Top" Click="CheckForUpdates">
+                    <StackPanel Orientation="Vertical" Width="120">
+                        <Image Source="{StaticResource checkForUpdate}" Width="16" Height="16" />
+                        <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Check for Updates" /></TextBlock>
                     </StackPanel>
                 </Button>
             </ToolBar>

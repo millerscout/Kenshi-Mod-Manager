@@ -6,7 +6,19 @@
     <UseWPF>true</UseWPF>
     <Version>2.1</Version>
     <AssemblyVersion>2.1</AssemblyVersion>
+    <Configurations>Debug;Release;Standalone;SelfContained</Configurations>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='SelfContained|AnyCPU'">
+    <DefineConstants>TRACE;SELFCONTAINED,STANDALONE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="icons\Buttons\**" />
+    <EmbeddedResource Remove="icons\Buttons\**" />
+    <None Remove="icons\Buttons\**" />
+    <Page Remove="icons\Buttons\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="SelectVersion.xaml.cs" />
@@ -15,22 +27,11 @@
   <ItemGroup>
     <None Remove="icon.ico" />
     <None Remove="icon.png" />
-    <None Remove="icons\Buttons\AutoSort_32px.png" />
-    <None Remove="icons\Buttons\Compare_32px.png" />
-    <None Remove="icons\Buttons\Delete_32px.png" />
-    <None Remove="icons\Buttons\File_32px.png" />
-    <None Remove="icons\Buttons\Folder_32px.png" />
-    <None Remove="icons\Buttons\Folder_Game_32px.png" />
-    <None Remove="icons\Buttons\Folder_Mods_32px.png" />
-    <None Remove="icons\Buttons\Folder_Steam_32px.png" />
-    <None Remove="icons\Buttons\Refresh_32px.png" />
-    <None Remove="icons\Buttons\Save_32px.png" />
-    <None Remove="icons\Buttons\Search_16px.png" />
-    <None Remove="icons\Buttons\Synchronize_32px.png" />
-    <None Remove="icons\FCS_32.png" />
+    <None Remove="icons\conflicts.png" />
     <None Remove="icons\Gear_50px.png" />
-    <None Remove="icons\Kenshi_32.png" />
-    <None Remove="icons\link.png" />
+    <None Remove="icons\order.png" />
+    <None Remove="icons\save.png" />
+    <None Remove="icons\softwareUpdate.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,6 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autoupdater.NET.Official" Version="1.6.0" />
     <PackageReference Include="Microsoft.AppCenter.Analytics" Version="3.4.0" />
     <PackageReference Include="Microsoft.AppCenter.Crashes" Version="3.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
@@ -53,26 +55,11 @@
     <Resource Include="icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="icons\Buttons\AutoSort_32px.png" />
-    <Resource Include="icons\Buttons\Compare_32px.png" />
-    <Resource Include="icons\Buttons\Delete_32px.png" />
-    <Resource Include="icons\Buttons\File_32px.png" />
-    <Resource Include="icons\Buttons\Folder_32px.png" />
-    <Resource Include="icons\Buttons\Folder_Game_32px.png" />
-    <Resource Include="icons\Buttons\Folder_Mods_32px.png" />
-    <Resource Include="icons\Buttons\Folder_Steam_32px.png" />
-    <Resource Include="icons\Buttons\Refresh_32px.png" />
-    <Resource Include="icons\Buttons\Save_32px.png" />
-    <Resource Include="icons\Buttons\Search_16px.png" />
-    <Resource Include="icons\Buttons\Synchronize_32px.png" />
-    <Resource Include="icons\FCS_32.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
+    <Resource Include="icons\conflicts.png" />
     <Resource Include="icons\Gear_50px.png" />
-    <Resource Include="icons\Kenshi_32.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="icons\link.png" />
+    <Resource Include="icons\order.png" />
+    <Resource Include="icons\save.png" />
+    <Resource Include="icons\softwareUpdate.png" />
   </ItemGroup>
 
 </Project>

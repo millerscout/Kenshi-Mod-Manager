@@ -1,4 +1,5 @@
-﻿using Core;
+﻿using AutoUpdaterDotNET;
+using Core;
 using Core.Models;
 using KenshiModTool.Model;
 using Microsoft.Win32;
@@ -12,6 +13,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -34,11 +36,15 @@ namespace KenshiModTool
         public ConcurrentDictionary<string, DetailChanges> DetailIndex = new ConcurrentDictionary<string, DetailChanges>();
         public bool ShowConflicts { get; set; } = false;
 
+        public System.Timers.Timer updateTimer = new System.Timers.Timer(TimeSpan.FromHours(12).TotalMilliseconds);
+
+
         public MainWindow()
         {
             try
             {
                 InitializeComponent();
+                AutoUpdater.DownloadPath = Environment.CurrentDirectory;
 
                 this.Title = $"[v{Assembly.GetExecutingAssembly().GetName().Version.ToString(2)}] - {this.Title}";
 
@@ -76,13 +82,29 @@ namespace KenshiModTool
                 {
                     var source = ((GridView)lsView.View).Columns[2].Header as GridViewColumnHeader;
                     SortHeaderClick(source, null);
+
+                    if (LoadService.config.CheckForUpdatesAutomatically)
+                    {
+                        AutoUpdater.Start(Constants.UpdateListUrl);
+                        updateTimer.Start();
+                    }
+
                 }), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
+
+                updateTimer.Elapsed += UpdateTimer_Elapsed;
             }
             catch (Exception ex)
             {
                 File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} -  {ex.Message}.{Environment.NewLine}");
                 File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace} {Environment.NewLine}");
             }
+        }
+
+        private void UpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            updateTimer.Stop();
+            AutoUpdater.Start(Constants.UpdateListUrl);
+            updateTimer.Start();
         }
 
         private void LsView_ContextMenuOpening(object sender, ContextMenuEventArgs e)
@@ -861,6 +883,11 @@ namespace KenshiModTool
         {
             var config = new Configuration();
             config.Show();
+        }
+
+        private void CheckForUpdates(object sender, RoutedEventArgs e)
+        {
+            AutoUpdater.Start(Constants.UpdateListUrl);
         }
     }
 }
