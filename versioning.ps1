@@ -7,6 +7,46 @@ Param(
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
+function UpdateVersionForUpdater($versionName){
+    $zipName = $versionName;
+    $zipName
+    if($versionName = "selfcontained"){ $zipName = "FullRelease"}
+    $zipName
+    $versionName
+    
+    if(checkStatus("https://github.com/millerscout/Kenshi-Mod-Manager/releases/download/v$($newVersion)/$($zipName).zip")==1){
+        $xmlFile = "updatelist-$($versionName).xml";
+
+        Add-Content $xmlFile "`n<item>
+    <version>$($newVersion).0.0</version>
+    <url>https://github.com/millerscout/Kenshi-Mod-Manager/releases/download/v$($newVersion)/$($zipName).zip</url>
+    <changelog>https://github.com/millerscout/Kenshi-Mod-Manager/releases/tag/v$($newVersion)</changelog> 
+</item>"
+    }
+}
+
+
+function checkStatus($url) {
+
+    $HTTP_Request = [System.Net.WebRequest]::Create($url)
+
+    $HTTP_Response = $HTTP_Request.GetResponse()
+
+    $HTTP_Status = [int]$HTTP_Response.StatusCode
+
+    If ($HTTP_Status -eq 200) {
+        $result = 1
+    }
+    Else {
+        $result = 0
+    }
+
+    If ($HTTP_Response -eq $null) { } 
+    Else { $HTTP_Response.Close() }
+
+    return $result
+}
+
 function getVersion() {
 	Invoke-Expression "git fetch | Write-Verbose"	
     $tag = Invoke-Expression "git describe --tags --always 2>&1"
@@ -104,8 +144,8 @@ commitVersion $bumpKind $newVersion
 
 Write-Output $newVersion
 
-dotnet publish -c Release -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\FullRelease.pubxml
-dotnet publish -c Release -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\Standalone.pubxml
+dotnet publish -c selfcontained -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\FullRelease.pubxml
+dotnet publish -c standalone -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\Standalone.pubxml
 
 xcopy "..\ModConflictManager\publish\x64\Mod Conflict Manager.exe" publish\Standalone
 xcopy "..\ModConflictManager\publish\x64\Mod Conflict Manager.exe" publish\FullRelease
@@ -188,3 +228,7 @@ foreach($file in $info_files)
     While ($Stoploop -eq $false)
 
 }
+
+
+UpdateVersionForUpdater("standalone")
+UpdateVersionForUpdater("selfcontained")

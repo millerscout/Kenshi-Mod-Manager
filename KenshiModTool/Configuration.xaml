@@ -5,20 +5,29 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KenshiModTool"
         mc:Ignorable="d"
-        Title="Configuration" Height="260" Width="298" WindowStartupLocation="CenterScreen" Icon="/icon.png">
+        Title="Configuration" Height="280" Width="298" WindowStartupLocation="CenterScreen" Icon="/icon.png">
     <Grid  HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <!--Game Path-->
             <RowDefinition Height="30" />
             <RowDefinition Height="30" />
             <RowDefinition Height="5" />
+
+            <!--Steam Path-->
             <RowDefinition Height="30" />
             <RowDefinition Height="30" />
             <RowDefinition Height="5" />
+
+            <!--Masterlist-->
             <RowDefinition Height="30" />
             <RowDefinition Height="30" />
+            <RowDefinition Height="5" />
+            
+            <!--Updates-->
+            <RowDefinition Height="25" />
             <RowDefinition Height="5" />
             <RowDefinition Height="30" />
 
@@ -34,7 +43,21 @@
         <Label Grid.Row="6" Grid.Column="0" Content="Masterlist" HorizontalAlignment="Stretch" />
         <TextBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="1" x:Name="txtMasterlist" TextWrapping="Wrap" UndoLimit="20"  Margin="5,5,5,5" HorizontalAlignment="Stretch"/>
         <Separator Grid.Row="8" />
+
+        <Grid Grid.Row="9">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="30" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+            </Grid.RowDefinitions>
+            <CheckBox Grid.Row="0" Grid.Column="0"  Margin="5,5,5,5"  IsChecked="{Binding check}" Name="chk_updatesAutomatically"></CheckBox>
+            <Label Grid.Row="0" Grid.Column="1" Content="Check for Updates automatically?" HorizontalAlignment="Stretch" />
+        </Grid>
+        <Separator Grid.Row="10" />
         
-        <Button Grid.Row="9" Content="Save" Click="Save"></Button>
+
+        <Button Grid.Row="11" Content="Save" Click="Save" Margin="5,5,5,5"></Button>
     </Grid>
 </Window>
