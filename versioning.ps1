@@ -9,11 +9,8 @@ Param(
 
 function UpdateVersionForUpdater($versionName){
     $zipName = $versionName;
-    $zipName
-    if($versionName = "selfcontained"){ $zipName = "FullRelease"}
-    $zipName
-    $versionName
-    
+    if($versionName -eq 'selfcontained'){ $zipName = "FullRelease"}
+	echo "https://github.com/millerscout/Kenshi-Mod-Manager/releases/download/v$($newVersion)/$($zipName).zip"
     if(checkStatus("https://github.com/millerscout/Kenshi-Mod-Manager/releases/download/v$($newVersion)/$($zipName).zip")==1){
         $xmlFile = "updatelist-$($versionName).xml";
 
@@ -24,7 +21,6 @@ function UpdateVersionForUpdater($versionName){
 </item>"
     }
 }
-
 
 function checkStatus($url) {
 
@@ -229,6 +225,9 @@ foreach($file in $info_files)
 
 }
 
-
 UpdateVersionForUpdater("standalone")
 UpdateVersionForUpdater("selfcontained")
+
+Invoke-Expression "git add .  | Write-Verbose"
+Invoke-Expression "git commit -m 'updatelist Bump.' | Write-Verbose"
+Invoke-Expression "git push | Write-Verbose"
