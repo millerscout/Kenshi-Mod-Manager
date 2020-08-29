@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Core
 {
@@ -8,6 +7,7 @@ namespace Core
         public static List<string> SkippableMods = new List<string>{
                 "gamedata.base", "rebirth.mod", "newwworld.mod","dialogue.mod"
             };
+
         public const string modChangesFileName = "modChanges.json";
         public const string DetailChangesFileName = "detailChanges.json";
         public const string Errorfile = "error.log";
@@ -17,7 +17,6 @@ namespace Core
         public const string MasterlistFile = "masterlist.json";
         public const string SteamRegistryKey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Valve\\Steam";
         public const string DefaultSteamDirectory = "C:\\Program Files (x86)\\Steam";
-
 
 #if RELEASE
 #error Should Not compile if there's no updatelist configured. (DO NOT CHANGE THIS)
@@ -32,6 +31,5 @@ namespace Core
 #if DEBUG
         public const string UpdateListUrl = "http://localhost:5000/list.xml";
 #endif
-
     }
 }

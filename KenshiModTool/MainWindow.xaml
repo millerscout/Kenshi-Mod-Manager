@@ -16,7 +16,6 @@
         <BitmapImage x:Key="Gear" UriSource="icons\Gear_50px.png" />
         <BitmapImage x:Key="Save" UriSource="icons\save.png" />
         <BitmapImage x:Key="checkForUpdate" UriSource="icons\softwareUpdate.png" />
-        
 
         <Style TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#fff" />
@@ -87,7 +86,7 @@
                 <Button ToolTip="Check Conflict" VerticalAlignment="Top" Click="CheckConflicts">
                     <StackPanel Orientation="Vertical" Width="150">
                         <Image Source="{StaticResource imgConflicts}" Width="16" Height="16" />
-                        <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Check Conflicts (WIP)" /></TextBlock>
+                        <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Show conflicts (WIP)" /></TextBlock>
                     </StackPanel>
                 </Button>
                 <Button ToolTip="Configure KMM" VerticalAlignment="Top" Click="OpenConfiguration">
@@ -100,6 +99,12 @@
                     <StackPanel Orientation="Vertical" Width="120">
                         <Image Source="{StaticResource checkForUpdate}" Width="16" Height="16" />
                         <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Check for Updates" /></TextBlock>
+                    </StackPanel>
+                </Button>
+                <Button ToolTip="This feature will generate a report on active mods, not intented for players yet." VerticalAlignment="Top" Click="IndexActiveMods">
+                    <StackPanel Orientation="Vertical" Width="100">
+                        <Image Source="{StaticResource Save}" Width="16" Height="16" />
+                        <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Index Mods" /></TextBlock>
                     </StackPanel>
                 </Button>
             </ToolBar>
@@ -242,7 +247,7 @@
                     <MenuItem Header="Active Selected Mods" CommandParameter="{Binding}"  Click="ActiveMods" />
                     <MenuItem Header="Deactive Selected Mods" CommandParameter="{Binding}"  Click="DeactiveMods" />
                     <MenuItem Header="Toggle Active Selected Mods" CommandParameter="{Binding}"  Click="ToggleActive" />
-                    <MenuItem Name="MenuUnSubs"  Header="Unsubscribe (STEAM)" CommandParameter="{Binding}"  Click="UnSubscribe" />
+                    <MenuItem Name="MenuUnSubs"  Header="Unsubscribe (STEAM must be running and need to be logged.)" CommandParameter="{Binding}"  Click="UnSubscribe" />
                 </ContextMenu>
             </ListView.ContextMenu>
             <!--<ListView.ItemTemplate>

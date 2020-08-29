@@ -25,23 +25,22 @@
             <RowDefinition Height="30" />
             <RowDefinition Height="30" />
             <RowDefinition Height="5" />
-            
+
             <!--Updates-->
             <RowDefinition Height="25" />
             <RowDefinition Height="5" />
             <RowDefinition Height="30" />
-
         </Grid.RowDefinitions>
         <Label Grid.Row="0" Grid.Column="0" Content="Game Path" HorizontalAlignment="Stretch" />
-        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" x:Name="TxtGamePath" TextWrapping="Wrap" UndoLimit="20"  Margin="5,5,5,5" HorizontalAlignment="Stretch"/>
+        <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" x:Name="TxtGamePath" TextWrapping="Wrap" UndoLimit="20"  Margin="5,5,5,5" HorizontalAlignment="Stretch" />
         <Separator Grid.Row="2" />
 
         <Label Grid.Row="3" Grid.Column="0" Content="Steam Path" HorizontalAlignment="Stretch" />
-        <TextBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="1" x:Name="txtSteamPath" TextWrapping="Wrap" UndoLimit="20"  Margin="5,5,5,5" HorizontalAlignment="Stretch"/>
+        <TextBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="1" x:Name="txtSteamPath" TextWrapping="Wrap" UndoLimit="20"  Margin="5,5,5,5" HorizontalAlignment="Stretch" />
         <Separator Grid.Row="5" />
 
         <Label Grid.Row="6" Grid.Column="0" Content="Masterlist" HorizontalAlignment="Stretch" />
-        <TextBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="1" x:Name="txtMasterlist" TextWrapping="Wrap" UndoLimit="20"  Margin="5,5,5,5" HorizontalAlignment="Stretch"/>
+        <TextBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="1" x:Name="txtMasterlist" TextWrapping="Wrap" UndoLimit="20"  Margin="5,5,5,5" HorizontalAlignment="Stretch" />
         <Separator Grid.Row="8" />
 
         <Grid Grid.Row="9">
@@ -56,7 +55,6 @@
             <Label Grid.Row="0" Grid.Column="1" Content="Check for Updates automatically?" HorizontalAlignment="Stretch" />
         </Grid>
         <Separator Grid.Row="10" />
-        
 
         <Button Grid.Row="11" Content="Save" Click="Save" Margin="5,5,5,5"></Button>
     </Grid>

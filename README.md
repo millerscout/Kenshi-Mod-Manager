@@ -18,7 +18,6 @@
        <a href ="https://www.youtube.com/watch?v=OT-n6t6FZb0">
          Found on Youtube from hekheler<a/> this video is a better explanation that i couldn't write properly :)
 </p>
-<p>Hope he don't mind sharing his video :x</p>
 
 # Requisite:
 [.Net Core 3.1.7](https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-desktop-3.1.7-windows-x64-installer)
@@ -40,40 +39,22 @@
      - Search through mods using Name or SubscriptionId(steam).
      - Basic dependency detection (dependency order is not checked yet).
      - List deep changes from mods and list them for modders (alpha)
+	 - Unsubscribe from steammods.
+	 - logging subscribed mods on folder.
  
 # Road Map
 
 <a href="https://trello.com/b/Zs2CHqSR/kenshi-mod-manager"> Click here </a>
     
 # Conflict Checker
-       if you're willing to test this feature, you'll need to manually configure the config.json.
-       
-       on your config.json
-
-add the line
-
-``` json
-  "ConflictAnalyzerPath": "Mod Conflict Manager.exe"
-```
-
-your config file should look like this:
-``` javascript
-{
-  "gamePath": " {Your game path.} ",
-  "SteamModsPath": " {YourSteam Folder if applicable} ",
-  "SteamPageUrl": "https://steamcommunity.com/sharedfiles/filedetails/?id=",
-  "NexusPageUrl": "https://www.nexusmods.com/kenshi/search/?gsearch=",
-  "ConflictAnalyzerPath": "Mod Conflict Manager.exe"
-}
-```
-
-
-# Known Bugs
-       - when you trying to open and nothing happens, try to delete the "config.json" file.
+       Click on "Show conflicts", but beware it is slow if there's alot of mods, i did my best to optimize but there's alot of work to be done.
+	   
+# Index mods 
+       this feature write the data from mod to JSON format
 
 # Licence
 
-Few free to modify this project, don't forget to credit me :)
+Feel free to modify this project, don't forget to credit me :)
 
 # Donation
 

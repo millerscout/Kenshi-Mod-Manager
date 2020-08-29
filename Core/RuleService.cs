@@ -5,17 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Core
 {
     public static class RuleService
     {
-        private static List<Rules> ruleList = new List<Rules>();
+        public static List<Rules> ruleList = new List<Rules>();
 
         public static string GetLatestVersion()
         {
-
             try
             {
                 LatestReleaseModelGithub latest = $"http://api.github.com/repos/{LoadService.config.MasterlistSource}/releases/latest"
@@ -26,16 +24,15 @@ namespace Core
             }
             catch (Exception ex)
             {
-                File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't verify latest version.{Environment.NewLine}");
-                File.AppendAllText(Constants.Errorfile, $"{ex.Message}");
-                File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace}");
+                Logging.WriteError($"Count't verify latest version.");
+                Logging.WriteError(ex);
+
                 return "";
             }
-
         }
+
         public static List<Rules> GetRules()
         {
-
             var rules = "";
             if (!File.Exists(Constants.MasterlistFile))
             {
@@ -46,7 +43,6 @@ namespace Core
                 rules = File.ReadAllText(Constants.MasterlistFile);
             }
             if (string.IsNullOrEmpty(rules)) return BaseRules.Get;
-
 
             return JsonConvert.DeserializeObject<List<Rules>>(rules);
         }
@@ -62,12 +58,10 @@ namespace Core
             }
             catch (Exception ex)
             {
-                File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't update masterlist to latest version.{Environment.NewLine}");
-                File.AppendAllText(Constants.Errorfile, $"{ex.Message}");
-                File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace}");
+                Logging.WriteError("Count't update masterlist to latest version.");
+                Logging.WriteError(ex);
                 return "";
             }
-
         }
 
         public static IEnumerable<Mod> OrderMods(IEnumerable<Mod> mods)
@@ -126,13 +120,11 @@ namespace Core
                 rule.ModsOrdered.Clear();
             }
 
-
             var required = ordered.Where(c => c.AllDependencies.Any()).ToList();
 
             foreach (var item in required)
             {
                 var oldOrder = item.Order;
-
 
                 var dependencies = ordered.Where(c =>
                     item.AllDependencies.Any(q => q.IndexOf(c.FileName, StringComparison.CurrentCultureIgnoreCase) >= 0)
@@ -142,8 +134,6 @@ namespace Core
                 if (oldOrder > dependencies.Max(c => c.Order)) continue;
 
                 ordered.Remove(ordered.FirstOrDefault(c => c.UniqueIdentifier == item.UniqueIdentifier));
-
-
 
                 ordered.InsertRange(
                     ordered.IndexOf(dependencies.OrderBy(c => c.Order).Last()) + 1

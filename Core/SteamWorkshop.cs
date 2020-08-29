@@ -23,26 +23,35 @@ namespace Core
             SteamAPI.Shutdown();
         }
 
-        public static IEnumerable<ulong> getAllModIds()
+        public static IEnumerable<ulong> GetAllModIds()
         {
-            Init();
-            var amount = SteamUGC.GetNumSubscribedItems();
-            var ids = new PublishedFileId_t[amount];
-            SteamUGC.GetSubscribedItems(ids, amount);
+            if (Init())
+            {
 
-            return ids.Select(t => t.m_PublishedFileId);
+                var amount = SteamUGC.GetNumSubscribedItems();
+                var ids = new PublishedFileId_t[amount];
+                SteamUGC.GetSubscribedItems(ids, amount);
+
+                return ids.Select(t => t.m_PublishedFileId);
+            }
+            return default;
         }
 
         public static void Subscribe(ulong id)
         {
-            Init();
-            SteamUGC.SubscribeItem(id.FID());
+            if (Init())
+            {
+                SteamUGC.SubscribeItem(id.FID());
+            }
         }
 
         public static void Unsubscribe(ulong id)
         {
-            Init();
-            SteamUGC.UnsubscribeItem(id.FID());
+            if (Init())
+            {
+                SteamUGC.UnsubscribeItem(id.FID());
+            }
+
         }
     }
 }
