@@ -1,18 +1,5 @@
 ﻿using Core;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using WebWindows;
 
 namespace KenshiModTool
 {
@@ -25,13 +12,18 @@ namespace KenshiModTool
         {
             InitializeComponent();
 
+            if (LoadService.config == null)
+            {
+                MessageBox.Show("could not load configs, strange.... if this persists delete config.json.");
+                this.Close();
+            }
             txtSteamPath.Text = LoadService.config.SteamModsPath;
             txtMasterlist.Text = LoadService.config.MasterlistSource;
             TxtGamePath.Text = LoadService.config.GamePath;
             chk_updatesAutomatically.IsChecked = LoadService.config.CheckForUpdatesAutomatically;
         }
 
-        private void Save(object sender, RoutedEventArgs e)
+        public void Save(object sender, RoutedEventArgs e)
         {
             LoadService.config.SteamModsPath = txtSteamPath.Text;
             LoadService.config.MasterlistSource = txtMasterlist.Text;
@@ -39,7 +31,6 @@ namespace KenshiModTool
             LoadService.config.CheckForUpdatesAutomatically = chk_updatesAutomatically.IsChecked ?? true;
 
             LoadService.SaveConfig();
-
         }
     }
 }

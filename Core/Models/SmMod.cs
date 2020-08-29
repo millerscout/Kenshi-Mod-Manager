@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Core.Models
 {
     public class SmMod
     {
-
         public Guid UniqueIdentifier { get; set; }
         public string FileName { get; set; }
         public List<string> References { get; set; }

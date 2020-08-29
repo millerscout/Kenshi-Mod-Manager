@@ -143,9 +143,6 @@ Write-Output $newVersion
 dotnet publish -c selfcontained -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\FullRelease.pubxml
 dotnet publish -c standalone -p:PublishProfile=KenshiModTool\Properties\PublishProfiles\Standalone.pubxml
 
-xcopy "..\ModConflictManager\publish\x64\Mod Conflict Manager.exe" publish\Standalone
-xcopy "..\ModConflictManager\publish\x64\Mod Conflict Manager.exe" publish\FullRelease
-
 Remove-Item "publish" -Include *.pdb -Recurse -force
 cd publish
 7z a -tzip "FullRelease" -r "FullRelease"

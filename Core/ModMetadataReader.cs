@@ -9,7 +9,7 @@ namespace Core
 {
     public static class ModMetadataReader
     {
-        private static byte[] StrByteBuffer = new byte[4096];
+        public static byte[] StrByteBuffer = new byte[4096];
 
         public static Metadata LoadMetadata(string filename)
         {
@@ -37,7 +37,7 @@ namespace Core
             return header;
         }
 
-        private static Metadata MountMetadata(BinaryReader file)
+        public static Metadata MountMetadata(BinaryReader file)
         {
             Metadata header = new Metadata();
             header.Version = file.ReadInt32();
@@ -52,7 +52,7 @@ namespace Core
             return header;
         }
 
-        private static string Read(BinaryReader file)
+        public static string Read(BinaryReader file)
         {
             int count = file.ReadInt32();
             if (count <= 0)

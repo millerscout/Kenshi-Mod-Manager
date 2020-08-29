@@ -4,20 +4,13 @@ using KenshiModTool.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace KenshiModTool
 {
@@ -29,6 +22,7 @@ namespace KenshiModTool
         public ObservableCollection<ModFolder> ModList = new ObservableCollection<ModFolder>();
         public int currentIndexSearch { get; set; } = 0;
         public ModFolder[] SearchList { get; set; } = new ModFolder[0];
+
         public Tooling()
         {
             try
@@ -43,12 +37,11 @@ namespace KenshiModTool
             }
             catch (Exception ex)
             {
-                File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} -  {ex.Message}.{Environment.NewLine}");
-                File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace} {Environment.NewLine}");
+                Logging.WriteError(ex);
             }
         }
 
-        private void UpdateListBox()
+        public void UpdateListBox()
         {
             foreach (var mod in ModList)
                 mod.Color = SearchList.Any(s => s.UniqueIdentifier == mod.UniqueIdentifier) ? ModColors.SearchColor : "";
@@ -59,7 +52,8 @@ namespace KenshiModTool
             if (SearchList.Length > 0)
                 ListBox.ScrollIntoView(SearchList[currentIndexSearch]);
         }
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+
+        public void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             currentIndexSearch = 0;
             if (string.IsNullOrEmpty(txtSearch.Text))
@@ -84,10 +78,9 @@ namespace KenshiModTool
             }
 
             UpdateListBox();
-
         }
 
-        private void TxtSearch_KeyDown(object sender, KeyEventArgs e)
+        public void TxtSearch_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Return)
             {
@@ -105,13 +98,14 @@ namespace KenshiModTool
                 }
             }
         }
-        private void BtnClearEmptyFolders_Click(object sender, RoutedEventArgs e)
+
+        public void BtnClearEmptyFolders_Click(object sender, RoutedEventArgs e)
         {
             LoadService.FolderCleanUp(LoadService.config.SteamModsPath);
             LoadService.FolderCleanUp(LoadService.config.ModFolder);
         }
 
-        private void BtnRemoveSymbLinks_Click(object sender, RoutedEventArgs e)
+        public void BtnRemoveSymbLinks_Click(object sender, RoutedEventArgs e)
         {
             var symblist = ModList
                .Where(c => c.Source == SourceEnum.Steam && c.HasSymbLink && c.Selected)
@@ -121,11 +115,10 @@ namespace KenshiModTool
                 LoadService.DeleteFolder(folder);
             }
 
-
             LoadModList();
         }
 
-        private void BtnCreateSymbLinks_Click(object sender, RoutedEventArgs e)
+        public void BtnCreateSymbLinks_Click(object sender, RoutedEventArgs e)
         {
             var symblist = ModList
                 .Where(c => c.Source == SourceEnum.Steam && !c.HasSymbLink && c.Selected)
@@ -146,7 +139,7 @@ namespace KenshiModTool
                 appendLog.Add($"{DateTime.Now} - Detailed List:");
                 appendLog.AddRange(symblist.Select(item => $"{DateTime.Now} From {item.Item2} To {item.Item1}:"));
 
-                File.AppendAllLines(Constants.Logfile, appendLog);
+                File.AppendAllLines(Path.Combine( Directory.GetCurrentDirectory(),  Constants.Logfile), appendLog);
             });
 
             LoadService.CreateSymbLink(symblist);
@@ -155,12 +148,12 @@ namespace KenshiModTool
             LoadModList();
         }
 
-        private void BtnLaunchGame_Click(object sender, RoutedEventArgs e)
+        public void BtnLaunchGame_Click(object sender, RoutedEventArgs e)
         {
             CommonService.StartGame();
         }
 
-        private void btnReloadMods_Click(object sender, RoutedEventArgs e)
+        public void btnReloadMods_Click(object sender, RoutedEventArgs e)
         {
             currentIndexSearch = 0;
             if (string.IsNullOrEmpty(txtSearch.Text))
@@ -172,7 +165,7 @@ namespace KenshiModTool
             LoadModList();
         }
 
-        private void LoadModList()
+        public void LoadModList()
         {
             ModList.Clear();
 
@@ -182,21 +175,22 @@ namespace KenshiModTool
             UpdateListBox();
         }
 
-        private void BtnGameFolder_Click(object sender, RoutedEventArgs e)
+        public void BtnGameFolder_Click(object sender, RoutedEventArgs e)
         {
             CommonService.OpenFolder(LoadService.config.GamePath, () => MessageBox.Show("Game folder not configured correctly."));
         }
 
-        private void GameModFolder_Click(object sender, RoutedEventArgs e)
+        public void GameModFolder_Click(object sender, RoutedEventArgs e)
         {
             CommonService.OpenFolder(LoadService.config.ModFolder, () => MessageBox.Show("Game folder not configured correctly."));
         }
 
-        private void BtnSteamFolder_Click(object sender, RoutedEventArgs e)
+        public void BtnSteamFolder_Click(object sender, RoutedEventArgs e)
         {
             CommonService.OpenFolder(LoadService.config.SteamModsPath, () => MessageBox.Show("steam folder not configured correctly."));
         }
-        private void OpenModFolder_Click(object sender, RoutedEventArgs e)
+
+        public void OpenModFolder_Click(object sender, RoutedEventArgs e)
         {
             bool failure = false;
             foreach (var mod in ListBox.SelectedItems)
@@ -210,20 +204,21 @@ namespace KenshiModTool
             }
         }
 
-        private void SelectAll_Click(object sender, RoutedEventArgs e)
+        public void SelectAll_Click(object sender, RoutedEventArgs e)
         {
             foreach (var item in ModList.Where(c => !c.Selected)) item.Selected = true;
 
             UpdateListBox();
         }
-        private void Invert_Click(object sender, RoutedEventArgs e)
+
+        public void Invert_Click(object sender, RoutedEventArgs e)
         {
             foreach (var item in ModList) item.Selected = !item.Selected;
 
             UpdateListBox();
         }
 
-        private void CreateSymbSelected_Click(object sender, RoutedEventArgs e)
+        public void CreateSymbSelected_Click(object sender, RoutedEventArgs e)
         {
             if (ListBox.SelectedItems != null && ListBox.SelectedItems.Count > 0)
             {
@@ -233,7 +228,7 @@ namespace KenshiModTool
             }
         }
 
-        private void ExecuteSymbLink(bool ShouldDelete = true, bool ShouldAdd = true)
+        public void ExecuteSymbLink(bool ShouldDelete = true, bool ShouldAdd = true)
         {
             var symblist = new List<Tuple<string, string>>();
             foreach (ModFolder mod in ListBox.SelectedItems)
@@ -253,7 +248,6 @@ namespace KenshiModTool
                 }
             }
 
-
             try
             {
                 if (!symblist.Any()) return;
@@ -265,19 +259,19 @@ namespace KenshiModTool
                 appendLog.Add($"{DateTime.Now} - Detailed List:");
                 appendLog.AddRange(symblist.Select(item => $"{DateTime.Now} From {item.Item2} To {item.Item1}:"));
 
-                File.AppendAllLines(Constants.Logfile, appendLog);
+                File.AppendAllLines(Path.Combine( Directory.GetCurrentDirectory(),  Constants.Logfile), appendLog);
             }
             catch (Exception ex)
             {
-                File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Failed to write log of symblinks.{Environment.NewLine}");
-                File.AppendAllText(Constants.Errorfile, $"{ex.Message}");
-                File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace}");
+                Logging.WriteError("Failed to write log of symblinks.");
+                Logging.WriteError(ex);
+                
             }
 
             LoadService.CreateSymbLink(symblist);
         }
 
-        private void ToggleSymbSelected_Click(object sender, RoutedEventArgs e)
+        public void ToggleSymbSelected_Click(object sender, RoutedEventArgs e)
         {
             if (ListBox.SelectedItems != null && ListBox.SelectedItems.Count > 0)
             {
@@ -287,7 +281,7 @@ namespace KenshiModTool
             }
         }
 
-        private void RemoveSymbSelected_Click(object sender, RoutedEventArgs e)
+        public void RemoveSymbSelected_Click(object sender, RoutedEventArgs e)
         {
             if (ListBox.SelectedItems != null && ListBox.SelectedItems.Count > 0)
             {

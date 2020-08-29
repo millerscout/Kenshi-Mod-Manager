@@ -8,8 +8,8 @@ namespace Core.Models
         {
             Dependencies = new List<string>();
             Referenced = new List<string> { };
-
         }
+
         public string Author = "";
         public string Description = "";
         public int Version = 1;

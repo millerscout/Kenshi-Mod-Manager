@@ -1,15 +1,12 @@
 ﻿using Core;
 using Core.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace KenshiModTool.Model
 {
     public class ModFolder
     {
-
         public ModFolder(Mod mod)
         {
             DisplayName = mod.DisplayName;
@@ -19,7 +16,6 @@ namespace KenshiModTool.Model
 
             var symbLink = System.IO.Path.Combine(LoadService.config.GamePath, "Mods", System.IO.Path.GetFileNameWithoutExtension(mod.FilePath));
             HasSymbLink = Directory.Exists(symbLink) && LoadService.IsSymbolic(symbLink);
-
         }
 
         public string Color { get; set; }

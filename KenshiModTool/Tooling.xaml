@@ -30,7 +30,6 @@
         <Button Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" x:Name="btnReloadMods" Content="Refresh List" Margin="0,5,5,5" Click="btnReloadMods_Click" />
         <Button Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="1" x:Name="btnSelectAll" Content="Select all Mods" Margin="0,5,0,5" Click="SelectAll_Click" />
 
-
         <ListBox  x:Name="ListBox"
                   Grid.Row="2"
                   Grid.Column="0"
@@ -38,7 +37,7 @@
                   VerticalAlignment="Stretch"
                   HorizontalAlignment="Stretch"
                   SelectionMode="Extended"
-                  BorderThickness="1" Margin="0,5,0,5" 
+                  BorderThickness="1" Margin="0,5,0,5"
                   HorizontalContentAlignment="Stretch">
             <ListBox.ContextMenu>
                 <ContextMenu>
@@ -92,8 +91,7 @@
             <Button Margin="0,5,6,5" Grid.Column="0"  x:Name="BtnClearEmptyFolders" Content="Clear Empty Folders" Click="BtnClearEmptyFolders_Click" />
             <Button Margin="0,5,5,5" Grid.Column="1"  x:Name="BtnRemoveSymbLinks" Content="Remove SymbLinks" Click="BtnRemoveSymbLinks_Click" />
             <Button Margin="0,5,4,5" Grid.Column="2"  x:Name="BtnCreateSymbLinks" Content="Create SymbLinks" Click="BtnCreateSymbLinks_Click" />
-            <Button Margin="0,5,0,5" Grid.Column="3"  x:Name="BtnLaunchGame"  Content="Launch Game" Click="BtnLaunchGame_Click"/>
+            <Button Margin="0,5,0,5" Grid.Column="3"  x:Name="BtnLaunchGame"  Content="Launch Game" Click="BtnLaunchGame_Click" />
         </Grid>
-
     </Grid>
 </Window>

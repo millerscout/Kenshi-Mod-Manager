@@ -70,16 +70,16 @@ namespace Core
             appendLog.Add($"{DateTime.Now} - Detailed List:");
             appendLog.AddRange(list.Select(item => $"{DateTime.Now} - {item.Source} - {item.FilePath}"));
 
-            File.AppendAllLines(Constants.Logfile, appendLog);
+            File.AppendAllLines(Path.Combine( Directory.GetCurrentDirectory(),  Constants.Logfile), appendLog);
             return list;
         }
 
-        private static IEnumerable<Mod> LoadFolderMods(List<string> currentMods)
+        public static IEnumerable<Mod> LoadFolderMods(List<string> currentMods)
         {
             return LoadMod(currentMods, Path.Combine(LoadService.config.GamePath, "Mods"));
         }
 
-        private static IEnumerable<Mod> LoadSteamMods(List<string> currentMods)
+        public static IEnumerable<Mod> LoadSteamMods(List<string> currentMods)
         {
             if (LoadService.config.SteamModsPath == "NONE") return new List<Mod>();
 
@@ -142,7 +142,7 @@ namespace Core
             });
 
             if (infoLogList.Count > 0)
-                File.AppendAllLines(Constants.Logfile, infoLogList);
+                File.AppendAllLines(Path.Combine( Directory.GetCurrentDirectory(),  Constants.Logfile), infoLogList);
             if (errorLogList.Count > 0)
                 File.AppendAllLines(Constants.Errorfile, errorLogList);
         }
@@ -162,7 +162,7 @@ namespace Core
             }
         }
 
-        private static IEnumerable<Mod> LoadMod(List<string> currentMods, string path)
+        public static IEnumerable<Mod> LoadMod(List<string> currentMods, string path)
         {
             var listMods = new List<Mod>();
 
@@ -184,10 +184,9 @@ namespace Core
                     }
                     catch (Exception ex)
                     {
-                        File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't load metadata.{Environment.NewLine}");
-                        File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - The mod {mod.FilePath} may be corrupted. {Environment.NewLine}");
-                        File.AppendAllText(Constants.Errorfile, $"{ex.Message}");
-                        File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace}");
+
+                        Logging.WriteError("Count't load metadata.", $"The mod {mod.FilePath} may be corrupted.");
+                        Logging.WriteError(ex);
                     }
 
                     Func<string, bool> predicate = f => f == Path.GetFileName(mod.FilePath);
@@ -200,14 +199,15 @@ namespace Core
                     }
                     catch (Exception ex)
                     {
+
                         metadata = new Metadata { Description = $"This mod couldn't be loaded, maybe is corrupted or a empty folder, check the error.log and the mod folder {item}" };
-                        File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Check the folder: {item}.{Environment.NewLine}");
+                        Logging.WriteError($"Check the folder: {item}");
                     }
 
                     if (metadata is null)
                     {
-                        File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't load metadata from path: {item}.{Environment.NewLine}");
                         metadata = new Metadata { Description = $"This mod couldn't be loaded, maybe is corrupted or a empty folder, check the error.log  and the mod folder {item}" };
+                        Logging.WriteError($"Count't load metadata from path: {item}.");
                     }
                     else
                     {
@@ -229,13 +229,13 @@ namespace Core
             }
             else
             {
-                File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't read folder: {path} .{Environment.NewLine}");
-                File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - When report this error, you may delete config.json and try again.{Environment.NewLine}");
+                Logging.WriteError($"Count't read folder: {path} .");
+                Logging.WriteError($"When report this error, you may delete config.json and try again.");
             }
             return listMods;
         }
 
-        private static List<string> getCurrentActiveMods()
+        public static List<string> getCurrentActiveMods()
         {
             try
             {
@@ -243,14 +243,13 @@ namespace Core
             }
             catch (Exception ex)
             {
-                File.AppendAllText(Constants.Errorfile, $"{DateTime.Now} - Count't read mods.cfg, check your config, you may delete as well, the folder will be requested again.{Environment.NewLine}");
-                File.AppendAllText(Constants.Errorfile, $"{ex.Message}{Environment.NewLine}");
-                File.AppendAllText(Constants.Errorfile, $"{ex.StackTrace}{Environment.NewLine}");
+                Logging.WriteError("Count't read mods.cfg, check your config, you may delete as well, the folder will be requested again.");
+                Logging.WriteError(ex);
                 return new List<string>();
             }
         }
 
-        private static void ReadAndSetInfo(string filename, Mod mod)
+        public static void ReadAndSetInfo(string filename, Mod mod)
         {
             if (File.Exists(filename))
             {

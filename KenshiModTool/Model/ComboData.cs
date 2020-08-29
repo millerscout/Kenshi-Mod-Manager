@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace KenshiModTool.Model
+﻿namespace KenshiModTool.Model
 {
     public class ComboData
     {
