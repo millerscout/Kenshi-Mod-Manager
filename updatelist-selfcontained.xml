@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <item>
-	<version>2.1.0.0</version>
-	<url>https://github.com/millerscout/Kenshi-Mod-Manager/releases/download/v2.1/FullRelease.zip</url>
-	<changelog>https://github.com/millerscout/Kenshi-Mod-Manager/releases/tag/v2.1</changelog> 
+    <version>2.3.0.0</version>
+    <url>https://github.com/millerscout/Kenshi-Mod-Manager/releases/download/v2.3/FullRelease.zip</url>
+    <changelog>https://github.com/millerscout/Kenshi-Mod-Manager/releases/tag/v2.3</changelog> 
 </item>
 <item>
     <version>2.2.0.0</version>
     <url>https://github.com/millerscout/Kenshi-Mod-Manager/releases/download/v2.2/FullRelease.zip</url>
     <changelog>https://github.com/millerscout/Kenshi-Mod-Manager/releases/tag/v2.2</changelog> 
 </item>
-
 <item>
-    <version>2.3.0.0</version>
-    <url>https://github.com/millerscout/Kenshi-Mod-Manager/releases/download/v2.3/FullRelease.zip</url>
-    <changelog>https://github.com/millerscout/Kenshi-Mod-Manager/releases/tag/v2.3</changelog> 
+	<version>2.1.0.0</version>
+	<url>https://github.com/millerscout/Kenshi-Mod-Manager/releases/download/v2.1/FullRelease.zip</url>
+	<changelog>https://github.com/millerscout/Kenshi-Mod-Manager/releases/tag/v2.1</changelog> 
 </item>
