@@ -4,8 +4,8 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
-    <Version>2.2</Version>
-    <AssemblyVersion>2.2</AssemblyVersion>
+    <Version>2.3</Version>
+    <AssemblyVersion>2.3</AssemblyVersion>
     <Configurations>Debug;Release;Standalone;SelfContained</Configurations>
   </PropertyGroup>
 
