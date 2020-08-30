@@ -89,7 +89,7 @@ namespace KenshiModTool
 
                     if (LoadService.config.CheckForUpdatesAutomatically)
                     {
-                        AutoUpdater.Start(Constants.UpdateListUrl);
+                        AutoUpdater.Start($"{Constants.UpdateListUrl}{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
                         updateTimer.Start();
                     }
                 }), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
@@ -105,7 +105,7 @@ namespace KenshiModTool
         public void UpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             updateTimer.Stop();
-            AutoUpdater.Start(Constants.UpdateListUrl);
+            AutoUpdater.Start($"{Constants.UpdateListUrl}{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
             updateTimer.Start();
         }
 
@@ -948,7 +948,7 @@ namespace KenshiModTool
 
         public void CheckForUpdates(object sender, RoutedEventArgs e)
         {
-            AutoUpdater.Start(Constants.UpdateListUrl);
+            AutoUpdater.Start($"{Constants.UpdateListUrl}{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
         }
 
         private void IndexActiveMods(object sender, RoutedEventArgs e)
