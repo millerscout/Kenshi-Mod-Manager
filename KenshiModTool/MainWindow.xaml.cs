@@ -495,7 +495,7 @@ namespace KenshiModTool
         public void SaveModList_Click(object sender, RoutedEventArgs e)
         {
             if (File.Exists(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg")))
-                File.Copy(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg"), Path.Combine(LoadService.config.GamePath, "data", "mods.cfg.backup"), false);
+                File.Copy(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg"), Path.Combine(LoadService.config.GamePath, "data", "mods.cfg.backup"), true);
 
             File.WriteAllLines(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg"), ModList.Where(m => m.Active).OrderBy(q => q.Order).Select(m => m.FileName));
         }
