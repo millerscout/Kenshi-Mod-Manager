@@ -12,13 +12,15 @@ function UpdateVersionForUpdater($versionName){
     if($versionName -eq 'selfcontained'){ $zipName = "FullRelease"}
 	echo "https://github.com/millerscout/Kenshi-Mod-Manager/releases/download/v$($newVersion)/$($zipName).zip"
     if(checkStatus("https://github.com/millerscout/Kenshi-Mod-Manager/releases/download/v$($newVersion)/$($zipName).zip")==1){
-        $xmlFile = "updatelist-$($versionName).xml";
-
-        Add-Content $xmlFile "`n<item>
+        $xml = Get-Content -Path "updatelist-$($versionName).xml"
+        $xml = $xml -replace "<!-- NEXT VERSION -->", "<!-- NEXT VERSION -->`n<item>
     <version>$($newVersion).0.0</version>
     <url>https://github.com/millerscout/Kenshi-Mod-Manager/releases/download/v$($newVersion)/$($zipName).zip</url>
     <changelog>https://github.com/millerscout/Kenshi-Mod-Manager/releases/tag/v$($newVersion)</changelog> 
 </item>"
+        
+    Set-Content -Path "updatelist-$($versionName).xml" -Value $xml -Force
+
     }
 }
 
@@ -145,8 +147,12 @@ dotnet publish -c standalone -p:PublishProfile=KenshiModTool\Properties\PublishP
 
 Remove-Item "publish" -Include *.pdb -Recurse -force
 cd publish
-7z a -tzip "FullRelease" -r "FullRelease"
-7z a -tzip "Standalone" -r "Standalone"
+cd FullRelease
+7z a -tzip "..\FullRelease" "*"
+cd.. 
+cd Standalone
+7z a -tzip "..\Standalone" "*"
+cd..
 cd..
 
 Invoke-Expression "git push --tags | Write-Verbose"

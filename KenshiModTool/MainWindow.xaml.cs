@@ -46,6 +46,8 @@ namespace KenshiModTool
             {
                 InitializeComponent();
                 AutoUpdater.DownloadPath = Environment.CurrentDirectory;
+                string jsonPath = Path.Combine(Environment.CurrentDirectory, "updateSettings.json");
+                AutoUpdater.PersistenceProvider = new JsonFilePersistenceProvider(jsonPath);
 
                 this.Title = $"[v{Assembly.GetExecutingAssembly().GetName().Version.ToString(2)}] - {this.Title}";
 
