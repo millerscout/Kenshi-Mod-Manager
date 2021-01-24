@@ -494,20 +494,30 @@ namespace KenshiModTool
 
         public void SaveModList_Click(object sender, RoutedEventArgs e)
         {
+
             if (File.Exists(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg")))
                 File.Copy(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg"), Path.Combine(LoadService.config.GamePath, "data", "mods.cfg.backup"), true);
 
-            File.WriteAllLines(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg"), ModList.Where(m => m.Active).OrderBy(q => q.Order).Select(m => m.FileName));
+
+            if (Directory.Exists(Path.Combine(LoadService.config.GamePath)))
+            {
+                File.WriteAllLines(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg"), ModList.Where(m => m.Active).OrderBy(q => q.Order).Select(m => m.FileName));
+            }
+            else
+            {
+                MessageBox.Show(ConstantMessages.GameFolderNotConfiguredCorrectly, "List not saved!");
+            }
+
         }
 
         public void BtnGameFolder_Click(object sender, RoutedEventArgs e)
         {
-            CommonService.OpenFolder(LoadService.config.GamePath, () => MessageBox.Show("Game folder not configured correctly."));
+            CommonService.OpenFolder(LoadService.config.GamePath, () => MessageBox.Show(ConstantMessages.GameFolderNotConfiguredCorrectly));
         }
 
         public void GameModFolder_Click(object sender, RoutedEventArgs e)
         {
-            CommonService.OpenFolder(System.IO.Path.Combine(LoadService.config.GamePath, "Mods"), () => MessageBox.Show("Game folder not configured correctly."));
+            CommonService.OpenFolder(System.IO.Path.Combine(LoadService.config.GamePath, "Mods"), () => MessageBox.Show(ConstantMessages.GameFolderNotConfiguredCorrectly));
         }
 
         public void BtnSteamFolder_Click(object sender, RoutedEventArgs e)
@@ -721,7 +731,7 @@ namespace KenshiModTool
 
             if (failure)
             {
-                MessageBox.Show("Game folder not configured correctly.");
+                MessageBox.Show(ConstantMessages.GameFolderNotConfiguredCorrectly);
             }
         }
 

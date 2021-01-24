@@ -68,12 +68,12 @@ namespace Core.Models
             }
         }
 
-        public List<string> Dependencies { get; set; }
+        public List<string> Dependencies = new List<string>();
 
         /// <summary>
         /// don`t know what is this used for... but seems something important while ordering.
         /// </summary>
-        public List<string> References { get; set; }
+        public List<string> References = new List<string>();
 
         public IEnumerable<string> AllDependencies => Dependencies.Concat(References).Where(c => !Constants.SkippableMods.Contains(c.ToLower()));
         public bool OrderedAutomatically { get; internal set; }
