@@ -98,7 +98,7 @@ namespace KenshiModTool
             }
             catch (Exception ex)
             {
-                Logging.WriteError(ex);
+                Logging.Write(Constants.Errorfile, ex);
             }
         }
 

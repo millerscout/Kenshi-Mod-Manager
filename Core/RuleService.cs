@@ -24,8 +24,8 @@ namespace Core
             }
             catch (Exception ex)
             {
-                Logging.WriteError($"Count't verify latest version.");
-                Logging.WriteError(ex);
+                Logging.Write(Constants.Errorfile, $"Count't verify latest version.");
+                Logging.Write(Constants.Errorfile, ex);
 
                 return "";
             }
@@ -58,8 +58,8 @@ namespace Core
             }
             catch (Exception ex)
             {
-                Logging.WriteError("Count't update masterlist to latest version.");
-                Logging.WriteError(ex);
+                Logging.Write(Constants.Errorfile, "Count't update masterlist to latest version.");
+                Logging.Write(Constants.Errorfile, ex);
                 return "";
             }
         }

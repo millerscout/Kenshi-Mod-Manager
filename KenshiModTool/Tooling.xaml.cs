@@ -37,7 +37,7 @@ namespace KenshiModTool
             }
             catch (Exception ex)
             {
-                Logging.WriteError(ex);
+                Logging.Write(Constants.Errorfile, ex);
             }
         }
 
@@ -139,10 +139,11 @@ namespace KenshiModTool
                 appendLog.Add($"{DateTime.Now} - Detailed List:");
                 appendLog.AddRange(symblist.Select(item => $"{DateTime.Now} From {item.Item2} To {item.Item1}:"));
 
-                File.AppendAllLines(Path.Combine( Directory.GetCurrentDirectory(),  Constants.Logfile), appendLog);
+                Logging.Write(Constants.Logfile, appendLog);
             });
 
-            LoadService.CreateSymbLink(symblist);
+            LoadService.CreateSymbLink(symblist, out string message);
+            if (!string.IsNullOrEmpty(message)) MessageBox.Show(message);
 
             logging.Wait();
             LoadModList();
@@ -259,16 +260,17 @@ namespace KenshiModTool
                 appendLog.Add($"{DateTime.Now} - Detailed List:");
                 appendLog.AddRange(symblist.Select(item => $"{DateTime.Now} From {item.Item2} To {item.Item1}:"));
 
-                File.AppendAllLines(Path.Combine( Directory.GetCurrentDirectory(),  Constants.Logfile), appendLog);
+                Logging.Write(Constants.Logfile, appendLog);
             }
             catch (Exception ex)
             {
-                Logging.WriteError("Failed to write log of symblinks.");
-                Logging.WriteError(ex);
-                
+                Logging.Write(Constants.Errorfile, "Failed to write log of symblinks.");
+                Logging.Write(Constants.Errorfile, ex);
+
             }
 
-            LoadService.CreateSymbLink(symblist);
+            LoadService.CreateSymbLink(symblist, out string message);
+            if (!string.IsNullOrEmpty(message)) MessageBox.Show(message);
         }
 
         public void ToggleSymbSelected_Click(object sender, RoutedEventArgs e)

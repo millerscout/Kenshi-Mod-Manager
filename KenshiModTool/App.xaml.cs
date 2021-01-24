@@ -30,7 +30,7 @@ namespace KenshiModTool
         public void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
 
-            Logging.WriteError($"{JsonConvert.SerializeObject(e.ExceptionObject)}");
+            Logging.Write(Constants.Errorfile, $"{JsonConvert.SerializeObject(e.ExceptionObject)}");
             return;
         }
 
@@ -38,8 +38,8 @@ namespace KenshiModTool
         {
             MessageBox.Show("Unhandled exception occurred: \n" + e.Exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
-            Logging.WriteError($"{e.Exception.Message}");
-            Logging.WriteError($"{e.Exception.StackTrace}");
+            Logging.Write(Constants.Errorfile, $"{e.Exception.Message}");
+            Logging.Write(Constants.Errorfile, $"{e.Exception.StackTrace}");
             return;
         }
     }
