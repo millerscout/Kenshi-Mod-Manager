@@ -32,5 +32,8 @@ namespace Core
         }
 
         public static int Percent(this int val, int qty) => val * 100 / qty;
+
+        public static string GetCurrentApplicationPath() => Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
     }
 }

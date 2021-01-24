@@ -5,6 +5,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Permissions;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -70,7 +72,7 @@ namespace Core
             appendLog.Add($"{DateTime.Now} - Detailed List:");
             appendLog.AddRange(list.Select(item => $"{DateTime.Now} - {item.Source} - {item.FilePath}"));
 
-            File.AppendAllLines(Path.Combine( Directory.GetCurrentDirectory(),  Constants.Logfile), appendLog);
+            Logging.Write(Constants.Logfile, appendLog);
             return list;
         }
 
@@ -116,8 +118,16 @@ namespace Core
                 Directory.Delete(path);
         }
 
-        public static void CreateSymbLink(IEnumerable<Tuple<string, string>> symblist)
+        public static void CreateSymbLink(IEnumerable<Tuple<string, string>> symblist, out string message)
         {
+            message = "";
+            if (!new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator))
+            {
+                Logging.Write(Constants.Logfile, $"{DateTime.Now} - Can't create symblinks, you need to this program as administrator to use this feature.");
+                message = "Can't create symblinks, you need to this program as administrator to use this feature.";
+                return;
+            }
+            
             var sync = new object();
             var infoLogList = new ConcurrentBag<string>();
             var errorLogList = new ConcurrentBag<string>();
@@ -141,10 +151,8 @@ namespace Core
                 }
             });
 
-            if (infoLogList.Count > 0)
-                File.AppendAllLines(Path.Combine( Directory.GetCurrentDirectory(),  Constants.Logfile), infoLogList);
-            if (errorLogList.Count > 0)
-                File.AppendAllLines(Constants.Errorfile, errorLogList);
+            Logging.Write(Constants.Logfile, infoLogList);
+            Logging.Write(Constants.Errorfile, errorLogList);
         }
 
         public static void FolderCleanUp(string path)
@@ -156,7 +164,7 @@ namespace Core
                 if (Directory.GetFiles(directory).Length == 0 &&
                     Directory.GetDirectories(directory).Length == 0)
                 {
-                    File.AppendAllText(Constants.Logfile, $"{DateTime.Now} - This Directory was deleted, because it was empty: {directory}.{Environment.NewLine}");
+                    Logging.Write(Constants.Logfile, $"{DateTime.Now} - This Directory was deleted, because it was empty: {directory}.{Environment.NewLine}");
                     DeleteFolder(directory);
                 }
             }
@@ -185,8 +193,8 @@ namespace Core
                     catch (Exception ex)
                     {
 
-                        Logging.WriteError("Count't load metadata.", $"The mod {mod.FilePath} may be corrupted.");
-                        Logging.WriteError(ex);
+                        Logging.Write(Constants.Errorfile, "Count't load metadata.", $"The mod {mod.FilePath} may be corrupted.");
+                        Logging.Write(Constants.Errorfile, ex);
                     }
 
                     Func<string, bool> predicate = f => f == Path.GetFileName(mod.FilePath);
@@ -201,13 +209,13 @@ namespace Core
                     {
 
                         metadata = new Metadata { Description = $"This mod couldn't be loaded, maybe is corrupted or a empty folder, check the error.log and the mod folder {item}" };
-                        Logging.WriteError($"Check the folder: {item}");
+                        Logging.Write(Constants.Errorfile, $"Check the folder: {item}");
                     }
 
                     if (metadata is null)
                     {
                         metadata = new Metadata { Description = $"This mod couldn't be loaded, maybe is corrupted or a empty folder, check the error.log  and the mod folder {item}" };
-                        Logging.WriteError($"Count't load metadata from path: {item}.");
+                        Logging.Write(Constants.Errorfile, $"Count't load metadata from path: {item}.");
                     }
                     else
                     {
@@ -229,8 +237,8 @@ namespace Core
             }
             else
             {
-                Logging.WriteError($"Count't read folder: {path} .");
-                Logging.WriteError($"When report this error, you may delete config.json and try again.");
+                Logging.Write(Constants.Errorfile, $"Count't read folder: {path} .");
+                Logging.Write(Constants.Errorfile, $"When report this error, you may delete config.json and try again.");
             }
             return listMods;
         }
@@ -243,8 +251,8 @@ namespace Core
             }
             catch (Exception ex)
             {
-                Logging.WriteError("Count't read mods.cfg, check your config, you may delete as well, the folder will be requested again.");
-                Logging.WriteError(ex);
+                Logging.Write(Constants.Errorfile, "Count't read mods.cfg, check your config, you may delete as well, the folder will be requested again.");
+                Logging.Write(Constants.Errorfile, ex);
                 return new List<string>();
             }
         }

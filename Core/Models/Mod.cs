@@ -76,7 +76,7 @@ namespace Core.Models
         public List<string> References = new List<string>();
 
         public IEnumerable<string> AllDependencies => Dependencies.Concat(References).Where(c => !Constants.SkippableMods.Contains(c.ToLower()));
-        public bool OrderedAutomatically { get; internal set; }
+        public bool OrderedAutomatically { get;  set; }
     }
 
     public class Conflict
