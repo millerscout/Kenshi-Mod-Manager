@@ -6,6 +6,7 @@ using KenshiModTool.Model;
 using Microsoft.AppCenter.Crashes;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using MMDHelpers.CSharp.PerformanceChecks;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -23,6 +24,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Navigation;
+using static MMDHelpers.CSharp.PerformanceChecks.Ruler;
 
 namespace KenshiModTool
 {
@@ -42,6 +44,8 @@ namespace KenshiModTool
 
         public MainWindow()
         {
+
+            MMDHelpers.CSharp.PerformanceChecks.Ruler.StartMeasuring(true);
             try
             {
                 InitializeComponent();
@@ -95,6 +99,10 @@ namespace KenshiModTool
                 }), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
 
                 updateTimer.Elapsed += UpdateTimer_Elapsed;
+
+                Ruler.StopMeasuring();
+                Ruler.LogToFile();
+
             }
             catch (Exception ex)
             {
@@ -215,6 +223,7 @@ namespace KenshiModTool
 
         public void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+
             currentIndexSearch = 0;
             if (string.IsNullOrEmpty(txtSearch.Text))
             {
@@ -286,6 +295,8 @@ namespace KenshiModTool
                         bool HasError = false;
                         foreach (var item in mod.AllDependencies)
                         {
+                            if (Constants.BaseMods.Contains(item))
+                                continue;
                             if (!ModList.Any(c => c.Active && c.Order < mod.Order && c.FileName.Contains(item, StringComparison.CurrentCultureIgnoreCase)))
                             {
                                 HasError = true;
@@ -755,18 +766,11 @@ namespace KenshiModTool
                     var changes = new Dictionary<string, List<Dictionary<string, string>>>();
                     var cm = new ConflictManager();
 
-                    var ordered = ModList.Where(c => c.Active).OrderBy(c => c.Order).ToList();
-                    length = ordered.Count * 2;
+                    var ordered = ModList.Where(c => c.Active).OrderBy(c => c.Order);
+                    length = ordered.Count() * 2;
                     var baseGameData = new GameData();
 
-                    foreach (var item in new string[6]{
-                                      "gamedata.base",
-                                      "Newwworld.mod",
-                                      "Dialogue.mod",
-                                      "Vitali.mod",
-                                      "Nizu.mod",
-                                      "rebirth.mod"
-                                        })
+                    foreach (var item in Constants.BaseMods)
                     {
                         cm.LoadMods(Path.Combine(LoadService.config.GamePath, "data", item), ModMode.BASE, baseGameData);
                     }
@@ -796,9 +800,6 @@ namespace KenshiModTool
                         current++;
                         (sender as BackgroundWorker).ReportProgress(current.Percent(length));
                     }
-
-
-                    MessageBox.Show("hey, i completed the changes, i'm generating a report, it'll take a while if your mods has alot of changes.");
 
                     cm.LoadChanges();
 
@@ -961,31 +962,16 @@ namespace KenshiModTool
             AutoUpdater.Start($"{Constants.UpdateListUrl}?{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
         }
 
-        private void IndexActiveMods(object sender, RoutedEventArgs e)
+        private async void IndexActiveMods(object sender, RoutedEventArgs e)
         {
             try
             {
-
-                var stopwatch = Stopwatch.StartNew();
-
-                var filename = Constants.modChangesFileName;
-                var detailsFilename = Constants.DetailChangesFileName;
-
-
-                var changes = new Dictionary<string, List<Dictionary<string, string>>>();
                 var cm = new ConflictManager();
 
                 var ordered = ModList.Where(c => c.Active).OrderBy(c => c.Order).ToList();
                 var baseGameData = new GameData();
 
-                foreach (var item in new string[6]{
-                                      "gamedata.base",
-                                      "Newwworld.mod",
-                                      "Dialogue.mod",
-                                      "Vitali.mod",
-                                      "Nizu.mod",
-                                      "rebirth.mod"
-                                    })
+                foreach (var item in Constants.BaseMods)
                 {
                     cm.LoadMods(Path.Combine(LoadService.config.GamePath, "data", item), ModMode.BASE, baseGameData);
                 }
@@ -1003,7 +989,6 @@ namespace KenshiModTool
 
                 foreach (var mod in ordered)
                 {
-                    Console.WriteLine($"{mod.DisplayName} Loading...");
                     var gd = new GameData();
 
                     cm.LoadMods(mod.FilePath, ModMode.ACTIVE, gd);
@@ -1013,15 +998,9 @@ namespace KenshiModTool
 
                     if (!Directory.Exists("indexedMods"))
                         Directory.CreateDirectory("indexedMods");
-                    File.WriteAllText($"indexedMods/{mod.DisplayName}", JsonConvert.SerializeObject(new { gd.Signature, mod.DisplayName, gd.header.Version, gd.items }, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+                    await File.WriteAllTextAsync($"indexedMods/{mod.DisplayName}", JsonConvert.SerializeObject(new { gd.Signature, mod.DisplayName, gd.header.Version, gd.items }, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
 
                 }
-
-
-
-                stopwatch.Stop();
-                Console.WriteLine(stopwatch.ElapsedMilliseconds / 1000 + " Seconds Elapsed");
-
 
             }
             catch (Exception ex)
@@ -1029,5 +1008,6 @@ namespace KenshiModTool
                 MessageBox.Show("I'm working on this feature... it's complicated :)");
             }
         }
+
     }
 }

@@ -1,12 +1,14 @@
 ﻿using Core.Kenshi_Data.Enums;
 using Core.Kenshi_Data.Model;
 using Core.Models;
+using MMDHelpers.CSharp.Extensions;
 using Steamworks;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Core
@@ -25,8 +27,8 @@ namespace Core
 
         public void LoadMods(string file, ModMode mode, GameData gd)
         {
-            string extension = Path.GetExtension(file);
-            if (extension == ".mod" || extension == ".translation")
+
+            if (file.EndsWithCaseSensitive(".mod") || file.EndsWithCaseSensitive(".translation"))
             {
                 if (!this.Modlist.Any(c => c == file))
                     this.Modlist.Add(file);

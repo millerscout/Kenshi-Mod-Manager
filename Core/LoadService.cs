@@ -127,7 +127,7 @@ namespace Core
                 message = "Can't create symblinks, you need to this program as administrator to use this feature.";
                 return;
             }
-            
+
             var sync = new object();
             var infoLogList = new ConcurrentBag<string>();
             var errorLogList = new ConcurrentBag<string>();

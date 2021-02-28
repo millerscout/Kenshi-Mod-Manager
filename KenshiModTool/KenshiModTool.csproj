@@ -43,6 +43,7 @@
     <PackageReference Include="Microsoft.AppCenter.Analytics" Version="3.4.0" />
     <PackageReference Include="Microsoft.AppCenter.Crashes" Version="3.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
+    <PackageReference Include="MMDHelpers.CSharp.Performance.Grpc" Version="1.0.1" />
     <PackageReference Include="WebWindow" Version="0.1.0-20200214.10" />
     <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
   </ItemGroup>

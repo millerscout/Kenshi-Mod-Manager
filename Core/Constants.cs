@@ -4,8 +4,8 @@ namespace Core
 {
     public static class Constants
     {
-        public static List<string> SkippableMods = new List<string>{
-                "gamedata.base", "rebirth.mod", "newwworld.mod","dialogue.mod"
+        public static string[] BaseMods = new string[6] {
+                "gamedata.base","Newwworld.mod","Dialogue.mod","Vitali.mod","Nizu.mod","rebirth.mod"
             };
 
         public const string modChangesFileName = "modChanges.json";

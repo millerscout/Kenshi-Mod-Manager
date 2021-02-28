@@ -6,6 +6,7 @@ using Microsoft.AppCenter.Crashes;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace KenshiModTool
@@ -21,7 +22,7 @@ namespace KenshiModTool
             this.Dispatcher.UnhandledException += OnDispatcherUnhandledException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-
+            _ = Task.Run(() => new MMDHelpers.CSharp.Performance.grpc.LocalKestrelServer().Run());
 #if DEBUG
             AppCenter.SetEnabledAsync(false);
 #endif

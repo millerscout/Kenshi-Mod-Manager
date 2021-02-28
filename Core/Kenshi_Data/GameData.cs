@@ -15,28 +15,44 @@ namespace Core
     {
         public static Desc nullDesc = new Desc();
 
-        public class quat
+        public struct quat
         {
-            public float w = 1f;
-            public float x;
-            public float y;
-            public float z;
+            public float w { get; }
+            public float x { get; }
+            public float y { get; }
+            public float z { get; }
+
+            public quat(float w, float x, float y, float z)
+            {
+                this.w = 1f;
+                this.x = x;
+                this.y = y;
+                this.z = z;
+            }
 
             public override string ToString()
             {
-                return string.Format("{0} {1} {2} {3}", (object)this.w, (object)this.x, (object)this.y, (object)this.z);
+                return string.Format("{0} {1} {2} {3}", this.w, this.x, this.y, this.z);
             }
         }
 
-        public class vec
+        public struct vec
         {
-            public float x;
-            public float y;
-            public float z;
+            public vec(float x, float y, float z)
+            {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+            }
+
+            public float x { get; }
+            public float y { get; }
+            public float z { get; }
+
 
             public override string ToString()
             {
-                return string.Format("{0} {1} {2}", (object)this.x, (object)this.y, (object)this.z);
+                return string.Format("{0} {1} {2}", this.x, (object)this.y, (object)this.z);
             }
         }
 
@@ -44,10 +60,10 @@ namespace Core
 
         public void resolveAllReferences()
         {
-            Parallel.ForEach<KeyValuePair<string, GameData.Item>>((IEnumerable<KeyValuePair<string, GameData.Item>>)this.items, new ParallelOptions()
+            Parallel.ForEach((IEnumerable<KeyValuePair<string, Item>>)this.items, new ParallelOptions()
             {
                 MaxDegreeOfParallelism = Environment.ProcessorCount
-            }, (Action<KeyValuePair<string, GameData.Item>>)(item => item.Value.resolveReferences(this)));
+            }, (Action<KeyValuePair<string, Item>>)(item => item.Value.resolveReferences(this)));
         }
 
         public static Desc getDesc(ItemType type, string name)
@@ -57,14 +73,14 @@ namespace Core
 
         public class Reference
         {
-            public static GameData.TripleInt Removed = new GameData.TripleInt(int.MaxValue, int.MaxValue, int.MaxValue);
+            public static TripleInt Removed = new TripleInt(int.MaxValue, int.MaxValue, int.MaxValue);
             public string sID = "";
-            public GameData.Item item;
-            public GameData.TripleInt original;
-            public GameData.TripleInt mod;
-            public GameData.TripleInt locked;
+            public Item item;
+            public TripleInt original;
+            public TripleInt mod;
+            public TripleInt locked;
 
-            public Reference(string id, GameData.TripleInt value = null)
+            public Reference(string id, TripleInt value = null)
             {
                 this.sID = id;
                 this.original = value;
@@ -78,7 +94,7 @@ namespace Core
                 }
             }
 
-            public GameData.TripleInt Values
+            public TripleInt Values
             {
                 get
                 {
@@ -95,7 +111,7 @@ namespace Core
             public int v1;
             public int v2;
 
-            public TripleInt(GameData.TripleInt v)
+            public TripleInt(TripleInt v)
             {
                 this.v0 = v.v0;
                 this.v1 = v.v1;
@@ -109,28 +125,13 @@ namespace Core
                 this.v2 = i2;
             }
 
-            public bool Equals(GameData.TripleInt b)
+            public bool Equals(TripleInt b)
             {
                 return b != null && this.v0 == b.v0 && this.v1 == b.v1 && this.v2 == b.v2;
             }
         }
 
-        public class File
-        {
-            public string filename;
-
-            public File(string f)
-            {
-                this.filename = f;
-            }
-
-            public override string ToString()
-            {
-                return this.filename;
-            }
-        }
-
-        public Dictionary<string, GameData.Item> items = new Dictionary<string, GameData.Item>();
+        public Dictionary<string, Item> items;
         public Header header { get; set; }
         public int lastID { get; set; }
         public string Signature { get; set; }
@@ -145,30 +146,32 @@ namespace Core
             if (count <= 0)
                 return string.Empty;
             if (count > StrByteBuffer.Length)
-                Array.Resize<byte>(ref StrByteBuffer, StrByteBuffer.Length * 2);
+                Array.Resize(ref StrByteBuffer, StrByteBuffer.Length * 2);
             file.Read(StrByteBuffer, 0, count);
             return Encoding.UTF8.GetString(StrByteBuffer, 0, count);
         }
 
         public static Header readHeader(BinaryReader file)
         {
-            Header header = new Header();
-            header.Version = file.ReadInt32();
-            header.Author = readString(file);
-            header.Description = readString(file);
-            header.Dependencies = new List<string>((IEnumerable<string>)readString(file).Split(','));
-            header.Referenced = new List<string>((IEnumerable<string>)readString(file).Split(','));
-            if (header.Dependencies.Count == 1 && header.Dependencies[0] == "")
-                header.Dependencies.Clear();
-            if (header.Referenced.Count == 1 && header.Referenced[0] == "")
-                header.Referenced.Clear();
+            Header header = new Header(
+                version: file.ReadInt32(),
+                author: readString(file),
+                description: readString(file),
+                dependencies: GetSplit(file),
+                referenced: readString(file).Split(','));
             return header;
+
+            static string[] GetSplit(BinaryReader file)
+            {
+                var o = readString(file).Split(',');
+                return o.Length == 1 && o[0] == "" ? new string[0] : o;
+            }
         }
 
-        public GameData.Item getItem(string id)
+        public Item getItem(string id)
         {
-            GameData.Item obj = (GameData.Item)null;
-            return this.items.TryGetValue(id, out obj) ? obj : (GameData.Item)null;
+            Item obj = (Item)null;
+            return this.items.TryGetValue(id, out obj) ? obj : (Item)null;
         }
 
         public bool Load(string filename, ModMode mode)
@@ -204,19 +207,20 @@ namespace Core
                         }
 
                         this.lastID = Math.Max(this.lastID, file.ReadInt32());
-                        int num1 = file.ReadInt32();
-                        for (int index = 0; index < num1; ++index)
+                        int MaxItemCount = file.ReadInt32();
+                        this.items = new Dictionary<string, Item>(MaxItemCount);
+                        for (int index = 0; index < MaxItemCount; ++index)
                         {
                             file.ReadInt32();
                             ItemType type = (ItemType)file.ReadInt32();
                             int num2 = file.ReadInt32();
                             string name = readString(file);
                             string str = fileVersion >= 7 ? readString(file) : num2.ToString() + "-" + fileName;
-                            GameData.Item obj = this.getItem(str);
+                            Item obj = this.getItem(str);
                             bool newItem = obj == null;
                             if (obj == null)
                             {
-                                obj = new GameData.Item(type, str);
+                                obj = new Item(type, str);
                                 this.items.Add(str, obj);
                             }
 
@@ -241,9 +245,9 @@ namespace Core
             return true;
         }
 
-        public class Instance : GameData.Item
+        public class Instance : Item
         {
-            public GameData.Item resolvedRef;
+            public Item resolvedRef;
             public ArrayList resolvedStates;
 
             public Instance()
@@ -264,29 +268,29 @@ namespace Core
                     this.SetMissingValues();
                 foreach (KeyValuePair<string, ArrayList> reference1 in this.references)
                 {
-                    List<GameData.Reference> referenceList = new List<GameData.Reference>();
-                    foreach (GameData.Reference reference2 in reference1.Value)
+                    List<Reference> referenceList = new List<Reference>();
+                    foreach (Reference reference2 in reference1.Value)
                     {
                         if (reference2.original == null && reference2.locked == null)
                             referenceList.Add(reference2);
-                        reference2.mod = (GameData.TripleInt)null;
+                        reference2.mod = (TripleInt)null;
                     }
-                    foreach (GameData.Reference r in referenceList)
+                    foreach (Reference r in referenceList)
                         this.RemoveReference(reference1.Key, r);
                 }
                 foreach (KeyValuePair<string, ArrayList> keyValuePair in this.removed)
                 {
-                    foreach (GameData.Reference reference in keyValuePair.Value)
+                    foreach (Reference reference in keyValuePair.Value)
                     {
-                        reference.mod = (GameData.TripleInt)null;
+                        reference.mod = (TripleInt)null;
                         if (reference.item != null)
                             ++reference.item.refCount;
                         this.references[keyValuePair.Key].Add((object)reference);
                     }
                 }
                 this.removed.Clear();
-                List<string> stringList = new List<string>();
-                foreach (KeyValuePair<string, GameData.Instance> instance in this.instances)
+                List<string> stringList = new List<string>(this.instances.Count);
+                foreach (KeyValuePair<string, Instance> instance in this.instances)
                 {
                     if (instance.Value.GetState() == State.OWNED)
                         stringList.Add(instance.Key);
@@ -306,9 +310,9 @@ namespace Core
 
             public class Accessor<T>
             {
-                public GameData.Item item;
+                public Item item;
 
-                public Accessor(GameData.Item me)
+                public Accessor(Item me)
                 {
                     this.item = me;
                 }
@@ -330,18 +334,17 @@ namespace Core
             public SortedList<string, object> lockedData = new SortedList<string, object>();
             public SortedList<string, ArrayList> references = new SortedList<string, ArrayList>();
             public SortedList<string, ArrayList> removed = new SortedList<string, ArrayList>();
-            public SortedList<string, GameData.Instance> instances = new SortedList<string, GameData.Instance>();
+            public SortedList<string, Instance> instances = new SortedList<string, Instance>();
             public int id;
             public State cachedState;
             public string baseName;
             public string modName;
             public string lockedName;
             public string mod;
-            public GameData.Item.Accessor<int> idata;
-            public GameData.Item.Accessor<bool> bdata;
-            public GameData.Item.Accessor<float> fdata;
-            public GameData.Item.Accessor<string> sdata;
-            public GameData.Item.Accessor<GameData.File> filesdata;
+            public Accessor<int> idata;
+            public Accessor<bool> bdata;
+            public Accessor<float> fdata;
+            public Accessor<string> sdata;
             public int lastID;
             internal ChangeData ChangeData;
 
@@ -431,35 +434,34 @@ namespace Core
 
             public override string ToString()
             {
-                return this.type.ToString() + ": " + this.Name;
+                return $"{this.type}: {this.Name}";
             }
 
             public void setupAccessors()
             {
-                this.idata = new GameData.Item.Accessor<int>(this);
-                this.fdata = new GameData.Item.Accessor<float>(this);
-                this.bdata = new GameData.Item.Accessor<bool>(this);
-                this.sdata = new GameData.Item.Accessor<string>(this);
-                this.filesdata = new GameData.Item.Accessor<GameData.File>(this);
+                this.idata = new Accessor<int>(this);
+                this.fdata = new Accessor<float>(this);
+                this.bdata = new Accessor<bool>(this);
+                this.sdata = new Accessor<string>(this);
             }
 
-            public void addRef(GameData.Item from)
+            public void addRef(Item from)
             {
                 foreach (string referenceList in from.referenceLists())
                 {
-                    foreach (GameData.Reference reference in from.references[referenceList])
+                    foreach (Reference reference in from.references[referenceList])
                     {
                         if (reference.item == this)
                             return;
                     }
                 }
-                foreach (GameData.Instance instance in (IEnumerable<GameData.Instance>)from.instances.Values)
+                foreach (Instance instance in (IEnumerable<Instance>)from.instances.Values)
                 {
                     if (instance.resolvedRef == this)
                         return;
                     if (instance.resolvedStates != null)
                     {
-                        foreach (GameData.Item resolvedState in instance.resolvedStates)
+                        foreach (Item resolvedState in instance.resolvedStates)
                         {
                             if (resolvedState == this)
                                 return;
@@ -469,12 +471,12 @@ namespace Core
                 ++this.refCount;
             }
 
-            public void removeRef(GameData.Item from)
+            public void removeRef(Item from)
             {
                 bool flag = false;
                 foreach (string referenceList in from.referenceLists())
                 {
-                    foreach (GameData.Reference reference in from.references[referenceList])
+                    foreach (Reference reference in from.references[referenceList])
                     {
                         if (reference.item == this)
                         {
@@ -484,7 +486,7 @@ namespace Core
                         }
                     }
                 }
-                foreach (GameData.Instance instance in (IEnumerable<GameData.Instance>)from.instances.Values)
+                foreach (Instance instance in (IEnumerable<Instance>)from.instances.Values)
                 {
                     if (instance.resolvedRef == this)
                     {
@@ -494,7 +496,7 @@ namespace Core
                     }
                     if (instance.resolvedStates != null)
                     {
-                        foreach (GameData.Item resolvedState in instance.resolvedStates)
+                        foreach (Item resolvedState in instance.resolvedStates)
                         {
                             if (resolvedState == this)
                             {
@@ -512,43 +514,43 @@ namespace Core
             {
                 foreach (string referenceList in this.referenceLists())
                 {
-                    foreach (GameData.Reference reference in this.references[referenceList])
+                    foreach (Reference reference in this.references[referenceList])
                     {
                         if (reference.item != null)
                             reference.item.removeRef(this);
-                        reference.item = (GameData.Item)null;
+                        reference.item = (Item)null;
                     }
                 }
-                foreach (GameData.Instance instance in (IEnumerable<GameData.Instance>)this.instances.Values)
+                foreach (Instance instance in (IEnumerable<Instance>)this.instances.Values)
                 {
                     if (instance.resolvedRef != null)
                         instance.resolvedRef.removeRef(this);
                     if (instance.resolvedStates != null)
                     {
-                        foreach (GameData.Item resolvedState in instance.resolvedStates)
+                        foreach (Item resolvedState in instance.resolvedStates)
                             resolvedState?.removeRef(this);
                     }
                 }
             }
 
-            public GameData.Reference addReference(
+            public Reference addReference(
               string section,
               string id,
               int? v0 = null,
               int? v1 = null,
               int? v2 = null)
             {
-                GameData.Reference reference = this.getReference(section, id);
+                Reference reference = this.getReference(section, id);
                 if (reference == null)
                 {
                     reference = this.getRemovedReference(section, id);
                     if (reference != null)
                         this.removed[section].Remove((object)reference);
                     else
-                        reference = new GameData.Reference(id, (GameData.TripleInt)null);
+                        reference = new Reference(id, (TripleInt)null);
                     this.references[section].Add((object)reference);
                     Desc desc = getDesc(this.type, section);
-                    reference.mod = !(desc.defaultValue is GameData.TripleInt) ? new GameData.TripleInt(0, 0, 0) : new GameData.TripleInt((GameData.TripleInt)desc.defaultValue);
+                    reference.mod = !(desc.defaultValue is TripleInt) ? new TripleInt(0, 0, 0) : new TripleInt((TripleInt)desc.defaultValue);
                     if (v0.HasValue)
                         reference.mod.v0 = v0.Value;
                     if (v1.HasValue)
@@ -556,22 +558,22 @@ namespace Core
                     if (v2.HasValue)
                         reference.mod.v2 = v2.Value;
                     if (reference.original != null && reference.original.Equals(reference.mod))
-                        reference.mod = (GameData.TripleInt)null;
+                        reference.mod = (TripleInt)null;
                     this.RefreshState();
                 }
                 return reference;
             }
 
-            public GameData.Reference getReference(string section, string id)
+            public Reference getReference(string section, string id)
             {
                 if (!this.references.ContainsKey(section))
                     this.references.Add(section, new ArrayList());
-                foreach (GameData.Reference reference in this.references[section])
+                foreach (Reference reference in this.references[section])
                 {
                     if (reference.itemID == id)
                         return reference;
                 }
-                return (GameData.Reference)null;
+                return (Reference)null;
             }
 
             public bool hasReference(string section)
@@ -579,17 +581,17 @@ namespace Core
                 return this.references.ContainsKey(section) && this.references[section].Count > 0;
             }
 
-            public GameData.Reference getRemovedReference(string section, string id)
+            public Reference getRemovedReference(string section, string id)
             {
                 if (this.removed.ContainsKey(section))
                 {
-                    foreach (GameData.Reference reference in this.removed[section])
+                    foreach (Reference reference in this.removed[section])
                     {
                         if (reference.itemID == id)
                             return reference;
                     }
                 }
-                return (GameData.Reference)null;
+                return (Reference)null;
             }
 
             public void RemoveReference(string section, string id)
@@ -597,7 +599,7 @@ namespace Core
                 this.RemoveReference(section, this.getReference(section, id));
             }
 
-            public void RemoveReference(string section, GameData.Reference r)
+            public void RemoveReference(string section, Reference r)
             {
                 if (r == null)
                     return;
@@ -605,7 +607,7 @@ namespace Core
                     r.item.removeRef(this);
                 if (r.original != null)
                 {
-                    r.item = (GameData.Item)null;
+                    r.item = (Item)null;
                     r.mod = Reference.Removed;
                     if (!this.removed.ContainsKey(section))
                         this.removed.Add(section, new ArrayList());
@@ -620,9 +622,9 @@ namespace Core
                 return !this.references.ContainsKey(section) ? 0 : this.references[section].Count;
             }
 
-            public void ResolveReference(GameData source, string id, ref GameData.Item target)
+            public void ResolveReference(GameData source, string id, ref Item target)
             {
-                GameData.Item obj = source.getItem(id);
+                Item obj = source.getItem(id);
                 if (obj != null && target != obj)
                     obj.addRef(this);
                 target = obj;
@@ -632,10 +634,10 @@ namespace Core
             {
                 foreach (KeyValuePair<string, ArrayList> reference1 in this.references)
                 {
-                    foreach (GameData.Reference reference2 in reference1.Value)
+                    foreach (Reference reference2 in reference1.Value)
                         this.ResolveReference(source, reference2.itemID, ref reference2.item);
                 }
-                foreach (GameData.Instance instance in (IEnumerable<GameData.Instance>)this.instances.Values)
+                foreach (Instance instance in (IEnumerable<Instance>)this.instances.Values)
                 {
                     if (instance.GetState() != State.REMOVED && instance.GetState() != State.LOCKED_REMOVED)
                     {
@@ -649,8 +651,8 @@ namespace Core
                                 instance.resolvedStates.Add((object)null);
                             for (int index = 0; index < referenceCount; ++index)
                             {
-                                GameData.Item resolvedState = instance.resolvedStates[index] as GameData.Item;
-                                this.ResolveReference(source, (instance.references["states"][index] as GameData.Reference).itemID, ref resolvedState);
+                                Item resolvedState = instance.resolvedStates[index] as Item;
+                                this.ResolveReference(source, (instance.references["states"][index] as Reference).itemID, ref resolvedState);
                                 instance.resolvedStates[index] = (object)resolvedState;
                             }
                         }
@@ -663,7 +665,7 @@ namespace Core
                 int num = 0;
                 foreach (ArrayList arrayList in (IEnumerable<ArrayList>)this.removed.Values)
                 {
-                    foreach (GameData.Reference reference in arrayList)
+                    foreach (Reference reference in arrayList)
                     {
                         if (reference.locked == null)
                             ++num;
@@ -671,7 +673,7 @@ namespace Core
                 }
                 foreach (ArrayList arrayList in (IEnumerable<ArrayList>)this.references.Values)
                 {
-                    foreach (GameData.Reference reference in arrayList)
+                    foreach (Reference reference in arrayList)
                     {
                         if (reference.mod != null)
                             ++num;
@@ -686,37 +688,37 @@ namespace Core
                     yield return reference.Key;
             }
 
-            public IEnumerable<KeyValuePair<string, GameData.TripleInt>> referenceData(
+            public IEnumerable<KeyValuePair<string, TripleInt>> referenceData(
               string name,
               bool includeDeleted = false)
             {
                 if (this.references.ContainsKey(name))
                 {
-                    foreach (GameData.Reference reference in this.references[name])
-                        yield return new KeyValuePair<string, GameData.TripleInt>(reference.itemID, new GameData.TripleInt(reference.Values));
+                    foreach (Reference reference in this.references[name])
+                        yield return new KeyValuePair<string, TripleInt>(reference.itemID, new TripleInt(reference.Values));
                 }
                 if (includeDeleted && this.removed.ContainsKey(name))
                 {
-                    foreach (GameData.Reference reference in this.removed[name])
-                        yield return new KeyValuePair<string, GameData.TripleInt>(reference.itemID, new GameData.TripleInt(reference.Values));
+                    foreach (Reference reference in this.removed[name])
+                        yield return new KeyValuePair<string, TripleInt>(reference.itemID, new TripleInt(reference.Values));
                 }
             }
 
-            public GameData.Instance GetInstance(string id)
+            public Instance GetInstance(string id)
             {
-                return !this.instances.ContainsKey(id) ? (GameData.Instance)null : this.instances[id];
+                return !this.instances.ContainsKey(id) ? (Instance)null : this.instances[id];
             }
 
-            public IEnumerable<KeyValuePair<string, GameData.Instance>> InstanceData()
+            public IEnumerable<KeyValuePair<string, Instance>> InstanceData()
             {
-                foreach (KeyValuePair<string, GameData.Instance> instance in this.instances)
+                foreach (KeyValuePair<string, Instance> instance in this.instances)
                     yield return instance;
             }
 
             public int countChangedInstances()
             {
                 int num = 0;
-                foreach (GameData.Instance instance in (IEnumerable<GameData.Instance>)this.instances.Values)
+                foreach (Instance instance in (IEnumerable<Instance>)this.instances.Values)
                 {
                     if (instance.GetState() == State.MODIFIED || instance.GetState() == State.OWNED || instance.GetState() == State.REMOVED)
                         ++num;
@@ -735,10 +737,10 @@ namespace Core
 
             public State GetState(string section, string id)
             {
-                GameData.Reference reference = this.getReference(section, id);
+                Reference reference = this.getReference(section, id);
                 if (reference == null)
                 {
-                    GameData.Reference removedReference = this.getRemovedReference(section, id);
+                    Reference removedReference = this.getRemovedReference(section, id);
                     if (removedReference == null)
                         return State.INVALID;
                     return removedReference.locked != null ? State.LOCKED_REMOVED : State.REMOVED;
@@ -779,7 +781,7 @@ namespace Core
                 {
                     foreach (KeyValuePair<string, Desc> keyValuePair in desc[this.type])
                     {
-                        if (!(keyValuePair.Value.defaultValue is GameData.TripleInt) && !(keyValuePair.Value.defaultValue is GameData.Instance) && (keyValuePair.Value.defaultValue != null && !this.ContainsKey(keyValuePair.Key)))
+                        if (!(keyValuePair.Value.defaultValue is TripleInt) && !(keyValuePair.Value.defaultValue is Instance) && (keyValuePair.Value.defaultValue != null && !this.ContainsKey(keyValuePair.Key)))
                         {
                             this[keyValuePair.Key] = keyValuePair.Value.defaultValue;
                             ++num;
@@ -790,7 +792,7 @@ namespace Core
                 {
                     foreach (KeyValuePair<string, Desc> keyValuePair in desc[this.type])
                     {
-                        if (!(keyValuePair.Value.defaultValue is GameData.TripleInt) && !(keyValuePair.Value.defaultValue is GameData.Instance) && (keyValuePair.Value.defaultValue != null && this[keyValuePair.Key].GetType() != keyValuePair.Value.defaultValue.GetType()) && (!(this[keyValuePair.Key] is int) || !keyValuePair.Value.defaultValue.GetType().IsEnum && !(keyValuePair.Value.defaultValue is Color)))
+                        if (!(keyValuePair.Value.defaultValue is TripleInt) && !(keyValuePair.Value.defaultValue is Instance) && (keyValuePair.Value.defaultValue != null && this[keyValuePair.Key].GetType() != keyValuePair.Value.defaultValue.GetType()) && (!(this[keyValuePair.Key] is int) || !keyValuePair.Value.defaultValue.GetType().IsEnum && !(keyValuePair.Value.defaultValue is Color)))
                         {
                             object defaultValue = keyValuePair.Value.defaultValue;
                             object obj = this[keyValuePair.Key];
@@ -852,7 +854,7 @@ namespace Core
                         break;
                 }
                 bool flag1 = false;
-                Dictionary<string, bool> tags = (Dictionary<string, bool>)null;
+                Dictionary<string, bool> tags = null;
                 if (fileVersion >= 15)
                 {
                     ItemLoadFlags itemLoadFlags = (ItemLoadFlags)(file.ReadInt32() & int.MaxValue);
@@ -868,12 +870,11 @@ namespace Core
                     int num = file.ReadInt32();
                     if (num > 0 && filename != "gamedata.base")
                     {
-                        tags = new Dictionary<string, bool>();
+                        tags = new Dictionary<string, bool>(num);
                         for (int index1 = 0; index1 < num; ++index1)
                         {
                             string index2 = readString(file);
-                            bool flag2 = file.ReadBoolean();
-                            tags[index2] = flag2;
+                            tags[index2] = file.ReadBoolean();
                         }
                     }
                 }
@@ -930,24 +931,21 @@ namespace Core
                     for (int index = 0; index < num3; ++index)
                     {
                         string key = readString(file);
-                        GameData.vec vec = new GameData.vec();
-                        vec.x = file.ReadSingle();
-                        vec.y = file.ReadSingle();
-                        vec.z = file.ReadSingle();
+                        vec vec = new vec(x: file.ReadSingle(),
+                            y: file.ReadSingle(),
+                            z: file.ReadSingle());
+
                         if (this.tagged(tags, key))
-                            sortedList[key] = (object)vec;
+                            sortedList[key] = vec;
                     }
                     int num5 = file.ReadInt32();
                     for (int index = 0; index < num5; ++index)
                     {
                         string key = readString(file);
-                        GameData.quat quat = new GameData.quat();
-                        quat.x = file.ReadSingle();
-                        quat.y = file.ReadSingle();
-                        quat.z = file.ReadSingle();
-                        quat.w = file.ReadSingle();
+                        quat quat = new quat(x: file.ReadSingle(), y: file.ReadSingle(), z: file.ReadSingle(), w: file.ReadSingle());
+
                         if (this.tagged(tags, key))
-                            sortedList[key] = (object)quat;
+                            sortedList[key] = quat;
                     }
                 }
                 int num6 = file.ReadInt32();
@@ -956,7 +954,7 @@ namespace Core
                     string key = readString(file);
                     string str = readString(file);
                     if ((!sortedList.ContainsKey(key) || sortedList[key] is string) && this.tagged(tags, key))
-                        sortedList[key] = (object)str;
+                        sortedList[key] = str;
                 }
                 int num7 = file.ReadInt32();
                 for (int index = 0; index < num7; ++index)
@@ -964,7 +962,7 @@ namespace Core
                     string key = readString(file);
                     string f = readString(file);
                     if (this.tagged(tags, key))
-                        sortedList[key] = (object)new GameData.File(f);
+                        sortedList[key] = f;
                 }
                 int num8 = file.ReadInt32();
                 for (int index1 = 0; index1 < num8; ++index1)
@@ -980,7 +978,7 @@ namespace Core
                         else
                         {
                             string id = readString(file);
-                            GameData.TripleInt tripleInt = new GameData.TripleInt(0, 0, 0);
+                            TripleInt tripleInt = new TripleInt(0, 0, 0);
                             tripleInt.v0 = file.ReadInt32();
                             if (fileVersion >= 10)
                             {
@@ -990,12 +988,12 @@ namespace Core
                             if (tags == null || tags.ContainsKey("-ref-" + id))
                             {
                                 bool flag2 = tags != null && !tags["-ref-" + id] || tripleInt.v2 == int.MaxValue;
-                                GameData.Reference reference = this.getReference(section, id);
+                                Reference reference = this.getReference(section, id);
                                 if (!flag2 || reference != null)
                                 {
                                     if (reference == null)
                                     {
-                                        reference = new GameData.Reference(id, (GameData.TripleInt)null);
+                                        reference = new Reference(id, (TripleInt)null);
                                         this.references[section].Add((object)reference);
                                     }
                                     else if (flag2)
@@ -1046,7 +1044,7 @@ namespace Core
                         str = num3.ToString() + "-" + filename;
                     }
                     string index2 = str;
-                    GameData.Instance instance1 = this.GetInstance(index2) ?? new GameData.Instance();
+                    Instance instance1 = this.GetInstance(index2) ?? new Instance();
                     instance1["ref"] = fileVersion < 8 ? (object)"" : (object)readString(file);
                     instance1["x"] = (object)file.ReadSingle();
                     instance1["y"] = (object)file.ReadSingle();
@@ -1062,7 +1060,7 @@ namespace Core
                         {
                             for (int index3 = 0; index3 < num5; ++index3)
                             {
-                                GameData.Instance instance2 = instance1;
+                                Instance instance2 = instance1;
                                 num3 = file.ReadInt32();
                                 string id = num3.ToString() + "-" + filename + "-INGAME";
                                 int? v0 = new int?();
@@ -1110,10 +1108,10 @@ namespace Core
                         }
                         foreach (KeyValuePair<string, ArrayList> reference1 in this.references)
                         {
-                            foreach (GameData.Reference reference2 in reference1.Value)
+                            foreach (Reference reference2 in reference1.Value)
                             {
                                 if (reference2.original != null && reference2.original.Equals(reference2.mod))
-                                    reference2.mod = (GameData.TripleInt)null;
+                                    reference2.mod = (TripleInt)null;
                             }
                         }
                     }

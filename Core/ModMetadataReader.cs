@@ -43,8 +43,8 @@ namespace Core
             header.Version = file.ReadInt32();
             header.Author = Read(file);
             header.Description = Read(file);
-            header.Dependencies = new List<string>((IEnumerable<string>)Read(file).Split(',').Where(m => !Constants.SkippableMods.Contains(m.ToLower())));
-            header.Referenced = new List<string>((IEnumerable<string>)Read(file).Split(',').Where(m => !Constants.SkippableMods.Contains(m.ToLower())));
+            header.Dependencies = new List<string>((IEnumerable<string>)Read(file).Split(',').Where(m => !Constants.BaseMods.Contains(m.ToLower())));
+            header.Referenced = new List<string>((IEnumerable<string>)Read(file).Split(',').Where(m => !Constants.BaseMods.Contains(m.ToLower())));
             if (header.Dependencies.Count == 1 && header.Dependencies[0] == "")
                 header.Dependencies.Clear();
             if (header.Referenced.Count == 1 && header.Referenced[0] == "")

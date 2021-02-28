@@ -75,7 +75,7 @@ namespace Core.Models
         /// </summary>
         public List<string> References = new List<string>();
 
-        public IEnumerable<string> AllDependencies => Dependencies.Concat(References).Where(c => !Constants.SkippableMods.Contains(c.ToLower()));
+        public IEnumerable<string> AllDependencies => Dependencies.Concat(References).Where(c => !Constants.BaseMods.Contains(c.ToLower()));
         public bool OrderedAutomatically { get;  set; }
     }
 
