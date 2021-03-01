@@ -37,15 +37,13 @@ namespace Core
 
         public static string GetCurrentApplicationPath() => Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         public static object sync = new object();
-        public static ConcurrentDictionary<string, ModListChanges> conflictIndex = new ConcurrentDictionary<string, ModListChanges>();
-        public static ConcurrentDictionary<string, DetailChanges> DetailIndex = new ConcurrentDictionary<string, DetailChanges>();
+        public static Dictionary<string, ModListChanges> conflictIndex = new Dictionary<string, ModListChanges>();
+        public static Dictionary<string, DetailChanges> DetailIndex = new Dictionary<string, DetailChanges>();
         public static Dictionary<string, List<ItemType>> listOfTags = new Dictionary<string, List<ItemType>>();
 
         public static void AddToList(string key, ItemType type, string name, GameChange change)
         {
-            Func<List<GameChange>> ObjectC = () => new List<GameChange>() { change };
-
-            var hash = new Random($"{type}{name}{key}".GetHashCode()).Next().ToString();
+            var hash = $"{type}{name}{key}".GetHashCode().ToString("x2");
 
             lock (sync)
             {
@@ -59,26 +57,19 @@ namespace Core
                     listOfTags.Add(change.ModName, new List<ItemType> { type });
                 }
             }
+            if (!conflictIndex.ContainsKey(hash))
+            {
+                conflictIndex.Add(hash, new ModListChanges(new List<string>() { change.ModName }, new List<GameChange>() { change }));
+            }
+            else
+            {
+                if (!conflictIndex[hash].Mod.Any(q => q == change.ModName)) conflictIndex[hash].Mod.Add(change.ModName);
+                conflictIndex[hash].ChangeList.Add(change);
+            }
 
-            conflictIndex.AddOrUpdate(hash,
-              addValue: new ModListChanges { Mod = new ConcurrentStack<string>(new List<string> { change.ModName }), ChangeList = new ConcurrentStack<GameChange>(new ConcurrentStack<GameChange>(ObjectC())) },
-              updateValueFactory: (val, value) =>
-              {
-                  var current = conflictIndex.GetOrAdd(hash, value);
+            if (!DetailIndex.ContainsKey(hash))
+                DetailIndex.Add(hash, new DetailChanges(type, name, key));
 
-                  if (!current.Mod.Any(q => q == change.ModName))
-                      current.Mod.Push(change.ModName);
-
-                  current.ChangeList.Push(change);
-                  return current;
-              });
-
-            DetailIndex.AddOrUpdate(hash,
-              addValue: new DetailChanges() { Name = name, PropertyKey = key, Type = type.ToString() },
-              updateValueFactory: (val, value) =>
-              {
-                  return DetailIndex.GetOrAdd(hash, value);
-              });
         }
 
     }

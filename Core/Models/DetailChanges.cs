@@ -1,9 +1,18 @@
-﻿namespace Core.Models
+﻿using Core.Kenshi_Data.Enums;
+
+namespace Core.Models
 {
-    public class DetailChanges
+    public readonly struct DetailChanges
     {
-        public string Type { get; set; }
-        public string Name { get; set; }
-        public string PropertyKey { get; set; }
+        public DetailChanges(ItemType type, string name, string propertyKey)
+        {
+            Type = type;
+            Name = name;
+            PropertyKey = propertyKey;
+        }
+
+        public ItemType Type { get; }
+        public string Name { get; }
+        public string PropertyKey { get; }
     }
 }

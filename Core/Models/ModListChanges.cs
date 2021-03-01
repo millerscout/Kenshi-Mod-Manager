@@ -1,10 +1,17 @@
 ﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace Core.Models
 {
-    public class ModListChanges
+    public struct ModListChanges
     {
-        public ConcurrentStack<string> Mod { get; set; }
-        public ConcurrentStack<GameChange> ChangeList { get; set; }
+        public ModListChanges(List<string> mod, List<GameChange> changeList)
+        {
+            Mod = mod;
+            ChangeList = changeList;
+        }
+
+        public List<string> Mod { get; }
+        public List<GameChange> ChangeList { get; }
     }
 }
