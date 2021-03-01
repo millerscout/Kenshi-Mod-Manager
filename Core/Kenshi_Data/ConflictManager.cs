@@ -18,10 +18,7 @@ namespace Core
         public List<string> Modlist = new List<string>();
         public List<GameData> ListOfGameData = new List<GameData>();
         public ConcurrentDictionary<string, ConcurrentDictionary<string, ConcurrentDictionary<string, List<GameChange>>>> Changes = new ConcurrentDictionary<string, ConcurrentDictionary<string, ConcurrentDictionary<string, List<GameChange>>>>();
-        public ConcurrentDictionary<string, ModListChanges> conflictIndex = new ConcurrentDictionary<string, ModListChanges>();
-        public ConcurrentDictionary<string, DetailChanges> DetailIndex = new ConcurrentDictionary<string, DetailChanges>();
-        public object sync = new object();
-        public Dictionary<string, List<ItemType>> listOfTags = new Dictionary<string, List<ItemType>>();
+
 
         public ItemFilter Filter { get; set; }
 
@@ -33,7 +30,7 @@ namespace Core
                 if (!this.Modlist.Any(c => c == file))
                     this.Modlist.Add(file);
             }
-            gd.Load(file, mode);
+            gd.Load(file, mode, ListOfGameData);
         }
 
         public void LoadBaseChanges(GameData mod)
@@ -71,11 +68,11 @@ namespace Core
                                     GameData.Item obj2 = mod.getItem(keyValuePair.Key);
                                     GameChange changeData;
                                     if (state2 == State.REMOVED)
-                                        changeData = new GameChange { State = state2.ToString(), ModName = Path.GetFileName(mod.Filename), Value = keyValuePair.Value };
+                                        changeData = new GameChange(state2, mod.Filename, keyValuePair.Value);
                                     else
                                         continue;
 
-                                    AddToList(keyValuePair.Key, obj1.type, obj1.Name, changeData);
+                                    Helpers.AddToList(keyValuePair.Key, obj1.type, obj1.Name, changeData);
 
                                     continue;
                             }
@@ -115,62 +112,6 @@ namespace Core
             });
 
             nodes.Clear();
-        }
-
-        public void LoadChanges()
-        {
-            foreach (var mod in ListOfGameData)
-            {
-                foreach (var obj in mod.items.Values)
-                {
-                    Parallel.ForEach(obj.modData, (item) =>
-                    {
-                        var change = new GameChange { State = obj.GetState().ToString(), ModName = Path.GetFileName(mod.Filename), Value = item.Value };
-                        AddToList(item.Key, obj.type, obj.Name, change);
-                    });
-                }
-                mod.items.Clear();
-            }
-        }
-
-        public void AddToList(string key, ItemType type, string name, GameChange change)
-        {
-            Func<List<GameChange>> ObjectC = () => new List<GameChange>() { change };
-
-            var hash = new Random($"{type}{name}{key}".GetHashCode()).Next().ToString();
-
-            lock (sync)
-            {
-                if (listOfTags.ContainsKey(change.ModName))
-                {
-                    if (!listOfTags[change.ModName].Any(c => c == type))
-                        listOfTags[change.ModName].Add(type);
-                }
-                else
-                {
-                    listOfTags.Add(change.ModName, new List<ItemType> { type });
-                }
-            }
-
-            conflictIndex.AddOrUpdate(hash,
-              addValue: new ModListChanges { Mod = new ConcurrentStack<string>(new List<string> { change.ModName }), ChangeList = new ConcurrentStack<GameChange>(new ConcurrentStack<GameChange>(ObjectC())) },
-              updateValueFactory: (val, value) =>
-              {
-                  var current = conflictIndex.GetOrAdd(hash, value);
-
-                  if (!current.Mod.Any(q => q == change.ModName))
-                      current.Mod.Push(change.ModName);
-
-                  current.ChangeList.Push(change);
-                  return current;
-              });
-
-            DetailIndex.AddOrUpdate(hash,
-              addValue: new DetailChanges() { Name = name, PropertyKey = key, Type = type.ToString() },
-              updateValueFactory: (val, value) =>
-              {
-                  return DetailIndex.GetOrAdd(hash, value);
-              });
         }
     }
 }

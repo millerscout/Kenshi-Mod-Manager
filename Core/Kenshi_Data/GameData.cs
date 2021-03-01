@@ -1,6 +1,7 @@
 ﻿using Core;
 using Core.Kenshi_Data.Enums;
 using Core.Kenshi_Data.Model;
+using Core.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -174,7 +175,7 @@ namespace Core
             return this.items.TryGetValue(id, out obj) ? obj : (Item)null;
         }
 
-        public bool Load(string filename, ModMode mode)
+        public bool Load(string filename, ModMode mode, List<GameData> listOfGameData)
         {
             if (!System.IO.File.Exists(filename))
                 return false;
@@ -194,7 +195,7 @@ namespace Core
                     return false;
                 }
                 memoryStream.Position = 0L;
-                using (BinaryReader file = new BinaryReader((Stream)memoryStream))
+                using (BinaryReader file = new BinaryReader(memoryStream))
                 {
                     try
                     {
@@ -215,7 +216,7 @@ namespace Core
                             ItemType type = (ItemType)file.ReadInt32();
                             int num2 = file.ReadInt32();
                             string name = readString(file);
-                            string str = fileVersion >= 7 ? readString(file) : num2.ToString() + "-" + fileName;
+                            string str = fileVersion >= 7 ? readString(file) : $"{num2} - {fileName}";
                             Item obj = this.getItem(str);
                             bool newItem = obj == null;
                             if (obj == null)
@@ -224,7 +225,7 @@ namespace Core
                                 this.items.Add(str, obj);
                             }
 
-                            int num3 = obj.Load(file, name, mode, fileVersion, fileName, newItem) ? 1 : 0;
+                            var num3 = obj.Load(file, name, mode, fileVersion, fileName, newItem, obj) ? 1 : 0;
                             if (obj.GetState() == State.REMOVED)
                             {
                                 obj.RefreshState();
@@ -233,6 +234,7 @@ namespace Core
                                 else
                                     obj.flagDeleted();
                             }
+                            
                         }
                     }
                     catch (Exception ex)
@@ -836,9 +838,11 @@ namespace Core
               ModMode mode,
               int fileVersion,
               string filename,
-              bool newItem)
+              bool newItem,
+              Item obj)
             {
-                SortedList<string, object> sortedList = (SortedList<string, object>)null;
+
+                SortedList<string, object> sortedList = null;
                 switch (mode)
                 {
                     case ModMode.BASE:
@@ -903,6 +907,7 @@ namespace Core
                     if (this.tagged(tags, key))
                     {
                         sortedList[key] = (object)flag2;
+                        Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, flag2));
                     }
                 }
                 int num2 = file.ReadInt32();
@@ -913,6 +918,7 @@ namespace Core
                     if (this.tagged(tags, key))
                     {
                         sortedList[key] = (object)num3;
+                        Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, num3));
                     }
                 }
                 int num4 = file.ReadInt32();
@@ -923,6 +929,7 @@ namespace Core
                     if (this.tagged(tags, key))
                     {
                         sortedList[key] = (object)num3;
+                        Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, num3));
                     }
                 }
                 if (fileVersion > 8)
@@ -936,7 +943,10 @@ namespace Core
                             z: file.ReadSingle());
 
                         if (this.tagged(tags, key))
+                        {
                             sortedList[key] = vec;
+                            Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, vec));
+                        }
                     }
                     int num5 = file.ReadInt32();
                     for (int index = 0; index < num5; ++index)
@@ -945,7 +955,10 @@ namespace Core
                         quat quat = new quat(x: file.ReadSingle(), y: file.ReadSingle(), z: file.ReadSingle(), w: file.ReadSingle());
 
                         if (this.tagged(tags, key))
+                        {
                             sortedList[key] = quat;
+                            Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, quat));
+                        }
                     }
                 }
                 int num6 = file.ReadInt32();
@@ -954,7 +967,10 @@ namespace Core
                     string key = readString(file);
                     string str = readString(file);
                     if ((!sortedList.ContainsKey(key) || sortedList[key] is string) && this.tagged(tags, key))
+                    {
                         sortedList[key] = str;
+                        Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, str));
+                    }
                 }
                 int num7 = file.ReadInt32();
                 for (int index = 0; index < num7; ++index)
@@ -962,7 +978,10 @@ namespace Core
                     string key = readString(file);
                     string f = readString(file);
                     if (this.tagged(tags, key))
+                    {
                         sortedList[key] = f;
+                        Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, f));
+                    }
                 }
                 int num8 = file.ReadInt32();
                 for (int index1 = 0; index1 < num8; ++index1)

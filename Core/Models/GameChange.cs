@@ -1,9 +1,18 @@
-﻿namespace Core.Models
+﻿using Core.Kenshi_Data.Enums;
+
+namespace Core.Models
 {
-    public class GameChange
+    public readonly struct GameChange
     {
-        public string State { get; set; }
-        public string ModName { get; set; }
-        public object Value { get; set; }
+        public GameChange(State state, string modName, object value)
+        {
+            State = state;
+            ModName = modName;
+            Value = value;
+        }
+
+        public State State { get; }
+        public string ModName { get; }
+        public object Value { get; }
     }
 }
