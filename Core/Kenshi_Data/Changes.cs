@@ -14,8 +14,6 @@ namespace Core
 
         public void Add(Changes n)
         {
-            if (this.Children == null)
-                this.Children = new List<Changes>();
             this.Children.Add(n);
             n.Parent = this;
         }
@@ -38,19 +36,19 @@ namespace Core
     }
     public class ChangeData : Changes
     {
-        public ChangeType Type { get; set; }
+        public ChangeType Type { get; }
 
-        public object OldValue { get; set; }
+        public object OldValue { get; }
 
-        public object NewValue { get; set; }
+        public object NewValue { get; }
 
-        public string Text { get; set; }
+        public string Text { get; }
 
-        public string Key { get; set; }
+        public string Key { get; }
 
-        public Color Colour { get; set; }
+        public Color Colour { get; }
 
-        public string Section { get; set; }
+        public string Section { get; }
 
         public ChangeData(
           ChangeType type,
@@ -68,16 +66,17 @@ namespace Core
             this.Colour = GetStateColor(state);
         }
 
-        public ChangeData(ChangeType type, string key, State state)
+        public ChangeData(ChangeType type, string key, State state, string text)
         {
             this.Type = type;
             this.Key = key;
             this.Colour = GetStateColor(state);
+            this.Text = text;
         }
 
         public override string ToString()
         {
-            return this.OldValue != null && this.NewValue != null ? "[" + this.OldValue.ToString() + "] => [" + this.NewValue.ToString() + "]" : (this.NewValue != null ? "[" + this.NewValue.ToString() + "]" : "");
+            return this.OldValue != null && this.NewValue != null ? $"[{this.OldValue}] => [{this.NewValue}]" : (this.NewValue != null ? $"[{this.NewValue}]" : "");
         }
 
         public static Color GetStateColor(State state)

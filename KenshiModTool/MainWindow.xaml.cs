@@ -36,8 +36,8 @@ namespace KenshiModTool
         public ObservableCollection<Mod> ModList = new ObservableCollection<Mod>();
         public Mod[] SearchList { get; set; } = new Mod[0];
         public int currentIndexSearch { get; set; } = 0;
-        public ConcurrentDictionary<string, ModListChanges> ConflictIndex = new ConcurrentDictionary<string, ModListChanges>();
-        public ConcurrentDictionary<string, DetailChanges> DetailIndex = new ConcurrentDictionary<string, DetailChanges>();
+        public Dictionary<string, ModListChanges> ConflictIndex = new Dictionary<string, ModListChanges>();
+        public Dictionary<string, DetailChanges> DetailIndex = new Dictionary<string, DetailChanges>();
         public bool ShowConflicts { get; set; } = false;
 
         public System.Timers.Timer updateTimer = new System.Timers.Timer(TimeSpan.FromHours(12).TotalMilliseconds);
@@ -430,8 +430,8 @@ namespace KenshiModTool
                         {
                             var item = ConflictIndex[key].ChangeList.ElementAt(i);
 
-                            var isRemoved = item.State == "REMOVED";
-                            var isOwned = item.State == "OWNED";
+                            var isRemoved = item.State == State.REMOVED;
+                            var isOwned = item.State == State.OWNED;
                             var priority = i == ConflictIndex[key].ChangeList.Count - 1 && !isRemoved ? " <<<< This Value will be used" : "";
                             var value = isRemoved ? "" : $"- Value: {item.Value}";
                             paragraph.Inlines.Add($"{item.State} {value} - Mod: {item.ModName} {priority} {Environment.NewLine}");
@@ -763,7 +763,6 @@ namespace KenshiModTool
                 ExecuteWorker((object sender, DoWorkEventArgs args) =>
                 {
 
-                    var changes = new Dictionary<string, List<Dictionary<string, string>>>();
                     var cm = new ConflictManager();
 
                     var ordered = ModList.Where(c => c.Active).OrderBy(c => c.Order);
@@ -801,31 +800,8 @@ namespace KenshiModTool
                         (sender as BackgroundWorker).ReportProgress(current.Percent(length));
                     }
 
-                    cm.LoadChanges();
-
-                    //if (!Directory.Exists("reports"))
-                    //    Directory.CreateDirectory("reports");
-
-                    //var filename = Constants.modChangesFileName;
-                    //var detailsFilename = Constants.DetailChangesFileName;
-
-
-                    //Console.WriteLine("writing reports");
-                    //var list = new Task[] {
-                    //Task.Run(() => { File.WriteAllText(filename, JsonConvert.SerializeObject(cm.conflictIndex)); }),
-                    //Task.Run(() => { File.WriteAllText(detailsFilename, JsonConvert.SerializeObject(cm.DetailIndex)); }),
-                    ////Task.Run(() => {
-                    ////    foreach (var item in cm.listOfTags)
-                    ////    {
-                    ////        File.WriteAllText($"reports/{item.Key}", JsonConvert.SerializeObject(item.Value.Select(c=>c.ToString())));
-                    ////    }
-                    ////})
-                    //};
-
-                    //Task.WaitAll(list);
-
-                    ConflictIndex = cm.conflictIndex;
-                    DetailIndex = cm.DetailIndex;
+                    ConflictIndex = Helpers.conflictIndex;
+                    DetailIndex = Helpers.DetailIndex;
 
                     Parallel.ForEach(ConflictIndex.Keys, (key) =>
                     {

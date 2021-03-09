@@ -1,7 +1,10 @@
 ﻿using Core;
 using Core.Kenshi_Data.Enums;
+using Core.Models;
+using MMDHelpers.CSharp.PerformanceChecks;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -13,59 +16,102 @@ namespace TestProject
 {
     internal class Program
     {
+
         public static void Main(string[] args)
         {
-            //bootingupMods();
-            conflict();
-
-            var t = ModMetadataReader.LoadMetadata(@"C:\Program Files (x86)\Steam\steamapps\common\Kenshi\Mods\AidKitsMoreCharges\AidKitsMoreCharges.mod");
-
-            var readStream = new FileStream(@"C:\Program Files (x86)\Steam\steamapps\common\Kenshi\Mods\AidKitsMoreCharges\AidKitsMoreCharges.mod", FileMode.Open);
-            BinaryReader file = new BinaryReader(readStream);
-            int num1 = file.ReadInt32();
-
-            for (int index = 0; index < num1; ++index)
+            Ruler.StartMeasuring(false);
+            Dictionary<string, ModListChanges> ConflictIndex = new Dictionary<string, ModListChanges>();
+            Dictionary<string, DetailChanges> DetailIndex = new Dictionary<string, DetailChanges>();
+            LoadService.Setup();
+            var ModList = new List<Mod>(1000);
+            foreach (var mod in LoadService.GetListOfMods())
             {
-                file.ReadInt32();
-                //itemType type = (itemType)file.ReadInt32();
-                int num2 = file.ReadInt32();
-                string name = readString(file);
-                Console.WriteLine(name);
-                Console.WriteLine("---------------");
-                //string str = fileVersion >= 7 ? GameData.readString(file) : num2.ToString() + "-" + fileName;
-
-                //GameData.Item obj = getItem(str);
-
-                //bool newItem = obj == null;
-                //if (obj == null)
+                //if (mod.FileName.Contains("test"))
                 //{
-                //    obj = new GameData.Item(type, str);
-                //    this.items.Add(str, obj);
+                    mod.setActive(true);
                 //}
-                //if (obj.type != type)
-                //    Console.WriteLine("err");
-                //int num3 = obj.load(file, name, mode, fileVersion, fileName, newItem) ? 1 : 0;
-                //if (obj.getState() == State.REMOVED)
-                //{
-                //    obj.refreshState();
-                //    if (mode == ModMode.BASE || obj.getState() == State.OWNED && !false)
-                //        this.items.Remove(obj.stringID);
-                //    else
-                //        obj.flagDeleted();
+                //else {
+                //    mod.setActive(false);
                 //}
-                //if (num3 == 0 & skipMissing) { }
-                //this.items.Remove(obj.stringID);
+                
+                ModList.Add(mod);
             }
-            string readString(BinaryReader file)
+
+            if (ModList.Where(c => c.Active).Count() == 0)
             {
-                int count = file.ReadInt32();
-
-                if (count <= 0)
-                    return string.Empty;
-                var arr = new byte[count];
-                file.Read(arr, 0, count);
-                return Encoding.UTF8.GetString(arr, 0, count);
+                //MessageBox.Show("you should have mods to check conflicts");
+                return;
             }
+            var current = 0;
+            var length = 0;
+
+            //ExecuteWorker((object sender, DoWorkEventArgs args) =>
+            //{
+
+            var cm = new ConflictManager();
+
+            var ordered = ModList.Where(c => c.Active).OrderBy(c => c.Order);
+            length = ordered.Count() * 2;
+            var baseGameData = new GameData();
+
+            foreach (var item in Constants.BaseMods)
+            {
+                cm.LoadMods(Path.Combine(LoadService.config.GamePath, "data", item), ModMode.BASE, baseGameData);
+            }
+
+            foreach (var mod in ordered)
+            {
+                cm.LoadMods(mod.FilePath, ModMode.ACTIVE, baseGameData);
+                current++;
+                //(sender as BackgroundWorker).ReportProgress(current.Percent(length));
+
+            }
+
+            baseGameData.resolveAllReferences();
+
+            cm.LoadBaseForConflicts(baseGameData);
+
+            baseGameData = null;
+
+            foreach (var mod in ordered)
+            {
+                Console.WriteLine($"{mod.DisplayName} Loading...");
+                var gd = new GameData();
+
+                cm.LoadMods(mod.FilePath, ModMode.ACTIVE, gd);
+
+                cm.ListOfGameData.Add(gd);
+                current++;
+                //(sender as BackgroundWorker).ReportProgress(current.Percent(length));
+            }
+
+            //cm.LoadChanges();
+
+            ConflictIndex = Helpers.conflictIndex;
+            DetailIndex = Helpers.DetailIndex;
+
+            Parallel.ForEach(ConflictIndex.Keys, (key) =>
+            {
+
+                if (ConflictIndex[key].Mod.Count == 1) return;
+                foreach (var modName in ConflictIndex[key].Mod)
+                {
+                    var mod = ModList.FirstOrDefault(c => c.FileName.GetHashCode() == modName.GetHashCode());
+                    if (mod != null && !mod.Conflicts.Any(q => q == key))
+                    {
+                        mod.Conflicts.Push(key);
+                    }
+                    current++;
+                    //(sender as BackgroundWorker).ReportProgress(current.Percent(length));
+                }
+            });
+
+            //    UpdateListView();
+
+            //});
+            Ruler.StopMeasuring();
+            Ruler.Show(true);
+
         }
 
         public static void bootingupMods()
@@ -141,8 +187,6 @@ namespace TestProject
                 cm.ListOfGameData.Add(gd);
             }
 
-            cm.LoadChanges();
-
             stopwatch.Stop();
             Console.WriteLine(stopwatch.ElapsedMilliseconds / 1000 + " Seconds Elapsed");
 
@@ -151,14 +195,8 @@ namespace TestProject
 
             Console.WriteLine("writing reports");
             var list = new Task[] {
-                Task.Run(() => { File.WriteAllText(filename, JsonConvert.SerializeObject(cm.conflictIndex)); }),
-                Task.Run(() => { File.WriteAllText(detailsFilename, JsonConvert.SerializeObject(cm.DetailIndex)); }),
-                Task.Run(() => {
-                    foreach (var item in cm.listOfTags)
-                    {
-                        File.WriteAllText($"reports/{item.Key}", JsonConvert.SerializeObject(item.Value.Select(c=>c.ToString())));
-                    }
-                })
+                Task.Run(() => { File.WriteAllText(filename, JsonConvert.SerializeObject(Helpers.conflictIndex)); }),
+                Task.Run(() => { File.WriteAllText(detailsFilename, JsonConvert.SerializeObject(Helpers.DetailIndex)); })
             };
 
             Task.WaitAll(list);

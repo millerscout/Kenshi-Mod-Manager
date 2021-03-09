@@ -181,10 +181,7 @@ namespace Core
                     if (IsSymbolic(item)) continue;
 
                     var modName = Directory.GetFiles(item, "*.mod").FirstOrDefault() ?? item;
-                    var mod = new Mod
-                    {
-                        FilePath = modName
-                    };
+                    var mod = new Mod(modName);
 
                     try
                     {

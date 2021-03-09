@@ -53,7 +53,7 @@ namespace Core
 
             public override string ToString()
             {
-                return string.Format("{0} {1} {2}", this.x, (object)this.y, (object)this.z);
+                return string.Format("{0} {1} {2}", this.x, y, z);
             }
         }
 
@@ -61,10 +61,10 @@ namespace Core
 
         public void resolveAllReferences()
         {
-            Parallel.ForEach((IEnumerable<KeyValuePair<string, Item>>)this.items, new ParallelOptions()
+            Parallel.ForEach(items, new ParallelOptions()
             {
                 MaxDegreeOfParallelism = Environment.ProcessorCount
-            }, (Action<KeyValuePair<string, Item>>)(item => item.Value.resolveReferences(this)));
+            }, item => item.Value.resolveReferences(this));
         }
 
         public static Desc getDesc(ItemType type, string name)
@@ -81,7 +81,7 @@ namespace Core
             public TripleInt mod;
             public TripleInt locked;
 
-            public Reference(string id, TripleInt value = null)
+            public Reference(string id, TripleInt value = default(TripleInt))
             {
                 this.sID = id;
                 this.original = value;
@@ -99,18 +99,18 @@ namespace Core
             {
                 get
                 {
-                    if (this.locked != null)
+                    if (!this.locked.Equals(default))
                         return this.locked;
-                    return this.mod == null ? this.original : this.mod;
+                    return this.mod.Equals(default) ? this.original : this.mod;
                 }
             }
         }
 
-        public class TripleInt
+        public struct TripleInt
         {
-            public int v0;
-            public int v1;
-            public int v2;
+            public int v0 { get; }
+            public int v1 { get; }
+            public int v2 { get; }
 
             public TripleInt(TripleInt v)
             {
@@ -128,7 +128,7 @@ namespace Core
 
             public bool Equals(TripleInt b)
             {
-                return b != null && this.v0 == b.v0 && this.v1 == b.v1 && this.v2 == b.v2;
+                return this.v0 == b.v0 && this.v1 == b.v1 && this.v2 == b.v2;
             }
         }
 
@@ -171,8 +171,8 @@ namespace Core
 
         public Item getItem(string id)
         {
-            Item obj = (Item)null;
-            return this.items.TryGetValue(id, out obj) ? obj : (Item)null;
+            Item obj = null;
+            return this.items.TryGetValue(id, out obj) ? obj : null;
         }
 
         public bool Load(string filename, ModMode mode, List<GameData> listOfGameData)
@@ -187,8 +187,8 @@ namespace Core
             {
                 try
                 {
-                    using (Stream stream = (Stream)System.IO.File.OpenRead(filename))
-                        stream.CopyTo((Stream)memoryStream);
+                    using (Stream stream = System.IO.File.OpenRead(filename))
+                        stream.CopyTo(memoryStream);
                 }
                 catch (Exception ex)
                 {
@@ -234,11 +234,12 @@ namespace Core
                                 else
                                     obj.flagDeleted();
                             }
-                            
+
                         }
                     }
                     catch (Exception ex)
                     {
+                        Console.WriteLine(ex);
                         Console.WriteLine("Could't Load the mod :(");
                         return false;
                     }
@@ -265,7 +266,7 @@ namespace Core
             {
                 this.modData.Clear();
                 if (this.baseName != null)
-                    this.modName = (string)null;
+                    this.modName = null;
                 else
                     this.SetMissingValues();
                 foreach (KeyValuePair<string, ArrayList> reference1 in this.references)
@@ -273,9 +274,9 @@ namespace Core
                     List<Reference> referenceList = new List<Reference>();
                     foreach (Reference reference2 in reference1.Value)
                     {
-                        if (reference2.original == null && reference2.locked == null)
+                        if (reference2.original.Equals(default) && reference2.locked.Equals(default))
                             referenceList.Add(reference2);
-                        reference2.mod = (TripleInt)null;
+                        reference2.mod = default;
                     }
                     foreach (Reference r in referenceList)
                         this.RemoveReference(reference1.Key, r);
@@ -284,10 +285,10 @@ namespace Core
                 {
                     foreach (Reference reference in keyValuePair.Value)
                     {
-                        reference.mod = (TripleInt)null;
+                        reference.mod = default;
                         if (reference.item != null)
                             ++reference.item.refCount;
-                        this.references[keyValuePair.Key].Add((object)reference);
+                        this.references[keyValuePair.Key].Add(reference);
                     }
                 }
                 this.removed.Clear();
@@ -326,7 +327,7 @@ namespace Core
                     }
                     set
                     {
-                        this.item[s] = (object)value;
+                        this.item[s] = value;
                     }
                 }
             }
@@ -374,7 +375,7 @@ namespace Core
                 }
                 set
                 {
-                    this.modName = this.baseName == value ? (string)null : value;
+                    this.modName = this.baseName == value ? null : value;
                     this.RefreshState();
                 }
             }
@@ -423,7 +424,7 @@ namespace Core
 
             public object OriginalValue(string key)
             {
-                return !this.data.ContainsKey(key) ? (object)null : this.data[key];
+                return !this.data.ContainsKey(key) ? null : this.data[key];
             }
 
             public string OriginalName
@@ -457,7 +458,7 @@ namespace Core
                             return;
                     }
                 }
-                foreach (Instance instance in (IEnumerable<Instance>)from.instances.Values)
+                foreach (Instance instance in from.instances.Values)
                 {
                     if (instance.resolvedRef == this)
                         return;
@@ -488,7 +489,7 @@ namespace Core
                         }
                     }
                 }
-                foreach (Instance instance in (IEnumerable<Instance>)from.instances.Values)
+                foreach (Instance instance in from.instances.Values)
                 {
                     if (instance.resolvedRef == this)
                     {
@@ -520,10 +521,10 @@ namespace Core
                     {
                         if (reference.item != null)
                             reference.item.removeRef(this);
-                        reference.item = (Item)null;
+                        reference.item = null;
                     }
                 }
-                foreach (Instance instance in (IEnumerable<Instance>)this.instances.Values)
+                foreach (Instance instance in instances.Values)
                 {
                     if (instance.resolvedRef != null)
                         instance.resolvedRef.removeRef(this);
@@ -537,30 +538,22 @@ namespace Core
 
             public Reference addReference(
               string section,
-              string id,
-              int? v0 = null,
-              int? v1 = null,
-              int? v2 = null)
+              string id)
             {
                 Reference reference = this.getReference(section, id);
                 if (reference == null)
                 {
                     reference = this.getRemovedReference(section, id);
                     if (reference != null)
-                        this.removed[section].Remove((object)reference);
+                        this.removed[section].Remove(reference);
                     else
-                        reference = new Reference(id, (TripleInt)null);
-                    this.references[section].Add((object)reference);
+                        reference = new Reference(id, default);
+                    this.references[section].Add(reference);
                     Desc desc = getDesc(this.type, section);
                     reference.mod = !(desc.defaultValue is TripleInt) ? new TripleInt(0, 0, 0) : new TripleInt((TripleInt)desc.defaultValue);
-                    if (v0.HasValue)
-                        reference.mod.v0 = v0.Value;
-                    if (v1.HasValue)
-                        reference.mod.v1 = v1.Value;
-                    if (v2.HasValue)
-                        reference.mod.v2 = v2.Value;
-                    if (reference.original != null && reference.original.Equals(reference.mod))
-                        reference.mod = (TripleInt)null;
+
+                    if (!reference.original.Equals(default) && reference.original.Equals(reference.mod))
+                        reference.mod = default;
                     this.RefreshState();
                 }
                 return reference;
@@ -575,7 +568,7 @@ namespace Core
                     if (reference.itemID == id)
                         return reference;
                 }
-                return (Reference)null;
+                return null;
             }
 
             public bool hasReference(string section)
@@ -593,7 +586,7 @@ namespace Core
                             return reference;
                     }
                 }
-                return (Reference)null;
+                return null;
             }
 
             public void RemoveReference(string section, string id)
@@ -607,15 +600,15 @@ namespace Core
                     return;
                 if (r.item != null)
                     r.item.removeRef(this);
-                if (r.original != null)
+                if (!r.original.Equals(default))
                 {
-                    r.item = (Item)null;
+                    r.item = null;
                     r.mod = Reference.Removed;
                     if (!this.removed.ContainsKey(section))
                         this.removed.Add(section, new ArrayList());
-                    this.removed[section].Add((object)r);
+                    this.removed[section].Add(r);
                 }
-                this.references[section].Remove((object)r);
+                this.references[section].Remove(r);
                 this.RefreshState();
             }
 
@@ -639,7 +632,7 @@ namespace Core
                     foreach (Reference reference2 in reference1.Value)
                         this.ResolveReference(source, reference2.itemID, ref reference2.item);
                 }
-                foreach (Instance instance in (IEnumerable<Instance>)this.instances.Values)
+                foreach (Instance instance in instances.Values)
                 {
                     if (instance.GetState() != State.REMOVED && instance.GetState() != State.LOCKED_REMOVED)
                     {
@@ -650,12 +643,12 @@ namespace Core
                             if (instance.resolvedStates == null)
                                 instance.resolvedStates = new ArrayList();
                             while (instance.resolvedStates.Count < referenceCount)
-                                instance.resolvedStates.Add((object)null);
+                                instance.resolvedStates.Add(null);
                             for (int index = 0; index < referenceCount; ++index)
                             {
                                 Item resolvedState = instance.resolvedStates[index] as Item;
                                 this.ResolveReference(source, (instance.references["states"][index] as Reference).itemID, ref resolvedState);
-                                instance.resolvedStates[index] = (object)resolvedState;
+                                instance.resolvedStates[index] = resolvedState;
                             }
                         }
                     }
@@ -665,19 +658,19 @@ namespace Core
             public int countChangedReferences()
             {
                 int num = 0;
-                foreach (ArrayList arrayList in (IEnumerable<ArrayList>)this.removed.Values)
+                foreach (ArrayList arrayList in removed.Values)
                 {
                     foreach (Reference reference in arrayList)
                     {
-                        if (reference.locked == null)
+                        if (!reference.locked.Equals(default))
                             ++num;
                     }
                 }
-                foreach (ArrayList arrayList in (IEnumerable<ArrayList>)this.references.Values)
+                foreach (ArrayList arrayList in references.Values)
                 {
                     foreach (Reference reference in arrayList)
                     {
-                        if (reference.mod != null)
+                        if (!reference.mod.Equals(default))
                             ++num;
                     }
                 }
@@ -708,7 +701,7 @@ namespace Core
 
             public Instance GetInstance(string id)
             {
-                return !this.instances.ContainsKey(id) ? (Instance)null : this.instances[id];
+                return !this.instances.ContainsKey(id) ? null : this.instances[id];
             }
 
             public IEnumerable<KeyValuePair<string, Instance>> InstanceData()
@@ -720,7 +713,7 @@ namespace Core
             public int countChangedInstances()
             {
                 int num = 0;
-                foreach (Instance instance in (IEnumerable<Instance>)this.instances.Values)
+                foreach (Instance instance in instances.Values)
                 {
                     if (instance.GetState() == State.MODIFIED || instance.GetState() == State.OWNED || instance.GetState() == State.REMOVED)
                         ++num;
@@ -745,16 +738,16 @@ namespace Core
                     Reference removedReference = this.getRemovedReference(section, id);
                     if (removedReference == null)
                         return State.INVALID;
-                    return removedReference.locked != null ? State.LOCKED_REMOVED : State.REMOVED;
+                    return !removedReference.locked.Equals(default) ? State.LOCKED_REMOVED : State.REMOVED;
                 }
 
                 if (reference.item == null || reference.item.GetState() == State.REMOVED)
                     return State.INVALID;
-                if (reference.locked != null)
+                if (!reference.locked.Equals(default))
                     return State.LOCKED;
-                if (reference.mod != null && reference.original != null)
+                if (!reference.mod.Equals(default) && !reference.original.Equals(default))
                     return State.MODIFIED;
-                return reference.original == null ? State.OWNED : State.ORIGINAL;
+                return reference.original.Equals(default) ? State.OWNED : State.ORIGINAL;
             }
 
             public State GetState()
@@ -799,13 +792,13 @@ namespace Core
                             object defaultValue = keyValuePair.Value.defaultValue;
                             object obj = this[keyValuePair.Key];
                             if (obj is bool flag)
-                                obj = (object)(flag ? 1 : 0);
+                                obj = flag ? 1 : 0;
                             if (defaultValue is string)
-                                this[keyValuePair.Key] = (object)obj.ToString();
+                                this[keyValuePair.Key] = obj.ToString();
                             else if (defaultValue is float && obj.GetType().IsValueType)
-                                this[keyValuePair.Key] = (object)(float)(int)obj;
+                                this[keyValuePair.Key] = (float)(int)obj;
                             else if (defaultValue is int || defaultValue is Color || defaultValue.GetType().IsEnum && obj is float)
-                                this[keyValuePair.Key] = (object)(int)(float)obj;
+                                this[keyValuePair.Key] = (int)(float)obj;
                             else if (!(defaultValue is EnumValue) || !(obj is int))
                                 this[keyValuePair.Key] = defaultValue;
                             else
@@ -842,31 +835,16 @@ namespace Core
               Item obj)
             {
 
-                SortedList<string, object> sortedList = null;
-                switch (mode)
-                {
-                    case ModMode.BASE:
-                        sortedList = this.data;
-                        break;
-
-                    case ModMode.ACTIVE:
-                        sortedList = this.modData;
-                        break;
-
-                    case ModMode.LOCKED:
-                        sortedList = this.lockedData;
-                        break;
-                }
                 bool flag1 = false;
                 Dictionary<string, bool> tags = null;
                 if (fileVersion >= 15)
                 {
                     ItemLoadFlags itemLoadFlags = (ItemLoadFlags)(file.ReadInt32() & int.MaxValue);
-                    if (itemLoadFlags.HasFlag((Enum)ItemLoadFlags.MODIFIED) & newItem)
+                    if (itemLoadFlags.HasFlag(ItemLoadFlags.MODIFIED) & newItem)
                     {
-                        this.baseName = itemLoadFlags.HasFlag((Enum)ItemLoadFlags.RENAMED) ? "?" : name;
+                        this.baseName = itemLoadFlags.HasFlag(ItemLoadFlags.RENAMED) ? "?" : name;
                     }
-                    if (!itemLoadFlags.HasFlag((Enum)ItemLoadFlags.RENAMED) && this.Name != null)
+                    if ((itemLoadFlags & ItemLoadFlags.RENAMED) == 0 && this.Name != null)
                         name = this.Name;
                 }
                 else if (fileVersion >= 11)
@@ -906,7 +884,6 @@ namespace Core
                     bool flag2 = file.ReadBoolean();
                     if (this.tagged(tags, key))
                     {
-                        sortedList[key] = (object)flag2;
                         Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, flag2));
                     }
                 }
@@ -917,7 +894,6 @@ namespace Core
                     float num3 = file.ReadSingle();
                     if (this.tagged(tags, key))
                     {
-                        sortedList[key] = (object)num3;
                         Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, num3));
                     }
                 }
@@ -928,7 +904,6 @@ namespace Core
                     int num3 = file.ReadInt32();
                     if (this.tagged(tags, key))
                     {
-                        sortedList[key] = (object)num3;
                         Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, num3));
                     }
                 }
@@ -944,7 +919,6 @@ namespace Core
 
                         if (this.tagged(tags, key))
                         {
-                            sortedList[key] = vec;
                             Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, vec));
                         }
                     }
@@ -956,7 +930,6 @@ namespace Core
 
                         if (this.tagged(tags, key))
                         {
-                            sortedList[key] = quat;
                             Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, quat));
                         }
                     }
@@ -966,9 +939,9 @@ namespace Core
                 {
                     string key = readString(file);
                     string str = readString(file);
-                    if ((!sortedList.ContainsKey(key) || sortedList[key] is string) && this.tagged(tags, key))
+                    if (this.tagged(tags, key))
                     {
-                        sortedList[key] = str;
+                        //sortedList[key] = str;
                         Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, str));
                     }
                 }
@@ -979,7 +952,6 @@ namespace Core
                     string f = readString(file);
                     if (this.tagged(tags, key))
                     {
-                        sortedList[key] = f;
                         Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, f));
                     }
                 }
@@ -997,13 +969,20 @@ namespace Core
                         else
                         {
                             string id = readString(file);
-                            TripleInt tripleInt = new TripleInt(0, 0, 0);
-                            tripleInt.v0 = file.ReadInt32();
+
+                            var v0 = file.ReadInt32();
+                            var v1 = file.ReadInt32();
+                            v1 = mode == ModMode.ACTIVE && this.type == ItemType.DIALOGUE_PACKAGE && v1 == 100 ? 0 : v1;
+                            TripleInt tripleInt;
                             if (fileVersion >= 10)
                             {
-                                tripleInt.v1 = file.ReadInt32();
-                                tripleInt.v2 = file.ReadInt32();
+                                tripleInt = new TripleInt(v0, v1, file.ReadInt32());
                             }
+                            else
+                            {
+                                tripleInt = new TripleInt(v0, v1, 0);
+                            }
+
                             if (tags == null || tags.ContainsKey("-ref-" + id))
                             {
                                 bool flag2 = tags != null && !tags["-ref-" + id] || tripleInt.v2 == int.MaxValue;
@@ -1012,8 +991,8 @@ namespace Core
                                 {
                                     if (reference == null)
                                     {
-                                        reference = new Reference(id, (TripleInt)null);
-                                        this.references[section].Add((object)reference);
+                                        reference = new Reference(id, default);
+                                        this.references[section].Add(reference);
                                     }
                                     else if (flag2)
                                     {
@@ -1021,14 +1000,13 @@ namespace Core
                                         {
                                             if (reference.item != null)
                                                 reference.item.removeRef(this);
-                                            this.references[section].Remove((object)reference);
+                                            this.references[section].Remove(reference);
                                         }
                                         else
                                             this.RemoveReference(section, id);
                                         tripleInt = Reference.Removed;
                                     }
-                                    if (mode == ModMode.ACTIVE && this.type == ItemType.DIALOGUE_PACKAGE && tripleInt.v1 == 100)
-                                        tripleInt.v1 = 0;
+
                                     switch (mode)
                                     {
                                         case ModMode.BASE:
@@ -1064,14 +1042,14 @@ namespace Core
                     }
                     string index2 = str;
                     Instance instance1 = this.GetInstance(index2) ?? new Instance();
-                    instance1["ref"] = fileVersion < 8 ? (object)"" : (object)readString(file);
-                    instance1["x"] = (object)file.ReadSingle();
-                    instance1["y"] = (object)file.ReadSingle();
-                    instance1["z"] = (object)file.ReadSingle();
-                    instance1["qw"] = (object)file.ReadSingle();
-                    instance1["qx"] = (object)file.ReadSingle();
-                    instance1["qy"] = (object)file.ReadSingle();
-                    instance1["qz"] = (object)file.ReadSingle();
+                    instance1["ref"] = fileVersion < 8 ? "" : readString(file);
+                    instance1["x"] = file.ReadSingle();
+                    instance1["y"] = file.ReadSingle();
+                    instance1["z"] = file.ReadSingle();
+                    instance1["qw"] = file.ReadSingle();
+                    instance1["qx"] = file.ReadSingle();
+                    instance1["qy"] = file.ReadSingle();
+                    instance1["qz"] = file.ReadSingle();
                     if (fileVersion > 6)
                     {
                         int num5 = file.ReadInt32();
@@ -1082,16 +1060,13 @@ namespace Core
                                 Instance instance2 = instance1;
                                 num3 = file.ReadInt32();
                                 string id = num3.ToString() + "-" + filename + "-INGAME";
-                                int? v0 = new int?();
-                                int? v1 = new int?();
-                                int? v2 = new int?();
-                                instance2.addReference("states", id, v0, v1, v2);
+                                instance2.addReference("states", id);
                             }
                         }
                         else
                         {
                             for (int index3 = 0; index3 < num5; ++index3)
-                                instance1.addReference("states", readString(file), new int?(), new int?(), new int?());
+                                instance1.addReference("states", readString(file));
                         }
                     }
 
@@ -1106,7 +1081,6 @@ namespace Core
                         this.cachedState = State.REMOVED;
                     if (mode == ModMode.LOCKED)
                         this.setLocked();
-                    sortedList.Remove("REMOVED");
                     this.modData.Remove("REMOVED");
                     this.lockedData.Remove("REMOVED");
                     this.removeRefTargets();
@@ -1129,8 +1103,8 @@ namespace Core
                         {
                             foreach (Reference reference2 in reference1.Value)
                             {
-                                if (reference2.original != null && reference2.original.Equals(reference2.mod))
-                                    reference2.mod = (TripleInt)null;
+                                if (!reference2.original.Equals(default) && reference2.original.Equals(reference2.mod))
+                                    reference2.mod = default;
                             }
                         }
                     }

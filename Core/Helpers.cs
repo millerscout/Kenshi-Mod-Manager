@@ -39,31 +39,22 @@ namespace Core
         public static object sync = new object();
         public static Dictionary<string, ModListChanges> conflictIndex = new Dictionary<string, ModListChanges>();
         public static Dictionary<string, DetailChanges> DetailIndex = new Dictionary<string, DetailChanges>();
-        public static Dictionary<string, List<ItemType>> listOfTags = new Dictionary<string, List<ItemType>>();
 
         public static void AddToList(string key, ItemType type, string name, GameChange change)
         {
+            if (Constants.BaseMods.Contains(change.ModName))
+                return;
+
+            var modname = change.ModName;
             var hash = $"{type}{name}{key}".GetHashCode().ToString("x2");
 
-            lock (sync)
-            {
-                if (listOfTags.ContainsKey(change.ModName))
-                {
-                    if (!listOfTags[change.ModName].Any(c => c == type))
-                        listOfTags[change.ModName].Add(type);
-                }
-                else
-                {
-                    listOfTags.Add(change.ModName, new List<ItemType> { type });
-                }
-            }
             if (!conflictIndex.ContainsKey(hash))
             {
                 conflictIndex.Add(hash, new ModListChanges(new List<string>() { change.ModName }, new List<GameChange>() { change }));
             }
             else
             {
-                if (!conflictIndex[hash].Mod.Any(q => q == change.ModName)) conflictIndex[hash].Mod.Add(change.ModName);
+                if (!conflictIndex[hash].Mod.Any(q => q == modname)) conflictIndex[hash].Mod.Add(change.ModName);
                 conflictIndex[hash].ChangeList.Add(change);
             }
 

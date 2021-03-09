@@ -11,7 +11,7 @@ namespace Core.Models
             ChangeList = changeList;
         }
 
-        public List<string> Mod { get; }
-        public List<GameChange> ChangeList { get; }
+        public readonly List<string> Mod { get; }
+        public readonly List<GameChange> ChangeList { get; }
     }
 }

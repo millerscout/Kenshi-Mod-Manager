@@ -8,6 +8,11 @@ namespace Core.Models
 {
     public class Mod
     {
+        public Mod(string filePath)
+        {
+            FilePath = filePath;
+            FileName = Path.GetFileName(filePath);
+        }
         public Guid UniqueIdentifier = Guid.NewGuid();
         public SourceEnum Source { get; set; }
         public string Id { get; set; }
@@ -50,13 +55,7 @@ namespace Core.Models
             }
         }
 
-        public string FileName
-        {
-            get
-            {
-                return Path.GetFileName(FilePath);
-            }
-        }
+        public string FileName { get; }
 
         public string DisplayCategories
         {
@@ -75,8 +74,10 @@ namespace Core.Models
         /// </summary>
         public List<string> References = new List<string>();
 
+
+
         public IEnumerable<string> AllDependencies => Dependencies.Concat(References).Where(c => !Constants.BaseMods.Contains(c.ToLower()));
-        public bool OrderedAutomatically { get;  set; }
+        public bool OrderedAutomatically { get; set; }
     }
 
     public class Conflict
