@@ -1,8 +1,11 @@
 ﻿using Core.Kenshi_Data.Enums;
 using Core.Models;
+using MMDHelpers.CSharp.LocalData;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -13,7 +16,7 @@ namespace Core
     {
         public static string SHA256CheckSum(this string filePath)
         {
-            using (SHA256 SHA256 = SHA256Managed.Create())
+            using (SHA256 SHA256 = System.Security.Cryptography.SHA256.Create())
             {
                 using (FileStream fileStream = File.OpenRead(filePath))
                     return Convert.ToBase64String(SHA256.ComputeHash(fileStream));
@@ -36,32 +39,80 @@ namespace Core
         public static int Percent(this int val, int qty) => val * 100 / qty;
 
         public static string GetCurrentApplicationPath() => Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-        public static object sync = new object();
-        public static Dictionary<string, ModListChanges> conflictIndex = new Dictionary<string, ModListChanges>();
-        public static Dictionary<string, DetailChanges> DetailIndex = new Dictionary<string, DetailChanges>();
 
-        public static void AddToList(string key, ItemType type, string name, GameChange change)
+        static SQLiteParameter[][] List = new SQLiteParameter[500][];
+        static int lastIndex = 0;
+        public static void AddToList(int id, ItemType type, string key, string name, string empty, string flag2, State state)
         {
-            if (Constants.BaseMods.Contains(change.ModName))
-                return;
-
-            var modname = change.ModName;
-            var hash = $"{type}{name}{key}".GetHashCode().ToString("x2");
-
-            if (!conflictIndex.ContainsKey(hash))
+            if (lastIndex == 500)
             {
-                conflictIndex.Add(hash, new ModListChanges(new List<string>() { change.ModName }, new List<GameChange>() { change }));
-            }
-            else
-            {
-                if (!conflictIndex[hash].Mod.Any(q => q == modname)) conflictIndex[hash].Mod.Add(change.ModName);
-                conflictIndex[hash].ChangeList.Add(change);
+                UpdateDatabase();
             }
 
-            if (!DetailIndex.ContainsKey(hash))
-                DetailIndex.Add(hash, new DetailChanges(type, name, key));
+
+            List[lastIndex] = new SQLiteParameter[7] {
+                new SQLiteParameter("ModId", id),
+                    new SQLiteParameter("Type", type),
+                    new SQLiteParameter("Section", key),
+                    new SQLiteParameter("Key", name),
+                    new SQLiteParameter("OldVal", empty),
+                    new SQLiteParameter("NewVal", flag2),
+                    new SQLiteParameter("State", state)
+            };
+
+            lastIndex++;
+
+
 
         }
 
+        public static void UpdateDatabase()
+        {
+            var db = new DataService();
+            var query = @"INSERT INTO ModChange (
+                                            ModId,
+                                            Type,
+                                            Section,
+                                            [Key],
+                                            OldVal,
+                                            NewVal,
+                                            State
+                                        )
+                                        VALUES (
+                                            :ModId,
+                                            :Type,
+                                            :Section,
+                                            :Key,
+                                            :OldVal,
+                                            :NewVal,
+                                            :State
+                                        )";
+
+            using (var connection = new SQLiteConnection($"Data Source={DataService.DbLocation}; Version=3;"))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                using (var command = connection.CreateCommand())
+                {
+                    command.Prepare();
+                    command.CommandText = query;
+
+                    foreach (var item in List.Take(lastIndex))
+                    {
+                        command.Parameters.AddRange(item);
+
+                        //if (timeout > 0) command.CommandTimeout = timeout;
+
+                        /*executed += */
+                        command.ExecuteNonQuery();
+                    }
+
+                    transaction.Commit();
+                }
+            }
+
+            //db.InsertBatch(, List.Take(lastIndex));
+            lastIndex = 0;
+        }
     }
 }

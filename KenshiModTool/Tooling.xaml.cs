@@ -109,7 +109,7 @@ namespace KenshiModTool
         {
             var symblist = ModList
                .Where(c => c.Source == SourceEnum.Steam && c.HasSymbLink && c.Selected)
-               .Select(c => System.IO.Path.Combine(LoadService.config.ModFolder, System.IO.Path.GetFileNameWithoutExtension(c.FilePath)));
+               .Select(c => Path.Combine(LoadService.config.ModFolder, Path.GetFileNameWithoutExtension(c.FilePath)));
             foreach (var folder in symblist)
             {
                 LoadService.DeleteFolder(folder);
@@ -123,8 +123,8 @@ namespace KenshiModTool
             var symblist = ModList
                 .Where(c => c.Source == SourceEnum.Steam && !c.HasSymbLink && c.Selected)
                 .Select(c => new Tuple<string, string>(
-                        System.IO.Path.Combine(LoadService.config.ModFolder, System.IO.Path.GetFileNameWithoutExtension(c.FilePath)),
-                        System.IO.Path.GetDirectoryName(c.FilePath)
+                        Path.Combine(LoadService.config.ModFolder, Path.GetFileNameWithoutExtension(c.FilePath)),
+                        Path.GetDirectoryName(c.FilePath)
                     )
                 );
 
@@ -196,7 +196,7 @@ namespace KenshiModTool
             bool failure = false;
             foreach (var mod in ListBox.SelectedItems)
             {
-                CommonService.OpenFolder(System.IO.Path.GetDirectoryName(((ModFolder)mod).FilePath), () => { failure = true; });
+                CommonService.OpenFolder(Path.GetDirectoryName(((ModFolder)mod).FilePath), () => { failure = true; });
             }
 
             if (failure)
@@ -237,14 +237,14 @@ namespace KenshiModTool
                 if (mod.HasSymbLink)
                 {
                     if (ShouldDelete)
-                        LoadService.DeleteFolder(System.IO.Path.Combine(LoadService.config.ModFolder, System.IO.Path.GetFileNameWithoutExtension(mod.FilePath)));
+                        LoadService.DeleteFolder(Path.Combine(LoadService.config.ModFolder, Path.GetFileNameWithoutExtension(mod.FilePath)));
                 }
                 else
                 {
                     if (ShouldAdd)
                         symblist.Add(new Tuple<string, string>(
-                      System.IO.Path.Combine(LoadService.config.ModFolder, System.IO.Path.GetFileNameWithoutExtension(mod.FilePath)),
-                      System.IO.Path.GetDirectoryName(mod.FilePath)
+                      Path.Combine(LoadService.config.ModFolder, Path.GetFileNameWithoutExtension(mod.FilePath)),
+                      Path.GetDirectoryName(mod.FilePath)
                       ));
                 }
             }

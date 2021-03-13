@@ -45,7 +45,7 @@ namespace KenshiModTool
         public MainWindow()
         {
 
-            MMDHelpers.CSharp.PerformanceChecks.Ruler.StartMeasuring(true);
+            StartMeasuring(true);
             try
             {
                 InitializeComponent();
@@ -64,9 +64,9 @@ namespace KenshiModTool
                 lsView.Items.Clear();
 
                 Style itemContainerStyle = lsView.ItemContainerStyle;
-                itemContainerStyle.Setters.Add(new Setter(ListViewItem.AllowDropProperty, true));
-                itemContainerStyle.Setters.Add(new EventSetter(ListViewItem.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(PreviewDragAndDrop)));
-                itemContainerStyle.Setters.Add(new EventSetter(ListViewItem.DropEvent, new DragEventHandler(SetDropAction)));
+                itemContainerStyle.Setters.Add(new Setter(AllowDropProperty, true));
+                itemContainerStyle.Setters.Add(new EventSetter(PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(PreviewDragAndDrop)));
+                itemContainerStyle.Setters.Add(new EventSetter(DropEvent, new DragEventHandler(SetDropAction)));
                 lsView.ContextMenuOpening += LsView_ContextMenuOpening;
 
                 LoadService.Setup();
@@ -100,8 +100,8 @@ namespace KenshiModTool
 
                 updateTimer.Elapsed += UpdateTimer_Elapsed;
 
-                Ruler.StopMeasuring();
-                Ruler.LogToFile();
+                StopMeasuring();
+                LogToFile();
 
             }
             catch (Exception ex)
@@ -194,7 +194,7 @@ namespace KenshiModTool
 
             if (string.IsNullOrEmpty(LoadService.config.SteamModsPath))
             {
-                MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Are you using Steam Version?", "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
+                MessageBoxResult messageBoxResult = MessageBox.Show("Are you using Steam Version?", "Delete Confirmation", MessageBoxButton.YesNo);
                 if (messageBoxResult == MessageBoxResult.Yes)
                 {
                     var dialog = new CommonOpenFileDialog();
@@ -528,7 +528,7 @@ namespace KenshiModTool
 
         public void GameModFolder_Click(object sender, RoutedEventArgs e)
         {
-            CommonService.OpenFolder(System.IO.Path.Combine(LoadService.config.GamePath, "Mods"), () => MessageBox.Show(ConstantMessages.GameFolderNotConfiguredCorrectly));
+            CommonService.OpenFolder(Path.Combine(LoadService.config.GamePath, "Mods"), () => MessageBox.Show(ConstantMessages.GameFolderNotConfiguredCorrectly));
         }
 
         public void BtnSteamFolder_Click(object sender, RoutedEventArgs e)
@@ -737,7 +737,7 @@ namespace KenshiModTool
             bool failure = false;
             foreach (var mod in lsView.SelectedItems)
             {
-                CommonService.OpenFolder(System.IO.Path.GetDirectoryName(((Mod)mod).FilePath), () => { failure = true; });
+                CommonService.OpenFolder(Path.GetDirectoryName(((Mod)mod).FilePath), () => { failure = true; });
             }
 
             if (failure)
@@ -784,7 +784,7 @@ namespace KenshiModTool
 
                     baseGameData.resolveAllReferences();
 
-                    cm.LoadBaseChanges(baseGameData);
+                    //cm.LoadBaseForConflicts(baseGameData);
 
                     baseGameData = null;
 
@@ -800,8 +800,10 @@ namespace KenshiModTool
                         (sender as BackgroundWorker).ReportProgress(current.Percent(length));
                     }
 
-                    ConflictIndex = Helpers.conflictIndex;
-                    DetailIndex = Helpers.DetailIndex;
+                    //cm.LoadChanges();
+
+                    //ConflictIndex = Helpers.conflictIndex;
+                    //DetailIndex = Helpers.DetailIndex;
 
                     Parallel.ForEach(ConflictIndex.Keys, (key) =>
                     {
@@ -809,8 +811,8 @@ namespace KenshiModTool
                         if (ConflictIndex[key].Mod.Count == 1) return;
                         foreach (var modName in ConflictIndex[key].Mod)
                         {
-                            var mod = ModList.FirstOrDefault(c => c.FileName == modName);
-                            if (!mod.Conflicts.Any(q => q == key))
+                            var mod = ModList.FirstOrDefault(c => c.FileName.GetHashCode() == modName.GetHashCode());
+                            if (mod != null && !mod.Conflicts.Any(q => q == key))
                             {
                                 mod.Conflicts.Push(key);
                             }
@@ -822,8 +824,6 @@ namespace KenshiModTool
                     UpdateListView();
 
                 });
-
-
 
             }
             catch (Exception)
@@ -959,7 +959,7 @@ namespace KenshiModTool
 
                 baseGameData.resolveAllReferences();
 
-                cm.LoadBaseChanges(baseGameData);
+                //cm.LoadBaseChanges(baseGameData);
 
                 baseGameData = null;
 

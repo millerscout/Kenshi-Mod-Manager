@@ -1,4 +1,6 @@
-﻿using Core.Models;
+﻿using Core.LocalData;
+using Core.Models;
+using MMDHelpers.CSharp.LocalData;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -45,6 +47,7 @@ namespace Core
                 RuleService.UpdateMasterFile();
             }
             if (File.Exists(Constants.Logfile)) File.Delete(Constants.Logfile);
+            DataService.Setup("kmm.sqlite", Scripts.List);
         }
 
         public static void SaveConfig()
@@ -56,7 +59,7 @@ namespace Core
         {
             var list = new List<Mod>();
 
-            var currentMods = LoadService.getCurrentActiveMods();
+            var currentMods = getCurrentActiveMods();
 
             list.AddRange(LoadSteamMods(currentMods));
             list.AddRange(LoadFolderMods(currentMods));
@@ -78,14 +81,14 @@ namespace Core
 
         public static IEnumerable<Mod> LoadFolderMods(List<string> currentMods)
         {
-            return LoadMod(currentMods, Path.Combine(LoadService.config.GamePath, "Mods"));
+            return LoadMod(currentMods, Path.Combine(config.GamePath, "Mods"));
         }
 
         public static IEnumerable<Mod> LoadSteamMods(List<string> currentMods)
         {
-            if (LoadService.config.SteamModsPath == "NONE") return new List<Mod>();
+            if (config.SteamModsPath == "NONE") return new List<Mod>();
 
-            return LoadMod(currentMods, LoadService.config.SteamModsPath);
+            return LoadMod(currentMods, config.SteamModsPath);
         }
 
         public static bool IsSymbolic(string path)
@@ -271,7 +274,7 @@ namespace Core
                 mod.Source = SourceEnum.Steam;
             }
 
-            mod.Source = mod.FilePath.Contains(LoadService.config.GamePath)
+            mod.Source = mod.FilePath.Contains(config.GamePath)
                 ? SourceEnum.GameFolder :
                 SourceEnum.Steam;
         }

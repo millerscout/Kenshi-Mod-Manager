@@ -19,6 +19,7 @@ namespace TestProject
 
         public static void Main(string[] args)
         {
+
             Ruler.StartMeasuring(false);
             Dictionary<string, ModListChanges> ConflictIndex = new Dictionary<string, ModListChanges>();
             Dictionary<string, DetailChanges> DetailIndex = new Dictionary<string, DetailChanges>();
@@ -28,12 +29,12 @@ namespace TestProject
             {
                 //if (mod.FileName.Contains("test"))
                 //{
-                    mod.setActive(true);
+                mod.setActive(true);
                 //}
                 //else {
                 //    mod.setActive(false);
                 //}
-                
+
                 ModList.Add(mod);
             }
 
@@ -69,8 +70,6 @@ namespace TestProject
 
             baseGameData.resolveAllReferences();
 
-            cm.LoadBaseForConflicts(baseGameData);
-
             baseGameData = null;
 
             foreach (var mod in ordered)
@@ -85,10 +84,11 @@ namespace TestProject
                 //(sender as BackgroundWorker).ReportProgress(current.Percent(length));
             }
 
+            Helpers.UpdateDatabase();
             //cm.LoadChanges();
 
-            ConflictIndex = Helpers.conflictIndex;
-            DetailIndex = Helpers.DetailIndex;
+            //ConflictIndex = Helpers.conflictIndex;
+            //DetailIndex = Helpers.DetailIndex;
 
             Parallel.ForEach(ConflictIndex.Keys, (key) =>
             {
@@ -173,7 +173,7 @@ namespace TestProject
 
             baseGameData.resolveAllReferences();
 
-            cm.LoadBaseChanges(baseGameData);
+            //cm.LoadBaseChanges(baseGameData);
 
             baseGameData = null;
 
@@ -195,8 +195,8 @@ namespace TestProject
 
             Console.WriteLine("writing reports");
             var list = new Task[] {
-                Task.Run(() => { File.WriteAllText(filename, JsonConvert.SerializeObject(Helpers.conflictIndex)); }),
-                Task.Run(() => { File.WriteAllText(detailsFilename, JsonConvert.SerializeObject(Helpers.DetailIndex)); })
+                //Task.Run(() => { File.WriteAllText(filename, JsonConvert.SerializeObject(Helpers.conflictIndex)); }),
+                //Task.Run(() => { File.WriteAllText(detailsFilename, JsonConvert.SerializeObject(Helpers.DetailIndex)); })
             };
 
             Task.WaitAll(list);

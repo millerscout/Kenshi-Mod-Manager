@@ -63,14 +63,12 @@ namespace Core
             this.NewValue = newVal;
             this.Key = key;
             this.Section = section;
-            this.Colour = GetStateColor(state);
         }
 
         public ChangeData(ChangeType type, string key, State state, string text)
         {
             this.Type = type;
             this.Key = key;
-            this.Colour = GetStateColor(state);
             this.Text = text;
         }
 
@@ -79,38 +77,6 @@ namespace Core
             return this.OldValue != null && this.NewValue != null ? $"[{this.OldValue}] => [{this.NewValue}]" : (this.NewValue != null ? $"[{this.NewValue}]" : "");
         }
 
-        public static Color GetStateColor(State state)
-        {
-            switch (state)
-            {
-                case State.UNKNOWN:
-                    return Color.Red;
-
-                case State.INVALID:
-                    return Color.Red;
-
-                case State.ORIGINAL:
-                    return Color.Black;
-
-                case State.OWNED:
-                    return Color.Green;
-
-                case State.MODIFIED:
-                    return Color.Blue;
-
-                case State.LOCKED:
-                    return Color.DarkOrange;
-
-                case State.REMOVED:
-                    return Color.LightGray;
-
-                case State.LOCKED_REMOVED:
-                    return Color.LightGray;
-
-                default:
-                    return Color.Black;
-            }
-        }
     }
 
     public class EnumValue

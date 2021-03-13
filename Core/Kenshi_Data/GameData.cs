@@ -2,11 +2,13 @@
 using Core.Kenshi_Data.Enums;
 using Core.Kenshi_Data.Model;
 using Core.Models;
+using MMDHelpers.CSharp.LocalData;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -137,6 +139,7 @@ namespace Core
         public int lastID { get; set; }
         public string Signature { get; set; }
         public string Filename { get; set; }
+        public int Id { get; private set; }
 
         public static byte[] StrByteBuffer = new byte[4096];
         public IEnumerable<KeyValuePair<string, ArrayList>> references;
@@ -177,8 +180,10 @@ namespace Core
 
         public bool Load(string filename, ModMode mode, List<GameData> listOfGameData)
         {
-            if (!System.IO.File.Exists(filename))
+            var db = new DataService();
+            if (!File.Exists(filename))
                 return false;
+
             string fileName = Path.GetFileName(filename);
             this.Signature = filename.SHA256CheckSum();
             this.Filename = filename;
@@ -187,7 +192,7 @@ namespace Core
             {
                 try
                 {
-                    using (Stream stream = System.IO.File.OpenRead(filename))
+                    using (Stream stream = File.OpenRead(filename))
                         stream.CopyTo(memoryStream);
                 }
                 catch (Exception ex)
@@ -206,6 +211,20 @@ namespace Core
                             if (mode == ModMode.ACTIVE)
                                 this.header = header;
                         }
+                        this.Id = db.FirstOrDefault<int>(@"INSERT INTO Mod (
+                                Name,
+                                Hash,
+                                Version,
+                                Author
+                            )
+                            VALUES(
+                                :Name,
+                                :Hash,
+                                :Version,
+                                :Author
+                            );
+                            select last_insert_rowid() 
+                        ", new { Name = this.Filename, Version = this.header.Version, Hash = this.Signature, Author = this.header.Author });
 
                         this.lastID = Math.Max(this.lastID, file.ReadInt32());
                         int MaxItemCount = file.ReadInt32();
@@ -225,7 +244,7 @@ namespace Core
                                 this.items.Add(str, obj);
                             }
 
-                            var num3 = obj.Load(file, name, mode, fileVersion, fileName, newItem, obj) ? 1 : 0;
+                            var num3 = obj.Load(file, name, mode, fileVersion, fileName, newItem, obj, this.Id) ? 1 : 0;
                             if (obj.GetState() == State.REMOVED)
                             {
                                 obj.RefreshState();
@@ -245,6 +264,7 @@ namespace Core
                     }
                 }
             }
+
             return true;
         }
 
@@ -832,7 +852,8 @@ namespace Core
               int fileVersion,
               string filename,
               bool newItem,
-              Item obj)
+              Item obj,
+              int id)
             {
 
                 bool flag1 = false;
@@ -883,9 +904,7 @@ namespace Core
                     string key = readString(file);
                     bool flag2 = file.ReadBoolean();
                     if (this.tagged(tags, key))
-                    {
-                        Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, flag2));
-                    }
+                        Helpers.AddToList(id, obj.type, key, obj.Name, string.Empty, flag2.ToString(), obj.GetState());
                 }
                 int num2 = file.ReadInt32();
                 for (int index = 0; index < num2; ++index)
@@ -894,7 +913,8 @@ namespace Core
                     float num3 = file.ReadSingle();
                     if (this.tagged(tags, key))
                     {
-                        Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, num3));
+
+                        Helpers.AddToList(id, obj.type, key, obj.Name, string.Empty, num3.ToString(), obj.GetState());
                     }
                 }
                 int num4 = file.ReadInt32();
@@ -904,7 +924,7 @@ namespace Core
                     int num3 = file.ReadInt32();
                     if (this.tagged(tags, key))
                     {
-                        Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, num3));
+                        Helpers.AddToList(id, obj.type, key, obj.Name, string.Empty, num3.ToString(), obj.GetState());
                     }
                 }
                 if (fileVersion > 8)
@@ -919,7 +939,8 @@ namespace Core
 
                         if (this.tagged(tags, key))
                         {
-                            Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, vec));
+                            Helpers.AddToList(id, obj.type, key, obj.Name, string.Empty, vec.ToString(), obj.GetState());
+
                         }
                     }
                     int num5 = file.ReadInt32();
@@ -930,7 +951,8 @@ namespace Core
 
                         if (this.tagged(tags, key))
                         {
-                            Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, quat));
+                            Helpers.AddToList(id, obj.type, key, obj.Name, string.Empty, quat.ToString(), obj.GetState());
+
                         }
                     }
                 }
@@ -942,7 +964,7 @@ namespace Core
                     if (this.tagged(tags, key))
                     {
                         //sortedList[key] = str;
-                        Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, str));
+                        Helpers.AddToList(id, obj.type, key, obj.Name, string.Empty, str, obj.GetState());
                     }
                 }
                 int num7 = file.ReadInt32();
@@ -952,7 +974,9 @@ namespace Core
                     string f = readString(file);
                     if (this.tagged(tags, key))
                     {
-                        Helpers.AddToList(key, obj.type, obj.Name, new GameChange(obj.GetState(), filename, f));
+                        Helpers.AddToList(id, obj.type, key, obj.Name, string.Empty, f, obj.GetState());
+
+
                     }
                 }
                 int num8 = file.ReadInt32();
@@ -968,7 +992,7 @@ namespace Core
                         }
                         else
                         {
-                            string id = readString(file);
+                            string fileId = readString(file);
 
                             var v0 = file.ReadInt32();
                             var v1 = file.ReadInt32();
@@ -983,15 +1007,15 @@ namespace Core
                                 tripleInt = new TripleInt(v0, v1, 0);
                             }
 
-                            if (tags == null || tags.ContainsKey("-ref-" + id))
+                            if (tags == null || tags.ContainsKey("-ref-" + fileId))
                             {
-                                bool flag2 = tags != null && !tags["-ref-" + id] || tripleInt.v2 == int.MaxValue;
-                                Reference reference = this.getReference(section, id);
+                                bool flag2 = tags != null && !tags["-ref-" + fileId] || tripleInt.v2 == int.MaxValue;
+                                Reference reference = this.getReference(section, fileId);
                                 if (!flag2 || reference != null)
                                 {
                                     if (reference == null)
                                     {
-                                        reference = new Reference(id, default);
+                                        reference = new Reference(fileId, default);
                                         this.references[section].Add(reference);
                                     }
                                     else if (flag2)
@@ -1003,7 +1027,7 @@ namespace Core
                                             this.references[section].Remove(reference);
                                         }
                                         else
-                                            this.RemoveReference(section, id);
+                                            this.RemoveReference(section, fileId);
                                         tripleInt = Reference.Removed;
                                     }
 
@@ -1059,8 +1083,8 @@ namespace Core
                             {
                                 Instance instance2 = instance1;
                                 num3 = file.ReadInt32();
-                                string id = num3.ToString() + "-" + filename + "-INGAME";
-                                instance2.addReference("states", id);
+                                string inGameId = num3.ToString() + "-" + filename + "-INGAME";
+                                instance2.addReference("states", inGameId);
                             }
                         }
                         else

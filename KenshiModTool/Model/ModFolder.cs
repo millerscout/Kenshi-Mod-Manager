@@ -14,7 +14,7 @@ namespace KenshiModTool.Model
             UniqueIdentifier = mod.UniqueIdentifier;
             Source = mod.Source;
 
-            var symbLink = System.IO.Path.Combine(LoadService.config.GamePath, "Mods", System.IO.Path.GetFileNameWithoutExtension(mod.FilePath));
+            var symbLink = Path.Combine(LoadService.config.GamePath, "Mods", Path.GetFileNameWithoutExtension(mod.FilePath));
             HasSymbLink = Directory.Exists(symbLink) && LoadService.IsSymbolic(symbLink);
         }
 
