@@ -178,7 +178,7 @@ namespace Core
             return this.items.TryGetValue(id, out obj) ? obj : null;
         }
 
-        public bool Load(string filename, ModMode mode, List<GameData> listOfGameData)
+        public bool Load(string filename, ModMode mode)
         {
             var db = new DataService();
             if (!File.Exists(filename))

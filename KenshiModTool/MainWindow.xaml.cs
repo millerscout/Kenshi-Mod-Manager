@@ -311,10 +311,10 @@ namespace KenshiModTool
                     }
                 }
 
-                if (mod.Conflicts.Count > 0)
-                {
-                    mod.Color = ModColors.HasConflictsColor;
-                }
+                //if (mod.Conflicts.Count > 0)
+                //{
+                //    mod.Color = ModColors.HasConflictsColor;
+                //}
 
                 if (!Path.HasExtension(mod.FileName))
                 {
@@ -414,31 +414,31 @@ namespace KenshiModTool
                 if (mod.References != null && mod.References.Count > 0)
                     WriteRequisites("References: ", mod.References);
 
-                if (mod.Conflicts.Count > 0)
-                {
-                    Write("******************   Ordered By Priority   **********************************", "");
-                    Write("Conflicts:", "");
-                    Write("*****************   Save mod order and click check conflicts again   *******", "");
+                //if (mod.Conflicts.Count > 0)
+                //{
+                //    Write("******************   Ordered By Priority   **********************************", "");
+                //    Write("Conflicts:", "");
+                //    Write("*****************   Save mod order and click check conflicts again   *******", "");
 
-                    foreach (var key in mod.Conflicts)
-                    {
-                        paragraph.Inlines.Add($"{DetailIndex[key].Type}:{Environment.NewLine}");
-                        paragraph.Inlines.Add($"{DetailIndex[key].Name}:{Environment.NewLine}");
-                        paragraph.Inlines.Add($"{DetailIndex[key].PropertyKey}:{Environment.NewLine}");
+                //    foreach (var key in mod.Conflicts)
+                //    {
+                //        paragraph.Inlines.Add($"{DetailIndex[key].Type}:{Environment.NewLine}");
+                //        paragraph.Inlines.Add($"{DetailIndex[key].Name}:{Environment.NewLine}");
+                //        paragraph.Inlines.Add($"{DetailIndex[key].PropertyKey}:{Environment.NewLine}");
 
-                        for (int i = 0; i < ConflictIndex[key].ChangeList.Count; i++)
-                        {
-                            var item = ConflictIndex[key].ChangeList.ElementAt(i);
+                //        for (int i = 0; i < ConflictIndex[key].ChangeList.Count; i++)
+                //        {
+                //            var item = ConflictIndex[key].ChangeList.ElementAt(i);
 
-                            var isRemoved = item.State == State.REMOVED;
-                            var isOwned = item.State == State.OWNED;
-                            var priority = i == ConflictIndex[key].ChangeList.Count - 1 && !isRemoved ? " <<<< This Value will be used" : "";
-                            var value = isRemoved ? "" : $"- Value: {item.Value}";
-                            paragraph.Inlines.Add($"{item.State} {value} - Mod: {item.ModName} {priority} {Environment.NewLine}");
-                        }
-                    }
-                    Write("*****************************************************************************", "");
-                }
+                //            var isRemoved = item.State == State.REMOVED;
+                //            var isOwned = item.State == State.OWNED;
+                //            var priority = i == ConflictIndex[key].ChangeList.Count - 1 && !isRemoved ? " <<<< This Value will be used" : "";
+                //            var value = isRemoved ? "" : $"- Value: {item.Value}";
+                //            paragraph.Inlines.Add($"{item.State} {value} - Mod: {item.ModName} {priority} {Environment.NewLine}");
+                //        }
+                //    }
+                //    Write("*****************************************************************************", "");
+                //}
                 Write("Author:", mod.Author);
                 Write("Version:", mod.Version);
                 WriteUrl("FilePath:", mod.FilePath, true);
@@ -812,10 +812,10 @@ namespace KenshiModTool
                         foreach (var modName in ConflictIndex[key].Mod)
                         {
                             var mod = ModList.FirstOrDefault(c => c.FileName.GetHashCode() == modName.GetHashCode());
-                            if (mod != null && !mod.Conflicts.Any(q => q == key))
-                            {
-                                mod.Conflicts.Push(key);
-                            }
+                            //if (mod != null && !mod.Conflicts.Any(q => q == key))
+                            //{
+                            //    mod.Conflicts.Push(key);
+                            //}
                             current++;
                             (sender as BackgroundWorker).ReportProgress(current.Percent(length));
                         }

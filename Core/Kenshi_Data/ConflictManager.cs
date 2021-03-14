@@ -17,8 +17,8 @@ namespace Core
     public class ConflictManager
     {
         public List<string> Modlist = new List<string>();
-        public List<GameData> ListOfGameData = new List<GameData>();
-        public ConcurrentDictionary<string, ConcurrentDictionary<string, ConcurrentDictionary<string, List<GameChange>>>> Changes = new ConcurrentDictionary<string, ConcurrentDictionary<string, ConcurrentDictionary<string, List<GameChange>>>>();
+        //public List<GameData> ListOfGameData = new List<GameData>();
+        //public ConcurrentDictionary<string, ConcurrentDictionary<string, ConcurrentDictionary<string, List<GameChange>>>> Changes = new ConcurrentDictionary<string, ConcurrentDictionary<string, ConcurrentDictionary<string, List<GameChange>>>>();
 
 
         public ItemFilter Filter { get; set; }
@@ -31,7 +31,7 @@ namespace Core
                 if (!this.Modlist.Any(c => c == file))
                     this.Modlist.Add(file);
             }
-            gd.Load(file, mode, ListOfGameData);
+            gd.Load(file, mode);
         }
         //public void LoadBaseForConflicts(GameData mod)
         //{

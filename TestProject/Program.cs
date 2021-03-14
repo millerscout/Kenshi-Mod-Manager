@@ -72,17 +72,17 @@ namespace TestProject
 
             baseGameData = null;
 
-            foreach (var mod in ordered)
-            {
-                Console.WriteLine($"{mod.DisplayName} Loading...");
-                var gd = new GameData();
+            //foreach (var mod in ordered)
+            //{
+            //    Console.WriteLine($"{mod.DisplayName} Loading...");
+            //    var gd = new GameData();
 
-                cm.LoadMods(mod.FilePath, ModMode.ACTIVE, gd);
+            //    cm.LoadMods(mod.FilePath, ModMode.ACTIVE, gd);
 
-                cm.ListOfGameData.Add(gd);
-                current++;
-                //(sender as BackgroundWorker).ReportProgress(current.Percent(length));
-            }
+            //    //cm.ListOfGameData.Add(gd);
+            //    current++;
+            //    //(sender as BackgroundWorker).ReportProgress(current.Percent(length));
+            //}
 
             Helpers.UpdateDatabase();
             //cm.LoadChanges();
@@ -90,21 +90,21 @@ namespace TestProject
             //ConflictIndex = Helpers.conflictIndex;
             //DetailIndex = Helpers.DetailIndex;
 
-            Parallel.ForEach(ConflictIndex.Keys, (key) =>
-            {
+            //Parallel.ForEach(ConflictIndex.Keys, (key) =>
+            //{
 
-                if (ConflictIndex[key].Mod.Count == 1) return;
-                foreach (var modName in ConflictIndex[key].Mod)
-                {
-                    var mod = ModList.FirstOrDefault(c => c.FileName.GetHashCode() == modName.GetHashCode());
-                    if (mod != null && !mod.Conflicts.Any(q => q == key))
-                    {
-                        mod.Conflicts.Push(key);
-                    }
-                    current++;
-                    //(sender as BackgroundWorker).ReportProgress(current.Percent(length));
-                }
-            });
+            //    if (ConflictIndex[key].Mod.Count == 1) return;
+            //    foreach (var modName in ConflictIndex[key].Mod)
+            //    {
+            //        var mod = ModList.FirstOrDefault(c => c.FileName.GetHashCode() == modName.GetHashCode());
+            //        if (mod != null && !mod.Conflicts.Any(q => q == key))
+            //        {
+            //            mod.Conflicts.Push(key);
+            //        }
+            //        current++;
+            //        //(sender as BackgroundWorker).ReportProgress(current.Percent(length));
+            //    }
+            //});
 
             //    UpdateListView();
 
@@ -184,7 +184,7 @@ namespace TestProject
 
                 cm.LoadMods(mod.FilePath, ModMode.ACTIVE, gd);
 
-                cm.ListOfGameData.Add(gd);
+                //cm.ListOfGameData.Add(gd);
             }
 
             stopwatch.Stop();

@@ -12,6 +12,7 @@ namespace Core.Models
         {
             FilePath = filePath;
             FileName = Path.GetFileName(filePath);
+            DisplayName = Path.HasExtension(FilePath) ? Path.GetFileNameWithoutExtension(FilePath) : $"[Error]: {Path.GetFileNameWithoutExtension(FilePath)}";
         }
         public Guid UniqueIdentifier = Guid.NewGuid();
         public SourceEnum Source { get; set; }
@@ -25,7 +26,6 @@ namespace Core.Models
         public string FilePath { get; set; }
         public bool Active { get; set; }
         public string Color { get; set; }
-        public ConcurrentStack<string> Conflicts { get; set; } = new ConcurrentStack<string>();
 
         public Mod setActive(bool newValue)
         {
@@ -45,27 +45,10 @@ namespace Core.Models
             }
         }
 
-        public string DisplayName
-        {
-            get
-            {
-                return Path.HasExtension(FilePath) ?
-                Path.GetFileNameWithoutExtension(FilePath) :
-                $"[Error]: {Path.GetFileNameWithoutExtension(FilePath)}";
-            }
-        }
+        public string DisplayName { get; }
 
         public string FileName { get; }
 
-        public string DisplayCategories
-        {
-            get
-            {
-                if (Categories == null || Categories.Count() == 0)
-                    return "";
-                return string.Join(",", Categories);
-            }
-        }
 
         public List<string> Dependencies = new List<string>();
 
@@ -73,8 +56,6 @@ namespace Core.Models
         /// don`t know what is this used for... but seems something important while ordering.
         /// </summary>
         public List<string> References = new List<string>();
-
-
 
         public IEnumerable<string> AllDependencies => Dependencies.Concat(References).Where(c => !Constants.BaseMods.Contains(c.ToLower()));
         public bool OrderedAutomatically { get; set; }

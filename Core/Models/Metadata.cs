@@ -6,8 +6,8 @@ namespace Core.Models
     {
         public Metadata()
         {
-            Dependencies = new List<string>();
-            Referenced = new List<string> { };
+            Dependencies = new List<string>(0);
+            Referenced = new List<string>(0);
         }
 
         public string Author = "";
