@@ -59,7 +59,7 @@ Feel free to modify this project, don't forget to credit me :)
 # Donation
 
 <p align="center">
-        <a href ="https://www.buymeacoffee.com/gR79MHU">
+        <a href ="https://www.buymeacoffee.com/MMillerD">
          <img src="https://github.com/millerscout/Kenshi-Mod-Manager/raw/master/Donation.png" alt="Buy me a coffee" style="max-width:100%;">
      </a>
 </p>
