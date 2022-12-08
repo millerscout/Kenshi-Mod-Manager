@@ -21,7 +21,7 @@ check it on: https://github.com/millerscout/Kenshi-Mod-Manager</Description>
     <PackageReference Include="flurl.http" Version="2.4.2" />
     <PackageReference Include="MMDHelpers.CSharp" Version="1.0.2" />
     <PackageReference Include="Murphy.SymbolicLink" Version="1.0.0" />
-    <PackageReference Include="newtonsoft.json" Version="12.0.3" />
+    <PackageReference Include="newtonsoft.json" Version="13.0.2" />
     <PackageReference Include="System.Security.Permissions" Version="5.0.0" />
   </ItemGroup>
 
