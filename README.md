@@ -66,14 +66,20 @@ Feel free to modify this project, don't forget to credit me :)
 
 # How generate builds (this is a reminder for me)
 
+merge changes to master then follow the process: 
+
 for minor version
 ``` 
  $ build-all.bat minor
- $ push
+ $ git push
 ```
 
 for major version
 ``` 
  $ build-all.bat major
- $ push
+ $ git push
+ 
 ```
+
+to generate a new oauth 
+https://github.com/settings/tokens?type=beta
