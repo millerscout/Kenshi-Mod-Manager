@@ -2,6 +2,9 @@
 using Core;
 using Core.Kenshi_Data.Enums;
 using Core.Models;
+using Gameloop.Vdf;
+using Gameloop.Vdf.JsonConverter;
+using Gameloop.Vdf.Linq;
 using KenshiModTool.Model;
 using Microsoft.AppCenter.Crashes;
 using Microsoft.Win32;
@@ -45,6 +48,8 @@ namespace KenshiModTool
             try
             {
                 InitializeComponent();
+
+
                 AutoUpdater.DownloadPath = Environment.CurrentDirectory;
                 string jsonPath = Path.Combine(Environment.CurrentDirectory, "updateSettings.json");
                 AutoUpdater.PersistenceProvider = new JsonFilePersistenceProvider(jsonPath);
@@ -66,9 +71,8 @@ namespace KenshiModTool
                 lsView.ContextMenuOpening += LsView_ContextMenuOpening;
 
                 LoadService.Setup();
-
+                SteamGameDetection();
                 AskGamePathIfRequired();
-                AskSteamPathIfRequired();
                 LoadService.SaveConfig();
 
                 LoadModList();
@@ -158,8 +162,51 @@ namespace KenshiModTool
 
         #region Environment Functions
 
+        public void SteamGameDetection()
+        {
+            if (string.IsNullOrEmpty(LoadService.config.GamePath))
+            {
+                var process = System.Diagnostics.Process.GetProcessesByName("steam");
+
+                if (process.Length >0)
+                {
+                    var steamrunning = process.FirstOrDefault().MainModule.FileName;
+
+                    var libFolder = Path.Combine(Path.GetDirectoryName(steamrunning), "steamapps", "libraryfolders.vdf");
+                    var vdfObjct = VdfConvert.Deserialize(File.ReadAllText(libFolder));
+
+                    var obj = vdfObjct.Value as VObject;
+                    for (int i = 0; i < obj.Count; i++)
+                    {
+                        if (obj.ContainsKey(i.ToString()))
+                        {
+
+                            var exists = ((obj[i.ToString()] as VObject)["apps"] as VObject).ContainsKey("233860");
+                            if (exists)
+                            {
+                                var path = (obj[i.ToString()] as VObject)["path"].ToString();
+
+                                LoadService.config.GamePath = Path.Combine(path, "steamapps\\common\\Kenshi");
+                                LoadService.config.SteamModsPath = Path.Combine(path, "steamapps\\workshop\\content\\233860");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Are you using Steam Version?", "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
+                    if (messageBoxResult == MessageBoxResult.Yes)
+                    {
+                        MessageBox.Show("Open Steam before running KMM", "Steam not running");
+                    }
+                    else
+                        LoadService.config.SteamModsPath = "NONE";
+                }
+            }
+        }
         public void AskGamePathIfRequired()
         {
+
             if (string.IsNullOrEmpty(LoadService.config.GamePath))
             {
                 var dialog = new CommonOpenFileDialog();
@@ -173,39 +220,6 @@ namespace KenshiModTool
                 CommonFileDialogResult result = dialog.ShowDialog();
 
                 LoadService.config.GamePath = dialog.FileName;
-            }
-        }
-
-        public void AskSteamPathIfRequired()
-        {
-            if (LoadService.config.SteamModsPath == "NONE")
-            {
-                LoadService.config.SteamModsPath = "NONE";
-                return;
-            }
-
-            if (string.IsNullOrEmpty(LoadService.config.SteamModsPath))
-            {
-                MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Are you using Steam Version?", "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
-                if (messageBoxResult == MessageBoxResult.Yes)
-                {
-                    var dialog = new CommonOpenFileDialog();
-                    dialog.IsFolderPicker = true;
-                    dialog.Title = Directory.Exists("C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\233860") ? "Is this Kenshi Mod Folder (STEAM) P.s. 233860 is the id from kenshi ?" : "You need to select Kenshi Steam Folder, it's your steam folder + \"Steam\\steamapps\\workshop\\content\\233860";
-                    dialog.InitialDirectory = "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\233860";
-                    CommonFileDialogResult result = dialog.ShowDialog();
-
-                    try
-                    {
-                        LoadService.config.SteamModsPath = dialog.FileName;
-                    }
-                    catch (Exception)
-                    {
-                        LoadService.config.SteamModsPath = "NONE";
-                    }
-                }
-                else
-                    LoadService.config.SteamModsPath = "NONE";
             }
         }
 
@@ -494,7 +508,11 @@ namespace KenshiModTool
 
         public void SaveModList_Click(object sender, RoutedEventArgs e)
         {
-
+            if (!Directory.Exists(Path.Combine(LoadService.config.GamePath, "data")))
+            {
+                MessageBox.Show(ConstantMessages.GameFolderNotConfiguredCorrectly, "List not saved!");
+                return;
+            }
             if (File.Exists(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg")))
                 File.Copy(Path.Combine(LoadService.config.GamePath, "data", "mods.cfg"), Path.Combine(LoadService.config.GamePath, "data", "mods.cfg.backup"), true);
 

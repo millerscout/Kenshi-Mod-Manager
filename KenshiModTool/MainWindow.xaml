@@ -101,7 +101,7 @@
                         <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Check for Updates" /></TextBlock>
                     </StackPanel>
                 </Button>
-                <Button ToolTip="This feature will generate a report on active mods, not intented for players yet." VerticalAlignment="Top" Click="IndexActiveMods">
+                <Button ToolTip="This feature will generate a report on active mods, not intented for players yet." VerticalAlignment="Top" Click="IndexActiveMods" Visibility="Hidden">
                     <StackPanel Orientation="Vertical" Width="100">
                         <Image Source="{StaticResource Save}" Width="16" Height="16" />
                         <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold"><Run Text="Index Mods" /></TextBlock>
