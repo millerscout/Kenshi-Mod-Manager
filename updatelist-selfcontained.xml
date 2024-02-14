@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- NEXT VERSION -->
 <item>
+    <version>2.7.0.0</version>
+    <url>https://github.com/millerscout/Kenshi-Mod-Manager/releases/download/v2.7/FullRelease.zip</url>
+    <changelog>https://github.com/millerscout/Kenshi-Mod-Manager/releases/tag/v2.7</changelog>
+</item>
+<item>
     <version>2.6.0.0</version>
     <url>https://github.com/millerscout/Kenshi-Mod-Manager/releases/download/v2.6/FullRelease.zip</url>
     <changelog>https://github.com/millerscout/Kenshi-Mod-Manager/releases/tag/v2.6</changelog>
