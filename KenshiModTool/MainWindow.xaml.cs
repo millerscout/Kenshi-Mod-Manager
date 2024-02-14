@@ -16,16 +16,19 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.DirectoryServices;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Navigation;
+using System.Windows.Threading;
 
 namespace KenshiModTool
 {
@@ -39,6 +42,8 @@ namespace KenshiModTool
         public int currentIndexSearch { get; set; } = 0;
         public ConcurrentDictionary<string, ModListChanges> ConflictIndex = new ConcurrentDictionary<string, ModListChanges>();
         public ConcurrentDictionary<string, DetailChanges> DetailIndex = new ConcurrentDictionary<string, DetailChanges>();
+        Timer SearchTimer;
+        string currentSearch = String.Empty;
         public bool ShowConflicts { get; set; } = false;
 
         public System.Timers.Timer updateTimer = new System.Timers.Timer(TimeSpan.FromHours(12).TotalMilliseconds);
@@ -99,6 +104,8 @@ namespace KenshiModTool
                 }), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
 
                 updateTimer.Elapsed += UpdateTimer_Elapsed;
+
+
             }
             catch (Exception ex)
             {
@@ -168,7 +175,7 @@ namespace KenshiModTool
             {
                 var process = System.Diagnostics.Process.GetProcessesByName("steam");
 
-                if (process.Length >0)
+                if (process.Length > 0)
                 {
                     var steamrunning = process.FirstOrDefault().MainModule.FileName;
 
@@ -227,31 +234,50 @@ namespace KenshiModTool
 
         #region Search
 
-        public void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+
+        private void SearchTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
+            SearchTimer.Stop();
             currentIndexSearch = 0;
-            if (string.IsNullOrEmpty(txtSearch.Text))
+            if (string.IsNullOrEmpty(currentSearch))
             {
                 lblSearchInfo.Content = "";
                 SearchList = new Mod[0];
             }
             else
             {
-                var mod = ModList.FirstOrDefault(c => c.FilePath.Contains(txtSearch.Text));
+                var mod = ModList.FirstOrDefault(c => c.FilePath.Contains(currentSearch));
 
-                SearchList = ModList.Where(c => c.FilePath.Contains(txtSearch.Text, StringComparison.CurrentCultureIgnoreCase) || c.DisplayName.Contains(txtSearch.Text, StringComparison.CurrentCultureIgnoreCase) || c.Id == txtSearch.Text).OrderBy(m => m.Order).ToArray();
+                SearchList = ModList.Where(c => c.FilePath.Contains(currentSearch, StringComparison.CurrentCultureIgnoreCase) || c.DisplayName.Contains(currentSearch, StringComparison.CurrentCultureIgnoreCase) || c.Id == currentSearch).OrderBy(m => m.Order).ToArray();
 
                 if (SearchList.Length == 0)
                 {
-                    lblSearchInfo.Content = "Couldn't find any mod with the name.";
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        lblSearchInfo.Content = "Couldn't find any mod with the name.";
+                    });
                 }
                 else
                 {
-                    lblSearchInfo.Content = $"Found:  {currentIndexSearch + 1}/{SearchList.Length}.";
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        lblSearchInfo.Content = $"Found:  {currentIndexSearch + 1}/{SearchList.Length}.";
+                    });
+
                 }
             }
 
             UpdateListView();
+        }
+        public void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+            if (SearchTimer != null) SearchTimer.Dispose();
+            SearchTimer = new Timer(200);
+            currentSearch = txtSearch.Text;
+            SearchTimer.Elapsed += SearchTimer_Elapsed;
+            SearchTimer.Start();
+
         }
 
         public void TxtSearch_KeyDown(object sender, KeyEventArgs e)
@@ -977,6 +1003,14 @@ namespace KenshiModTool
         public void CheckForUpdates(object sender, RoutedEventArgs e)
         {
             AutoUpdater.Start($"{Constants.UpdateListUrl}?{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+
+            var version = RuleService.GetLatestVersion();
+
+            if (!string.IsNullOrEmpty(version) && version != LoadService.config.MasterlistVersion)
+            {
+                LoadService.config.MasterlistVersion = version;
+                RuleService.UpdateMasterFile();
+            }
         }
 
         private void IndexActiveMods(object sender, RoutedEventArgs e)
