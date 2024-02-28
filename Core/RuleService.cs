@@ -12,6 +12,19 @@ namespace Core
     {
         public static List<Rules> ruleList = new List<Rules>();
 
+        public static Dictionary<string, int> category2orderMap = new Dictionary<string, int>();
+
+        public static readonly Dictionary<string, string> category2ruleType = new Dictionary<string, string>{
+            {"GUI", "Ui"},
+            {"Graphical", "Graphics"},
+            {"Races", "RaceEdits"},
+            {"Factions", "FactionEdits"},
+            {"Buildings", "Buildings"},
+            {"Clothing/Armour", "Armor/Weapons"},
+            {"Items/Weapons", "Armor/Weapons"},
+            {"Gameplay", "Overhauls & Big additions/world changes"},
+        };
+
         public static string GetLatestVersion()
         {
             try
@@ -69,6 +82,8 @@ namespace Core
             if (ruleList.Count == 0)
                 ruleList = GetRules();
 
+            category2orderMap = getCategory2OrderMap(ruleList);
+
             foreach (var rule in ruleList)
             {
                 foreach (var orderedMod in rule.Mod)
@@ -85,6 +100,32 @@ namespace Core
                             rule.ModsOrdered.Add(mod);
                         continue;
                     }
+                }
+            }
+
+            // Fine, lots of mods is not set in rule set, there will force order them sequencely.
+            // A better order rule for unspecified mods process by their categories
+            int PRESET_BIG_ORDER_NUMBER = 999999;
+
+            foreach (var item in mods.Where(c => !c.OrderedAutomatically))
+            {
+                int expected_order = PRESET_BIG_ORDER_NUMBER;
+                foreach (var c in item.Categories)
+                {
+                    if (category2orderMap.ContainsKey(c))
+                    {
+                        expected_order = Math.Min(category2orderMap[c], expected_order);
+                    }
+                }
+
+                if (expected_order != PRESET_BIG_ORDER_NUMBER)
+                {
+                    ruleList.FirstOrDefault(c => c.Order == expected_order).ModsOrdered.Add(item);
+                    item.OrderedAutomatically = true;
+                }
+                else
+                {
+                    Logging.Write(Constants.Logfile, String.Format("mod {0} with categories {1} has no target order.", item.DisplayName, item.DisplayCategories));
                 }
             }
 
@@ -151,6 +192,36 @@ namespace Core
                 foreach (var rule in ruleList.Where(c => c.Order < order))
                     rule.ModsOrdered.Remove(mod);
             }
+        }
+
+        private static Dictionary<string, int> getCategory2OrderMap(List<Rules> rules)
+        {
+            var rule2order = new Dictionary<string, int>();
+            foreach (var rule in rules)
+            {
+                string[] categories = rule.Name.Split(',');
+                foreach (string category in categories)
+                {
+                    rule2order[category.Trim()] = rule.Order;
+                }
+            }
+
+            var category2order = new Dictionary<string, int>();
+
+            foreach (KeyValuePair<string, string> kv in category2ruleType)
+            {
+                if (!rule2order.ContainsKey(kv.Value))
+                {
+                    Logging.Write(Constants.Errorfile, String.Format("rule type {0} not found.", kv.Value));
+                    continue;
+                }
+
+                category2order.Add(kv.Key, rule2order[kv.Value]);
+            }
+
+            //category2order.Add("Translation", 20);
+
+            return category2order;
         }
     }
 }
